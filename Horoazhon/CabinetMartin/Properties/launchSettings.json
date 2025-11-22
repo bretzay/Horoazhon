@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Horoazhon (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Horoazhon (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

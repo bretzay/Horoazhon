@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup />
+  <ItemGroup>
+    <None Update="App.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Features\Rdvs\Views\RdvResumeControl.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Features\Rdvs\Views\RdvsStatutControl.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <Page Update="Features\Agenda\Views\AgendaIndisponibilitePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Rdvs\Views\RdvPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Consultations\Views\ConsultationListControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Medecins\Views\ConsultationListControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Medecins\Views\RdvListControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Medecins\Views\MedecinEditControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Medecins\Views\MedecinSearchControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Medecins\Views\MedecinListControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Medecins\Views\MedecinsPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Dashboard\Views\DashboardPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Shell\Views\ShellWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Features\Auth\Views\AuthControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <None Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+</Project>

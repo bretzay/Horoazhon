@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Horoazhon.Features.Consultations.Views.ConsultationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="Horoazhon.Features.Consultations.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Shell="Horoazhon.Features.Shell.Views"
+    mc:Ignorable="d">
+
+    
+        <Grid Padding="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Partie gauche : RdvListControl -->
+            <ListView x:Name="RdvListControl"
+                  Grid.Column="0"
+                  Margin="10"
+                 >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="{Binding Heure}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Client}" />
+                            <TextBlock Text="{Binding Medecin}" />
+                            <TextBlock Text="{Binding Motif}" FontStyle="Italic"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Partie droite : ConsultationDetailControl -->
+            <StackPanel Grid.Column="1" Margin="10" Spacing="10">
+                <TextBlock Text="Rendez-vous" FontSize="18" FontWeight="Bold"/>
+
+                <TextBlock Text="Date :"/>
+                <TextBox x:Name="DateTextBox" IsReadOnly="True"/>
+
+                <TextBlock Text="Médecin :"/>
+                <TextBox x:Name="MedecinTextBox" IsReadOnly="True"/>
+
+                <TextBlock Text="Client :"/>
+                <TextBox x:Name="ClientTextBox" IsReadOnly="True"/>
+
+                <TextBlock Text="Motif :"/>
+                <TextBox x:Name="MotifTextBox"/>
+
+                <TextBlock Text="Statut :"/>
+                <ComboBox x:Name="StatutComboBox">
+                    <ComboBoxItem Content="terminé" />
+                    <ComboBoxItem Content="en attente" />
+                    <ComboBoxItem Content="annulé" />
+                </ComboBox>
+
+                <TextBlock Text="Note :" />
+                <TextBox x:Name="NoteTextBox" AcceptsReturn="True" Height="60"/>
+
+                <TextBlock Text="Lien :" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="LienTextBox" Width="200"/>
+                    <Button Content="Lancer" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock Text="Ordonnance :" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="OrdonnanceTextBox" Width="200"/>
+                    <Button Content="Imprimer" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock Text="Prix :" />
+                <TextBox x:Name="PrixTextBox" Width="100"/>
+
+                <Expander Header="Historique des consultations">
+                    <TextBlock x:Name="HistoriqueTextBlock" TextWrapping="Wrap"/>
+                </Expander>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                 <!--   <Button Content="Sauvegarder" Click="Sauvegarder_Click"/>
+                    <Button Content="Annuler" Click="Annuler_Click"/>-->
+                </StackPanel>
+            </StackPanel>
+        
+
+    </Grid>
+</Page>
