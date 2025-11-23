@@ -32,7 +32,7 @@
                 </NavigationViewItem>
                 -->
             </NavigationView.MenuItems>
-            <Frame x:Name="Root" />
+            <Frame x:Name="Root" /> <!-- Called WindowFrame in RdvResumeControl.xaml.cs -->
         </NavigationView>
 
     </Grid>

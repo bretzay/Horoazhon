@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Runtime.Intrinsics.Arm;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -24,7 +23,7 @@ namespace Horoazhon.Features.Rdvs.Views
     public sealed partial class RdvResumeIndisponibiliteControl : UserControl
     {
         IRdvViewModel rvm;
-        public RdvResumeIndisponibiliteControl(SlotService? ss=null)
+        public RdvResumeIndisponibiliteControl(SlotService? ss = null)
         {
             InitializeComponent();
             rvm = new RdvsViewModel();

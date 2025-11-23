@@ -13,7 +13,7 @@
             <StackPanel>
                 <Grid >
                     <StackPanel Margin="5">
-                       
+
                         <TextBlock Text="{Binding RdvDate, Mode=TwoWay}" HorizontalAlignment="Left"/>
                         <TextBlock Text="{Binding RdvNomMedecin, Mode=TwoWay}" HorizontalAlignment="Left"/>
                         <StackPanel Orientation="Horizontal">
@@ -25,7 +25,7 @@
                             <TextBox Text="{Binding RdvCommentaire, Mode=TwoWay}" HorizontalAlignment="Left" MinWidth="200" />
                         </StackPanel>
 
-                       
+
                     </StackPanel>
 
 
@@ -33,7 +33,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal"  >
                 <Button Content="Enregistrer" Command="{Binding CommandRdvIndisponibiliteSave}" />
-               
+
             </StackPanel>
         </StackPanel>
     </Grid>

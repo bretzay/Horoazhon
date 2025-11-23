@@ -41,6 +41,8 @@ C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\D
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvListControl.g.cs
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvPage.g.i.cs
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvPage.g.cs
+C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvResumeControl.g.i.cs
+C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvResumeControl.g.cs
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Shell\Views\ShellWindow.g.i.cs
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Shell\Views\ShellWindow.g.cs
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\MainWindow.g.i.cs
@@ -70,6 +72,7 @@ C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\D
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Shell\Views\ShellWindow.xaml
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\MainWindow.xaml
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Themes\Generic.xaml
+C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvResumeControl.xaml
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\App.xbf
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Agenda\Views\AgendaIndisponibilitePage.xbf
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Agenda\Views\AgendaPage.xbf
@@ -94,5 +97,6 @@ C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\D
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Shell\Views\ShellWindow.xbf
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\MainWindow.xbf
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Themes\Generic.xbf
+C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Features\Rdvs\Views\RdvResumeControl.xbf
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\XamlSaveStateFile.xml
 C:\Users\frant\Documents\GitHub\Horoazhon\Application lourde\Horoazhon\obj\x64\Debug\net9.0-windows10.0.19041.0\win-x64\Horoazhon.GeneratedMSBuildEditorConfig.editorconfig

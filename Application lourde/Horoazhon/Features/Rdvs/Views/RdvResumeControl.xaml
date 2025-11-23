@@ -6,8 +6,8 @@
     xmlns:local="using:Horoazhon.Features.Rdvs.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    MinWidth="500"
     mc:Ignorable="d">
+
     <UserControl.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Width" Value="350" />
@@ -34,9 +34,9 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock>
-                                <Run Text="{Binding IdpersNavigation.Nompers, Mode=TwoWay}"/>  
-                                <Run Text=" "/> 
-                                <Run Text="{Binding IdpersNavigation.Prenompers, Mode=TwoWay}"/>
+                        <Run Text="{Binding IdpersNavigation.Nompers, Mode=TwoWay}"/>  
+                        <Run Text=" "/> 
+                        <Run Text="{Binding IdpersNavigation.Prenompers, Mode=TwoWay}"/>
                                     </TextBlock>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
@@ -44,8 +44,8 @@
 
                         <TextBox Text="{Binding RdvCommentaire, Mode=TwoWay}" HorizontalAlignment="Left" />
                     </StackPanel>
-                   
-                    
+
+
                 </Grid>
             </StackPanel>
             <StackPanel Orientation="Horizontal"  >

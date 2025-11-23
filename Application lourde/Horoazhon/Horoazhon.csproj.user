@@ -5,12 +5,12 @@
     <None Update="App.xaml">
       <SubType>Designer</SubType>
     </None>
-    <None Update="Features\Rdvs\Views\RdvResumeControl.xaml">
+    <Page Update="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml">
       <SubType>Designer</SubType>
-    </None>
-    <None Update="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml">
+    </Page>
+    <Page Update="Features\Rdvs\Views\RdvResumeControl.xaml">
       <SubType>Designer</SubType>
-    </None>
+    </Page>
     <None Update="Features\Rdvs\Views\RdvsStatutControl.xaml">
       <SubType>Designer</SubType>
     </None>
