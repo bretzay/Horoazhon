@@ -37,9 +37,7 @@ namespace Horoazhon.Features.Rdvs.Views
         private async void BtnConsultationDetail_Click(object sender, RoutedEventArgs e)
         {
             if (rvm.RdvClientselected != null)
-                // Called by copy/paste windowframe instead of root ?
-                // (App.WindowSelected as ShellWindow)!.WindowFrame.Navigate(typeof(ConsultationPage)); 
-                (App.WindowSelected as ShellWindow)!.Root.Navigate(typeof(ConsultationPage)); 
+                (App.WindowSelected as ShellWindow)!.WindowFrame.Navigate(typeof(ConsultationPage)); 
             else
             {
                 ContentDialog cd = new ContentDialog()

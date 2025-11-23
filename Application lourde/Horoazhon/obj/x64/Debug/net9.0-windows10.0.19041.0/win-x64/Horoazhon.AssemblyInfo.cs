@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Horoazhon")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+458358e188e47d293944e7cce13c6bab1109d222")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e56befb6d050d142fdf08a444167804802bc216")]
 [assembly: System.Reflection.AssemblyProductAttribute("Horoazhon")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Horoazhon")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

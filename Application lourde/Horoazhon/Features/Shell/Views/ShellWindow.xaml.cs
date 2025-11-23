@@ -28,6 +28,7 @@ namespace Horoazhon.Features.Shell.Views
     /// </summary>
     public sealed partial class ShellWindow : Window
     {
+        public Frame WindowFrame => Root;
         public ShellWindow()
         {
             InitializeComponent();

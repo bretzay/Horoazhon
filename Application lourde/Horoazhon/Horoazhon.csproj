@@ -13,11 +13,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Features\Rdvs\Views\RdvResumeControl.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Remove="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml" />
-    <Page Remove="Features\Rdvs\Views\RdvsStatutControl.xaml" />
+    <None Remove="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml" />
+    <None Remove="Features\Rdvs\Views\RdvStatutControl.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -65,12 +62,12 @@
     <Page Update="Features\Rdvs\Views\RdvResumeControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <None Update="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml">
+    <Page Update="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </None>
-    <None Update="Features\Rdvs\Views\RdvsStatutControl.xaml">
+    </Page>
+    <Page Update="Features\Rdvs\Views\RdvStatutControl.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </None>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Features\Rdvs\Views\RdvListControl.xaml">
