@@ -46,7 +46,7 @@ public sealed partial class RdvPage : Page
             vm.RdvSlotService = slot;     
         }
 
-        if (e.Parameter is Rendezvou rdv)
+        if (e.Parameter is RendezVous rdv)
             DataContext = new RdvsViewModel { RdvSelected = rdv };
         else
             DataContext = new RdvsViewModel();

@@ -13,8 +13,8 @@ namespace Horoazhon.Features.Agenda.ViewModel
 {
     internal interface IAgendaViewModel
     {
-        List<Medecin> Medecins {  get; }
-        Medecin MedecinSelected { get; set; }
+        List<Agent> Medecins {  get; }
+        Agent MedecinSelected { get; set; }
         string NomMedecin { get; }
         List<string> SlotLabelList { get;}
         string LundiLabel { get; set; }

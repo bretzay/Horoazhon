@@ -29,13 +29,13 @@ namespace Horoazhon.Services.User
 
     public class AppUser
     {
-        public Medecin Medecin { get; set; }
+        public Agent Agent { get; set; }
         public string? Email { get; set; }
         public string? Role { get; set; }
 
-        public AppUser(Medecin medecin, string? email = null, string? role = null)
+        public AppUser(Agent medecin, string? email = null, string? role = null)
         {
-            Medecin = medecin;
+            Agent = medecin;
             Email = email;
             Role = role;
         }*/

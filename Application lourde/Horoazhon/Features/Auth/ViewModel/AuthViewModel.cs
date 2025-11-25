@@ -194,7 +194,7 @@ namespace Horoazhon.Features.Auth.ViewModel
                     // on cherche l’utilisateur courant
                     UserPrincipal user = UserPrincipal.FindByIdentity(context, username);
 
-                    GroupPrincipal groupMedecin = GroupPrincipal.FindByIdentity(context, "Medecin");
+                    GroupPrincipal groupMedecin = GroupPrincipal.FindByIdentity(context, "Agent");
                     GroupPrincipal groupAdmin = GroupPrincipal.FindByIdentity(context, "Administrateurs");
                     GroupPrincipal groupSecret = GroupPrincipal.FindByIdentity(context, "Secretaire");
                     /* Déterminer le groupe de l'utilisateur*/

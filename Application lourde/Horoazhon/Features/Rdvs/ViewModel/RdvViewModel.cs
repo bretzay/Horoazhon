@@ -35,8 +35,8 @@ namespace Horoazhon.Features.Rdvs.ViewModel
             }
         }
 
-        private List<Rendezvou> _rdvs;
-        public List<Rendezvou> Rdvs
+        private List<RendezVous> _rdvs;
+        public List<RendezVous> Rdvs
         {
             get => _rdvs;
             set
@@ -45,8 +45,8 @@ namespace Horoazhon.Features.Rdvs.ViewModel
                 OnPropertyChanged();
             }
         }
-        private Rendezvou? _rdvSelected;
-        public Rendezvou RdvSelected
+        private RendezVous? _rdvSelected;
+        public RendezVous RdvSelected
         {
             get
             {
@@ -186,7 +186,7 @@ namespace Horoazhon.Features.Rdvs.ViewModel
         }
 /*        public bool CanRdvDelete()
         {
-            Domain.Models.Consultation? consultation = cabinetmartinContext.Consultations.Where(x => x.Rendezvou!.Equals(RdvSelected)).FirstOrDefault();
+            Domain.Models.Consultation? consultation = cabinetmartinContext.Consultations.Where(x => x.RendezVous!.Equals(RdvSelected)).FirstOrDefault();
             return consultation == null && cabinetmartinContext!.Rendezvous.AsNoTracking().FirstOrDefault(x => x.Datefinrdv == RdvSelected.Datefinrdv && x.Datedebutrdv == RdvSelected.Datedebutrdv && x.Idpersmedecin == RdvSelected.Idpersmedecin) != null;
         }*/
 
@@ -217,7 +217,7 @@ namespace Horoazhon.Features.Rdvs.ViewModel
                     var fin = RdvSelected.Datefinrdv;
                     if (RdvSlotService.RDV.IdpersmedecinNavigation == null)
                     {
-                        Medecin? medecin = cabinetmartinContext.Medecins.Where(x => x.Idpers == idMed).FirstOrDefault();
+                        Agent? medecin = cabinetmartinContext.Medecins.Where(x => x.Idpers == idMed).FirstOrDefault();
                         RdvSelected.IdpersmedecinNavigation = medecin!;
                     }
 
@@ -234,7 +234,7 @@ namespace Horoazhon.Features.Rdvs.ViewModel
                 }
                 else
                 {
-                    RdvSelected = new Rendezvou();
+                    RdvSelected = new RendezVous();
                     RdvSelected.Datedebutrdv = (DateTimeOffset)RdvSlotService!.StartTime.ToUniversalTime();
                     RdvSelected.Datefinrdv = (DateTimeOffset)RdvSlotService!.EndTime.ToUniversalTime();
                     RdvSelected.IdpersmedecinNavigation = RdvSlotService!.OneMedecin!;

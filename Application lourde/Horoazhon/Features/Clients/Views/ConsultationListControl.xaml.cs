@@ -20,9 +20,9 @@ using Windows.Foundation.Collections;
 
 namespace Horoazhon.Features.Clients.Views;
 
-public sealed partial class ConsultationListControl : UserControl
+public sealed partial class VisiteListControl : UserControl
 {
-    public ConsultationListControl()
+    public VisiteListControl()
     {
         InitializeComponent();
     }
@@ -33,7 +33,7 @@ public sealed partial class ConsultationListControl : UserControl
         set => SetValue(ItemsSourceProperty, value);
     }
     public static readonly DependencyProperty ItemsSourceProperty =
-        DependencyProperty.Register(nameof(ItemsSource), typeof(IEnumerable), typeof(ConsultationListControl), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(ItemsSource), typeof(IEnumerable), typeof(VisiteListControl), new PropertyMetadata(null));
 
     // SelectedItem DP
     public Consultation? SelectedItem
@@ -42,6 +42,6 @@ public sealed partial class ConsultationListControl : UserControl
         set => SetValue(SelectedItemProperty, value);
     }
     public static readonly DependencyProperty SelectedItemProperty =
-        DependencyProperty.Register(nameof(SelectedItem), typeof(Consultation), typeof(ConsultationListControl), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(SelectedItem), typeof(Consultation), typeof(VisiteListControl), new PropertyMetadata(null));
 }
 

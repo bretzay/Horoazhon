@@ -20,25 +20,7 @@
     <Page Update="Features\Rdvs\Views\RdvPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Features\Consultations\Views\ConsultationListControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Medecins\Views\ConsultationListControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Medecins\Views\RdvListControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Medecins\Views\MedecinEditControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Medecins\Views\MedecinSearchControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Medecins\Views\MedecinListControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Medecins\Views\MedecinsPage.xaml">
+    <Page Update="Features\Consultations\Views\VisiteListControl.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Features\Dashboard\Views\DashboardPage.xaml">

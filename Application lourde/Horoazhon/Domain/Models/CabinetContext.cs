@@ -19,13 +19,13 @@ public partial class CabinetContext : DbContext
 
     public virtual DbSet<Consultation> Consultations { get; set; }
 
-    public virtual DbSet<Medecin> Medecins { get; set; }
+    public virtual DbSet<Agent> Medecins { get; set; }
 
     public virtual DbSet<Client> Clients { get; set; }
 
     public virtual DbSet<Personne> Personnes { get; set; }
 
-    public virtual DbSet<Rendezvou> Rendezvous { get; set; }
+    public virtual DbSet<RendezVous> Rendezvous { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {if(!optionsBuilder.IsConfigured)
@@ -94,13 +94,13 @@ public partial class CabinetContext : DbContext
                 .HasDefaultValue("libre")
                 .HasColumnName("STATUTCONS");
 
-            entity.HasOne(d => d.Rendezvou).WithMany(p => p.Consultations)
+            entity.HasOne(d => d.RendezVous).WithMany(p => p.Consultations)
                 .HasForeignKey(d => new { d.Idpersmedecin, d.Datedebutrdv, d.Datefinrdv })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CONSULTATION_RENDEZVOUS");
         });
 
-        modelBuilder.Entity<Medecin>(entity =>
+        modelBuilder.Entity<Agent>(entity =>
         {
             entity.HasKey(e => e.Idpers);
 
@@ -116,8 +116,8 @@ public partial class CabinetContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("SPECMEDECIN");
 
-            entity.HasOne(d => d.IdpersNavigation).WithOne(p => p.Medecin)
-                .HasForeignKey<Medecin>(d => d.Idpers)
+            entity.HasOne(d => d.IdpersNavigation).WithOne(p => p.Agent)
+                .HasForeignKey<Agent>(d => d.Idpers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_MEDECIN_PERSONNE");
         });
@@ -165,7 +165,7 @@ public partial class CabinetContext : DbContext
                 .HasColumnName("TELPERS");
         });
 
-        modelBuilder.Entity<Rendezvou>(entity =>
+        modelBuilder.Entity<RendezVous>(entity =>
         {
             entity.HasKey(e => new { e.Idpersmedecin, e.Datedebutrdv, e.Datefinrdv });
 

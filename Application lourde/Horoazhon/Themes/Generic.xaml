@@ -39,10 +39,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="local2:ConsultationListControl" xmlns:local2="using:Horoazhon.Features.Consultation.Views">
+    <Style TargetType="local2:VisiteListControl" xmlns:local2="using:Horoazhon.Features.Consultation.Views">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="local2:ConsultationListControl">
+                <ControlTemplate TargetType="local2:VisiteListControl">
                     <Border
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"

@@ -27,5 +27,5 @@ public partial class Consultation
 
     public bool? Indisponibilite { get; set; }
 
-    public virtual Rendezvou Rendezvou { get; set; } = null!;
+    public virtual RendezVous RendezVous { get; set; } = null!;
 }

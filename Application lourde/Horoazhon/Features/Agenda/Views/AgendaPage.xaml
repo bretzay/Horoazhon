@@ -11,14 +11,6 @@
     xmlns:local3="using:Horoazhon.Features.Clients.Views"
     xmlns:vm="using:Horoazhon.Features.Agenda.ViewModel"
     mc:Ignorable="d">
-	
-	
-	<!--d 
-
-
-  
-	-->
-
 
     <Grid Margin="0,10,0,0">
         <StackPanel Orientation="Horizontal">
@@ -59,7 +51,6 @@
                 </StackPanel>
                 <Frame  Background="White" >
                     <Grid>
-
                         <ScrollViewer MaxHeight="700"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Visible" VerticalScrollMode="Enabled" HorizontalScrollMode="Disabled" >
                             <StackPanel Orientation="Horizontal" >
                                 <StackPanel>
@@ -79,9 +70,6 @@
                                 <!-- Lundi -->
                                 <StackPanel >
                                     <TextBlock Text="{Binding LundiLabel, Mode=TwoWay}" TextAlignment="Center" FontSize="14" FontStretch="Condensed" />
-
-
-
                                     <ListBox ItemsSource="{Binding LundiList, Mode=TwoWay}" Margin="0" Padding="0">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
@@ -93,7 +81,6 @@
                                 <!-- Mardi -->
                                 <StackPanel >
                                     <TextBlock Text="{Binding MardiLabel}" TextAlignment="Center" FontSize="14" FontStretch="Condensed">
-
                                     </TextBlock>
                                     <ListBox ItemsSource="{Binding MardiList, Mode=TwoWay}" >
                                         <ListBox.ItemTemplate>
@@ -106,7 +93,6 @@
                                 <!-- Mercredi -->
                                 <StackPanel>
                                     <TextBlock Text="{Binding MercrediLabel}" TextAlignment="Center" FontSize="14" FontStretch="Condensed">
-
                                     </TextBlock>
                                     <ListBox ItemsSource="{Binding MercrediList, Mode=TwoWay}"  >
                                         <ListBox.ItemTemplate>
@@ -119,7 +105,6 @@
                                 <!-- Jeudi -->
                                 <StackPanel>
                                     <TextBlock Text="{Binding JeudiLabel, Mode=TwoWay}" TextAlignment="Center" FontSize="14" FontStretch="Condensed">
-
                                     </TextBlock>
                                     <ListBox ItemsSource="{Binding JeudiList, Mode=TwoWay}" >
                                         <ListBox.ItemTemplate>
@@ -132,7 +117,6 @@
                                 <!-- Vendredi -->
                                 <StackPanel>
                                     <TextBlock Text="{Binding VendrediLabel, Mode=TwoWay}" TextAlignment="Center" FontSize="14" FontStretch="Condensed">
-
                                     </TextBlock>
                                     <ListBox ItemsSource="{Binding VendrediList, Mode=TwoWay}" >
                                         <ListBox.ItemTemplate>

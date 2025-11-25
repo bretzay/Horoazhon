@@ -18,9 +18,9 @@ namespace Horoazhon.Features.Rdvs.ViewModel
         string RdvNomMedecin { get; }
         string RdvDate { get; }
         string RdvCommentaire { get; set; }
-        Rendezvou RdvSelected { get; set; }
+        RendezVous RdvSelected { get; set; }
 
-        List<Rendezvou> Rdvs { get; set; }
+        List<RendezVous> Rdvs { get; set; }
         bool IsEditable { get; set; }
         void Update();
 

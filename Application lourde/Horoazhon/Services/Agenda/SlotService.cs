@@ -10,13 +10,13 @@ namespace Horoazhon.Services.Agenda
 {
     public class SlotService
     {
-        public Rendezvou? RDV { get; set; }
+        public RendezVous? RDV { get; set; }
 
         public DateTimeOffset StartTime { get; set; }
         public DateTimeOffset EndTime { get; set; }
         public string? Statut { get; set; }
         public bool IsEditable { get; set; } = true;
         public SolidColorBrush? BackgroundColor { get; set; }
-        public Medecin? OneMedecin { get; set; }
+        public Agent? OneMedecin { get; set; }
     }
 }

@@ -85,7 +85,7 @@ namespace Horoazhon.Features.Agenda.Views
                     var rdv = elem; // param à passer
                     Frame.Navigate(typeof(RdvPage), elem);
 
-                    // (App.WindowSelected as ShellWindow)?.WindowFrame?.Navigate(typeof(ConsultationPage), rdv);
+                    // (App.WindowSelected as ShellWindow)?.WindowFrame?.Navigate(typeof(VisitePage), rdv);
                 
             }
             else
@@ -104,7 +104,7 @@ namespace Horoazhon.Features.Agenda.Views
         
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var elem = (sender as ComboBox)!.SelectedItem as Medecin;
+            var elem = (sender as ComboBox)!.SelectedItem as Agent;
             agendaViewModel.MedecinSelected = elem!;
             //agendaViewModel.ShowAgenda();
         }

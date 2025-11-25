@@ -45,16 +45,16 @@ namespace Horoazhon.Features.Shell.Views
                     Root.Navigate(typeof(DashboardPage));
                     break;
                 case "Medecins":
-                    Root.Navigate(typeof(MedecinsPage));
+                    Root.Navigate(typeof(AgentPage));
                     break;
                 case "Agenda":
                     Root.Navigate(typeof(AgendaPage));
                     break;
                 case "Clients":
-                    Root.Navigate(typeof(ClientsPage));
+                    Root.Navigate(typeof(ClientPage));
                     break;
                 case "Consultations":
-                    Root.Navigate(typeof(ConsultationPage));
+                    Root.Navigate(typeof(VisitePage));
                     break;
                 
             }

@@ -17,7 +17,7 @@ namespace Horoazhon.Services.Agenda
     public class AgendaService
     {
         DateOnly? before, after, actualy, copieactualy;
-        public Medecin? MedecinSelected { get; set; }
+        public Agent? MedecinSelected { get; set; }
         int? move = 0;
         ObservableCollection<SlotService>? Slots;
         public void Init()
@@ -109,7 +109,7 @@ namespace Horoazhon.Services.Agenda
             return SlotWeek;
         }
 
-        public SolidColorBrush Colored(Rendezvou? rdv)
+        public SolidColorBrush Colored(RendezVous? rdv)
         {
             if (!rdv?.Disponibilite ?? true)
             {

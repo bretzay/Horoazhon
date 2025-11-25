@@ -17,8 +17,8 @@ namespace Horoazhon.Features.Agenda.ViewModel
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         CabinetContext? HoroazhonContext = new();
-        private List<Medecin>? _medecins;
-        private Medecin? _medecinSelected;
+        private List<Agent>? _medecins;
+        private Agent? _medecinSelected;
         private string? _nomMedecin;        
         private string? _lundiLabel;
         private string? _mardiLabel;
@@ -35,7 +35,7 @@ namespace Horoazhon.Features.Agenda.ViewModel
         
         public AgendaService? AgendaServiceMedecin { get; set; }
 
-        public List<Medecin> Medecins
+        public List<Agent> Medecins
         {
             set
             {
@@ -45,7 +45,7 @@ namespace Horoazhon.Features.Agenda.ViewModel
             get => _medecins??new();
         }
 
-        public Medecin MedecinSelected
+        public Agent MedecinSelected
         {
             set
             {

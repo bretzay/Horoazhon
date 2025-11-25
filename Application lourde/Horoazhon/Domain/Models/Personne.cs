@@ -21,7 +21,7 @@ public partial class Personne
 
     public virtual Connexion? Connexion { get; set; }
 
-    public virtual Medecin? Medecin { get; set; }
+    public virtual Agent? Agent { get; set; }
 
     public virtual Client? Client { get; set; }
 }

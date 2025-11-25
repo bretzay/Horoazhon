@@ -37,7 +37,7 @@ namespace Horoazhon.Features.Rdvs.Views
         private async void BtnConsultationDetail_Click(object sender, RoutedEventArgs e)
         {
             if (rvm.RdvClientselected != null)
-                (App.WindowSelected as ShellWindow)!.WindowFrame.Navigate(typeof(ConsultationPage)); 
+                (App.WindowSelected as ShellWindow)!.WindowFrame.Navigate(typeof(VisitePage)); 
             else
             {
                 ContentDialog cd = new ContentDialog()

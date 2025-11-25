@@ -73,7 +73,7 @@ namespace Horoazhon.Features.Agenda.Views
         }
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var elem = (sender as ComboBox)!.SelectedItem as Medecin;
+            var elem = (sender as ComboBox)!.SelectedItem as Agent;
             agendaViewModel.MedecinSelected = elem!;
             agendaViewModel.ShowAgenda();
         }
