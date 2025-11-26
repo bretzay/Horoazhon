@@ -9,7 +9,7 @@
     xmlns:viewsMedecins="using:Horoazhon.Features.Medecins.Views"
     xmlns:viewsAgenda="using:Horoazhon.Features.Agenda.Views"
     xmlns:viewsClients="using:Horoazhon.Features.Clients.Views"
-    xmlns:viewsConsult="using:Horoazhon.Features.Consultations.Views"
+    xmlns:viewsConsult="using:Horoazhon.Features.Visite.Views"
     mc:Ignorable="d"
     Title="ShellWindow">
 
@@ -21,7 +21,7 @@
                 <NavigationViewItem Content="Médecins" Icon="OtherUser" ToolTipService.ToolTip="Medecins" Tag="Medecins"/>
                 <NavigationViewItem Content="Agenda" Icon="Calendar" ToolTipService.ToolTip="Agenda" Tag="Agenda"/>
                 <NavigationViewItem Content="Clients" Icon="People" ToolTipService.ToolTip="Clients" Tag="Clients"/>
-                <NavigationViewItem Content="Consultations" Icon="People" ToolTipService.ToolTip="Consultations" Tag="Consultations"/>
+                <NavigationViewItem Content="Visite" Icon="People" ToolTipService.ToolTip="Visite" Tag="Visite"/>
 
                 <!--    <NavigationViewItem Content="Médecins" Icon="OtherUser" ToolTipService.ToolTip="Collections">
                 

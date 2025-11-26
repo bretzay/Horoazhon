@@ -1,7 +1,7 @@
 using Horoazhon.Domain.Models;
 using Horoazhon.Services.Agenda;
 using Horoazhon.Features.Agenda.ViewModel;
-using Horoazhon.Features.Consultations.Views;
+using Horoazhon.Features.Visite.Views;
 using Horoazhon.Features.Rdvs.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

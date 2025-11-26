@@ -1,5 +1,5 @@
 using Horoazhon.Features.Agenda.Views;
-using Horoazhon.Features.Consultations.Views;
+using Horoazhon.Features.Visite.Views;
 using Horoazhon.Features.Dashboard.Views;
 using Horoazhon.Features.Medecins.Views;
 using Horoazhon.Features.Clients.Views;
@@ -53,7 +53,7 @@ namespace Horoazhon.Features.Shell.Views
                 case "Clients":
                     Root.Navigate(typeof(ClientPage));
                     break;
-                case "Consultations":
+                case "Visite":
                     Root.Navigate(typeof(VisitePage));
                     break;
                 

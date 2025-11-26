@@ -1,5 +1,5 @@
 using Horoazhon.Features.Clients.Views;
-using Horoazhon.Features.Consultations.Views;
+using Horoazhon.Features.Visite.Views;
 using Horoazhon.Features.Rdvs.ViewModel;
 using Horoazhon.Features.Shell.Views;
 using Horoazhon.Services.Agenda;

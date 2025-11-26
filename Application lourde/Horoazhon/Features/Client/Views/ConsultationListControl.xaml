@@ -42,7 +42,7 @@
         
         <!-- … -->
 
-       <!--     <ListView MinHeight="50" ItemsSource="{Binding}" SelectedItem="{Binding ConsultationSelected, Mode=TwoWay}" >
+       <!--     <ListView MinHeight="50" ItemsSource="{Binding}" SelectedItem="{Binding Visiteelected, Mode=TwoWay}" >
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:Consultation" >
                         <TextBlock>

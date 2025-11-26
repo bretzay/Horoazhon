@@ -186,7 +186,7 @@ namespace Horoazhon.Features.Rdvs.ViewModel
         }
 /*        public bool CanRdvDelete()
         {
-            Domain.Models.Consultation? consultation = cabinetmartinContext.Consultations.Where(x => x.RendezVous!.Equals(RdvSelected)).FirstOrDefault();
+            Domain.Models.Consultation? consultation = cabinetmartinContext.Visite.Where(x => x.RendezVous!.Equals(RdvSelected)).FirstOrDefault();
             return consultation == null && cabinetmartinContext!.Rendezvous.AsNoTracking().FirstOrDefault(x => x.Datefinrdv == RdvSelected.Datefinrdv && x.Datedebutrdv == RdvSelected.Datedebutrdv && x.Idpersmedecin == RdvSelected.Idpersmedecin) != null;
         }*/
 

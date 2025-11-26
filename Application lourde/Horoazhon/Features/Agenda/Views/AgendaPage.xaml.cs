@@ -1,6 +1,6 @@
 using Horoazhon.Domain.Models;
 using Horoazhon.Features.Agenda.ViewModel;
-using Horoazhon.Features.Consultations.Views;
+using Horoazhon.Features.Visite.Views;
 using Horoazhon.Features.Rdvs.ViewModel;
 using Horoazhon.Features.Rdvs.Views;
 using Horoazhon.Features.Shell.Views;

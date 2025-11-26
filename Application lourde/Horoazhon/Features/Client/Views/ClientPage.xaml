@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:Shell="using:Horoazhon.Features.Shell.Views" 
     xmlns:local1="using:Horoazhon.Features.Medecins.Views" 
-    xmlns:local2="using:Horoazhon.Features.Consultations.Views"
+    xmlns:local2="using:Horoazhon.Features.Visite.Views"
     mc:Ignorable="d">
 
 
@@ -82,9 +82,9 @@ Clientselected, Mode=TwoWay}"/>
             </ListView>
         </StackPanel>
 
-         🩺 Consultations 
+         🩺 Visite 
         <StackPanel Grid.Row="2" Grid.Column="1" Margin="20,10,0,0">
-            <TextBlock Text="Consultations" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+            <TextBlock Text="Visite" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
             <ListView>
             <local:VisiteListControl/>
                 <ListViewItem Content="09/09/25 - 09:00 : Consultation générale : Sommeil ok" />
@@ -111,11 +111,11 @@ Clientselected, Mode=TwoWay}"/>
             </Expander>
 
 
-            <Expander Header="Consultations"   IsExpanded="True"  Grid.Column="1">
+            <Expander Header="Visite"   IsExpanded="True"  Grid.Column="1">
                 <Border Padding="8"  BorderThickness="1" CornerRadius="6" Background="White">
 
                     <!-- <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Margin="20,0,0,0" Width="50">-->
-                    <local:VisiteListControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" ItemsSource="{Binding Consultations}" SelectedItem="{Binding ConsultationSelected, Mode=TwoWay}" />
+                    <local:VisiteListControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" ItemsSource="{Binding Visite}" SelectedItem="{Binding Visiteelected, Mode=TwoWay}" />
                 </Border>
             </Expander>
 

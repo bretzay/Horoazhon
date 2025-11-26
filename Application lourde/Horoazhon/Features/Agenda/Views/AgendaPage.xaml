@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Shell="using:Horoazhon.Features.Shell.Views" 
-    xmlns:local2="using:Horoazhon.Features.Consultations.Views" 
+    xmlns:local2="using:Horoazhon.Features.Visite.Views" 
     xmlns:local3="using:Horoazhon.Features.Clients.Views"
     xmlns:vm="using:Horoazhon.Features.Agenda.ViewModel"
     mc:Ignorable="d">

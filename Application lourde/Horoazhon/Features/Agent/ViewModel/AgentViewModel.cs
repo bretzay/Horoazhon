@@ -55,7 +55,7 @@ namespace Horoazhon.Features.Medecins.ViewModel
             {
                 _medecinSelected = value;
                 OnPropertyChanged();
-                ReloadConsultations();
+                ReloadVisite();
             }
         }
 
@@ -81,33 +81,33 @@ namespace Horoazhon.Features.Medecins.ViewModel
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<Visite> Consultations { get; } = new();
-        private List<Visite>? _consultations;
+        public ObservableCollection<Visite> Visite { get; } = new();
+        private List<Visite>? _Visite;
 
-        private Visite? _consultationSelected;
-        public Visite ConsultationSelected
+        private Visite? _Visiteelected;
+        public Visite Visiteelected
         {
-            get => _consultationSelected ?? new();
+            get => _Visiteelected ?? new();
             set
             {
 
-                _consultationSelected = value ?? new();
+                _Visiteelected = value ?? new();
                 OnPropertyChanged();
             }
         }
-        private void ReloadConsultations()
+        private void ReloadVisite()
         {
-            Consultations.Clear();
+            Visite.Clear();
             if (MedecinSelected is null) return;
 
-            var items = _cabinetmartinContext?.Consultations
+            var items = _cabinetmartinContext?.Visite
                 .Where(c => c.RendezVous != null
                          && c.RendezVous.IdpersmedecinNavigation != null
                          && c.RendezVous.IdpersmedecinNavigation.Idpers == MedecinSelected.Idpers) // compare par Id
                 .OrderBy(c => c.Datedebutrdv)
                 .ToList() ?? new();
 
-            foreach (var c in items) Consultations.Add(c);
+            foreach (var c in items) Visite.Add(c);
         }
 
         private bool _isEditable = false;

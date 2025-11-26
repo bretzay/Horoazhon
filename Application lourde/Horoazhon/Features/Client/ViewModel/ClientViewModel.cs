@@ -46,7 +46,7 @@ namespace Horoazhon.Features.Clients.ViewModel
             {
                 _Clientselected = value;
                 OnPropertyChanged();
-                ReloadConsultations();
+                ReloadVisite();
 
 
 
@@ -58,15 +58,15 @@ namespace Horoazhon.Features.Clients.ViewModel
                         .ToList();
 
 
-                    Consultations = new ObservableCollection<Visite>(
-                        _horoazhonContext.Consultations
+                    Visite = new ObservableCollection<Visite>(
+                        _horoazhonContext.Visite
                             .Where(c => c.RendezVous.IdpersClient == _Clientselected.Idpers)
                             .ToList());
                 }
                 else
                 {
                     RDVs = new List<RendezVous>();
-                    Consultations = new ObservableCollection<Visite>();
+                    Visite = new ObservableCollection<Visite>();
                 }
             }
         }
@@ -93,22 +93,22 @@ namespace Horoazhon.Features.Clients.ViewModel
             }
         }
 
-        private ObservableCollection<Visite> _consultations = new();
-        public ObservableCollection<Visite> Consultations
+        private ObservableCollection<Visite> _Visite = new();
+        public ObservableCollection<Visite> Visite
         {
-            get => _consultations;
-            set { _consultations = value; OnPropertyChanged(); }
+            get => _Visite;
+            set { _Visite = value; OnPropertyChanged(); }
         }
 
 
 
-        private Visite? _consultationSelected;
-        public Visite? ConsultationSelected
+        private Visite? _Visiteelected;
+        public Visite? Visiteelected
         {
-            get => _consultationSelected;
+            get => _Visiteelected;
             set
             {
-                _consultationSelected = value;
+                _Visiteelected = value;
                 OnPropertyChanged();
             }
         }
@@ -128,14 +128,14 @@ namespace Horoazhon.Features.Clients.ViewModel
         private void OnPropertyChanged([CallerMemberName] string? n = null)
  => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        private void ReloadConsultations()
+        private void ReloadVisite()
         {
-            Consultations.Clear();
+            Visite.Clear();
             if (Clientselected is null) return;
 
-            var items = _horoazhonContext.Consultations.Where(c => c.RendezVous.IdpersClientNavigation == Clientselected).ToList();
+            var items = _horoazhonContext.Visite.Where(c => c.RendezVous.IdpersClientNavigation == Clientselected).ToList();
 
-             foreach (var c in items) Consultations.Add(c);
+             foreach (var c in items) Visite.Add(c);
         }
 
         public ClientViewModel()

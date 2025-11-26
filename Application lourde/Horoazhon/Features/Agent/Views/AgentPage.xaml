@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Shell="using:Horoazhon.Features.Shell.Views" 
     xmlns:local1="using:Horoazhon.Features.Medecins.Views" 
-    xmlns:local2="using:Horoazhon.Features.Consultations.Views" 
+    xmlns:local2="using:Horoazhon.Features.Visite.Views" 
     xmlns:local3="using:Horoazhon.Features.Clients.Views"
     xmlns:vm="using:Horoazhon.Features.Medecins.ViewModel"
     mc:Ignorable="d">
@@ -103,8 +103,8 @@
                 </Expander>
 
 
-            <Expander Header="Consultations"   IsExpanded="True"  Grid.Column="1">
-                <local:VisiteListControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" ItemsSource="{Binding Consultations}" SelectedItem="{Binding ConsultationSelected, Mode=TwoWay}" />
+            <Expander Header="Visite"   IsExpanded="True"  Grid.Column="1">
+                <local:VisiteListControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" ItemsSource="{Binding Visite}" SelectedItem="{Binding Visiteelected, Mode=TwoWay}" />
                 </Expander>
 
             </Grid>

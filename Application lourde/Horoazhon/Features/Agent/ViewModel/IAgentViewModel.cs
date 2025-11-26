@@ -18,8 +18,8 @@ namespace Horoazhon.Features.Medecins.ViewModel
 
         List<RendezVous> RDVs { get; set; }
         RendezVous RDVSelected { get; set; }
-        ObservableCollection<Visite> Consultations { get; }
-        Visite ConsultationSelected { get; set; }
+        ObservableCollection<Visite> Visite { get; }
+        Visite Visiteelected { get; set; }
         bool IsEditable { get; set; }
         ICommand CommandMedecinNew { get; set; }
         ICommand CommandMedecinEdit { get; set; }
