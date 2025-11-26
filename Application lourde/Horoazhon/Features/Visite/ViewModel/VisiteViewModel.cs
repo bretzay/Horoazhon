@@ -199,7 +199,7 @@ namespace Horoazhon.Features.Consultations.ViewModel
             {
                 App.MainHwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.WindowSelected);
                 (App.WindowSelected ?? new MainWindow()).Closed += (_, __) => App.MainHwnd = 0;
-                var printer = OrdonnancePrinter.GetOP(App.WindowSelected!);
+                var printer = ContratPrinter.GetOP(App.WindowSelected!);
                 await printer.PrintAsync(
                     ConsultationSelected.Ordonnancecons ?? " ",
                     ConsultationMedecinNom,
