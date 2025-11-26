@@ -2,12 +2,12 @@
  ----------------------------------------------------------------------------
              Génération d'une base de données pour
                         SQL Server 2005
-                       (26/11/2025 13:59:30)
+                       (26/11/2025 16:32:32)
  ----------------------------------------------------------------------------
      Nom de la base : Horoazhon
      Projet : MCD3
      Auteur : *
-     Date de dernière modification : 26/11/2025 13:59:20
+     Date de dernière modification : 26/11/2025 16:32:19
  ----------------------------------------------------------------------------
 */
 
@@ -47,6 +47,7 @@ go
 
 create table PERSONNE
   (
+     SIRET char(32)  not null  ,
      ID smallint  not null  ,
      ADRESSE varchar(128)  null  ,
      RIB varchar(128)  null  ,
@@ -55,9 +56,13 @@ create table PERSONNE
      DATENAIS datetime  not null  ,
      DERNIERECO datetime  not null  
      ,
-     constraint PK_PERSONNE primary key (ID)
+     constraint PK_PERSONNE primary key (SIRET, ID)
   ) 
 go
+
+
+
+/*      INDEX DE PERSONNE      */
 
 
 
@@ -67,6 +72,7 @@ go
 
 create table UTILISATEUR
   (
+     SIRET char(32)  not null  ,
      ID smallint  not null  ,
      LOGIN char(32)  null  ,
      MDP char(32)  null  ,
@@ -74,7 +80,7 @@ create table UTILISATEUR
      DERNIERECO datetime  null  ,
      NIVEAUACCES char(32)  null  
      ,
-     constraint PK_UTILISATEUR primary key (ID)
+     constraint PK_UTILISATEUR primary key (SIRET, ID)
   ) 
 go
 
@@ -104,7 +110,7 @@ create table BIEN
      ID smallint  not null  ,
      RUE varchar(128)  not null  ,
      VILLE char(32)  not null  ,
-     CODE_POSTAL char(32)  not null  ,
+     CODEPOSTAL char(32)  not null  ,
      ECOSCORE smallint  null  ,
      SUPERFICIE decimal(10,2)  null  ,
      DESCRIPTION varchar(128)  not null  ,
@@ -204,6 +210,45 @@ go
 
 
 /* -----------------------------------------------------------------------------
+      TABLE : AGENCE
+----------------------------------------------------------------------------- */
+
+create table AGENCE
+  (
+     SIRET char(32)  not null  ,
+     NOM char(32)  not null  ,
+     NUMEROTVA char(32)  not null  ,
+     RUE char(32)  not null  ,
+     VILLE char(32)  not null  ,
+     CODEPOSTAL char(32)  not null  
+     ,
+     constraint PK_AGENCE primary key (SIRET)
+  ) 
+go
+
+
+
+/* -----------------------------------------------------------------------------
+      TABLE : POSSEDER
+----------------------------------------------------------------------------- */
+
+create table POSSEDER
+  (
+     ID smallint  not null  ,
+     SIRET char(32)  not null  ,
+     ID_1 smallint  not null  
+     ,
+     constraint PK_POSSEDER primary key (ID, SIRET, ID_1)
+  ) 
+go
+
+
+
+/*      INDEX DE POSSEDER      */
+
+
+
+/* -----------------------------------------------------------------------------
       TABLE : CONTENIR
 ----------------------------------------------------------------------------- */
 
@@ -230,11 +275,12 @@ go
 
 create table COSIGNER
   (
+     SIRET char(32)  not null  ,
      ID smallint  not null  ,
      ID_1 smallint  not null  ,
      TYPESIGNATAIRE char(32)  null  
      ,
-     constraint PK_COSIGNER primary key (ID, ID_1)
+     constraint PK_COSIGNER primary key (SIRET, ID, ID_1)
   ) 
 go
 
@@ -266,33 +312,22 @@ go
 
 
 /* -----------------------------------------------------------------------------
-      TABLE : POSSEDER
------------------------------------------------------------------------------ */
-
-create table POSSEDER
-  (
-     ID smallint  not null  ,
-     ID_1 smallint  not null  
-     ,
-     constraint PK_POSSEDER primary key (ID, ID_1)
-  ) 
-go
-
-
-
-/*      INDEX DE POSSEDER      */
-
-
-
-/* -----------------------------------------------------------------------------
       REFERENCES SUR LES TABLES
 ----------------------------------------------------------------------------- */
 
 
 
+alter table PERSONNE 
+     add constraint FK_PERSONNE_AGENCE foreign key (SIRET) 
+               references AGENCE (SIRET)
+go
+
+
+
+
 alter table UTILISATEUR 
-     add constraint FK_UTILISATEUR_PERSONNE foreign key (ID) 
-               references PERSONNE (ID)
+     add constraint FK_UTILISATEUR_PERSONNE foreign key (SIRET, ID) 
+               references PERSONNE (SIRET, ID)
 go
 
 
@@ -354,6 +389,22 @@ go
 
 
 
+alter table POSSEDER 
+     add constraint FK_POSSEDER_BIEN foreign key (ID) 
+               references BIEN (ID)
+go
+
+
+
+
+alter table POSSEDER 
+     add constraint FK_POSSEDER_PERSONNE foreign key (SIRET, ID_1) 
+               references PERSONNE (SIRET, ID)
+go
+
+
+
+
 alter table CONTENIR 
      add constraint FK_CONTENIR_CARACTERISTIQUES foreign key (ID) 
                references CARACTERISTIQUES (ID)
@@ -371,8 +422,8 @@ go
 
 
 alter table COSIGNER 
-     add constraint FK_COSIGNER_PERSONNE foreign key (ID) 
-               references PERSONNE (ID)
+     add constraint FK_COSIGNER_PERSONNE foreign key (SIRET, ID) 
+               references PERSONNE (SIRET, ID)
 go
 
 
@@ -397,22 +448,6 @@ go
 alter table DEPLACER 
      add constraint FK_DEPLACER_LIEUX foreign key (ID_1) 
                references LIEUX (ID)
-go
-
-
-
-
-alter table POSSEDER 
-     add constraint FK_POSSEDER_BIEN foreign key (ID) 
-               references BIEN (ID)
-go
-
-
-
-
-alter table POSSEDER 
-     add constraint FK_POSSEDER_PERSONNE foreign key (ID_1) 
-               references PERSONNE (ID)
 go
 
 
