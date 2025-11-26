@@ -38,7 +38,7 @@
 
    <!-- <Grid Background="LightGray">
         <StackPanel BorderThickness="20">
-            <TextBlock Text="Connexion" FontSize="25" FontWeight="Bold"/>
+            <TextBlock Text="Utilisateur" FontSize="25" FontWeight="Bold"/>
             <TextBox MinWidth="200" Margin="5" PlaceholderText="Login"/>
             <PasswordBox x:Name="Mdp" MinWidth="200" Margin="5" PlaceholderText="Mot de passe"/>
             <TextBox x:Name="CodePin" MinWidth="200" Margin="5" Padding="5" PlaceholderText="Votre code Pin" IsEnabled="False"/>
@@ -55,7 +55,7 @@
 
     <Grid>
         <StackPanel Padding="32" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Connexion" FontSize="28"/>
+            <TextBlock Text="Utilisateur" FontSize="28"/>
             <TextBox x:Name="LoginBox" Text="{Binding LoginSelected, Mode=TwoWay}" PlaceholderText="Login" Width="280"/>
             <PasswordBox x:Name="PwdBox"  Password="{Binding PasswordSelected, Mode=TwoWay}" Width="280"/>
             <TextBox x:Name="PinBox" PlaceholderText="Votre code pin" IsEnabled="{Binding IsEditable, Mode=TwoWay}" Text="{Binding CodePinSelected, Mode=TwoWay}" Width="280"/>

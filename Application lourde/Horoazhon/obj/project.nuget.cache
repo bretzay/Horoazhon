@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "o73+1WdXNEI=",
+  "dgSpecHash": "yjHjp7MwyBw=",
   "success": true,
   "projectFilePath": "C:\\Users\\frant\\Documents\\GitHub\\Horoazhon\\Application lourde\\Horoazhon\\Horoazhon.csproj",
   "expectedPackageFiles": [
@@ -22,6 +22,7 @@
     "C:\\Users\\frant\\.nuget\\packages\\microsoft.entityframeworkcore.proxies\\9.0.0\\microsoft.entityframeworkcore.proxies.9.0.0.nupkg.sha512",
     "C:\\Users\\frant\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\9.0.0\\microsoft.entityframeworkcore.relational.9.0.0.nupkg.sha512",
     "C:\\Users\\frant\\.nuget\\packages\\microsoft.entityframeworkcore.sqlserver\\9.0.0\\microsoft.entityframeworkcore.sqlserver.9.0.0.nupkg.sha512",
+    "C:\\Users\\frant\\.nuget\\packages\\microsoft.entityframeworkcore.tools\\10.0.0\\microsoft.entityframeworkcore.tools.10.0.0.nupkg.sha512",
     "C:\\Users\\frant\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\9.0.0\\microsoft.extensions.caching.abstractions.9.0.0.nupkg.sha512",
     "C:\\Users\\frant\\.nuget\\packages\\microsoft.extensions.caching.memory\\9.0.0\\microsoft.extensions.caching.memory.9.0.0.nupkg.sha512",
     "C:\\Users\\frant\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.0\\microsoft.extensions.configuration.9.0.0.nupkg.sha512",

@@ -235,34 +235,34 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
             _typeNameTable[5] = "Microsoft.UI.Xaml.Controls.Page";
             _typeNameTable[6] = "Microsoft.UI.Xaml.Controls.UserControl";
             _typeNameTable[7] = "Horoazhon.Features.Agenda.Views.AgendaPage";
-            _typeNameTable[8] = "Horoazhon.Features.Auth.Views.AuthControl";
-            _typeNameTable[9] = "Horoazhon.Features.Clients.Views.ConsultationListControl";
-            _typeNameTable[10] = "System.Collections.IEnumerable";
-            _typeNameTable[11] = "Horoazhon.Domain.Models.Consultation";
-            _typeNameTable[12] = "Horoazhon.Features.Clients.Views.ClientEditControl";
-            _typeNameTable[13] = "Horoazhon.Features.Clients.Views.ClientListControl";
-            _typeNameTable[14] = "Horoazhon.Features.Clients.Views.ClientsearchControl";
-            _typeNameTable[15] = "Microsoft.UI.Xaml.Controls.Expander";
-            _typeNameTable[16] = "Microsoft.UI.Xaml.Controls.ContentControl";
-            _typeNameTable[17] = "Microsoft.UI.Xaml.Controls.ExpandDirection";
-            _typeNameTable[18] = "System.Enum";
-            _typeNameTable[19] = "System.ValueType";
-            _typeNameTable[20] = "Microsoft.UI.Xaml.DataTemplate";
-            _typeNameTable[21] = "Microsoft.UI.Xaml.Controls.DataTemplateSelector";
-            _typeNameTable[22] = "Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings";
-            _typeNameTable[23] = "Microsoft.UI.Xaml.DependencyObject";
-            _typeNameTable[24] = "Horoazhon.Features.Clients.Views.RdvListControl";
-            _typeNameTable[25] = "Horoazhon.Features.Clients.Views.ClientsPage";
-            _typeNameTable[26] = "Horoazhon.Features.Clients.ViewModel.ClientViewModel";
-            _typeNameTable[27] = "Horoazhon.Features.Consultations.Views.ConsultationListControl";
-            _typeNameTable[28] = "Horoazhon.Features.Consultations.Views.ConsultationPage";
-            _typeNameTable[29] = "Horoazhon.Features.Dashboard.Views.DashboardPage";
-            _typeNameTable[30] = "Horoazhon.Features.Medecins.Views.ConsultationListControl";
-            _typeNameTable[31] = "Horoazhon.Features.Medecins.Views.MedecinEditControl";
-            _typeNameTable[32] = "Horoazhon.Features.Medecins.Views.MedecinListControl";
-            _typeNameTable[33] = "Horoazhon.Features.Medecins.Views.MedecinSearchControl";
-            _typeNameTable[34] = "Horoazhon.Features.Medecins.Views.RdvListControl";
-            _typeNameTable[35] = "Horoazhon.Features.Medecins.Views.MedecinsPage";
+            _typeNameTable[8] = "Horoazhon.Features.Medecins.Views.AgentEditControl";
+            _typeNameTable[9] = "Horoazhon.Features.Medecins.Views.AgentListControl";
+            _typeNameTable[10] = "Microsoft.UI.Xaml.Controls.Expander";
+            _typeNameTable[11] = "Microsoft.UI.Xaml.Controls.ContentControl";
+            _typeNameTable[12] = "Microsoft.UI.Xaml.Controls.ExpandDirection";
+            _typeNameTable[13] = "System.Enum";
+            _typeNameTable[14] = "System.ValueType";
+            _typeNameTable[15] = "Microsoft.UI.Xaml.DataTemplate";
+            _typeNameTable[16] = "Microsoft.UI.Xaml.Controls.DataTemplateSelector";
+            _typeNameTable[17] = "Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings";
+            _typeNameTable[18] = "Microsoft.UI.Xaml.DependencyObject";
+            _typeNameTable[19] = "Horoazhon.Features.Medecins.Views.VisiteListControl";
+            _typeNameTable[20] = "System.Collections.IEnumerable";
+            _typeNameTable[21] = "Horoazhon.Domain.Models.Consultation";
+            _typeNameTable[22] = "Horoazhon.Features.Medecins.Views.RdvListControl";
+            _typeNameTable[23] = "Horoazhon.Features.Medecins.Views.AgentPage";
+            _typeNameTable[24] = "Horoazhon.Features.Medecins.Views.AgentSearchControl";
+            _typeNameTable[25] = "Horoazhon.Features.Auth.Views.AuthControl";
+            _typeNameTable[26] = "Horoazhon.Features.Clients.Views.ClientEditControl";
+            _typeNameTable[27] = "Horoazhon.Features.Clients.Views.ClientListControl";
+            _typeNameTable[28] = "Horoazhon.Features.Clients.Views.VisiteListControl";
+            _typeNameTable[29] = "Horoazhon.Features.Clients.Views.RdvListControl";
+            _typeNameTable[30] = "Horoazhon.Features.Clients.Views.ClientsearchControl";
+            _typeNameTable[31] = "Horoazhon.Features.Clients.Views.ClientPage";
+            _typeNameTable[32] = "Horoazhon.Features.Clients.ViewModel.ClientViewModel";
+            _typeNameTable[33] = "Horoazhon.Features.Consultations.Views.VisiteListControl";
+            _typeNameTable[34] = "Horoazhon.Features.Consultations.Views.VisitePage";
+            _typeNameTable[35] = "Horoazhon.Features.Dashboard.Views.DashboardPage";
             _typeNameTable[36] = "Horoazhon.Features.Rdvs.Views.RdvListControl";
             _typeNameTable[37] = "Horoazhon.Features.Rdvs.Views.RdvPage";
             _typeNameTable[38] = "Horoazhon.Features.Rdvs.Views.RdvResumeControl";
@@ -308,34 +308,34 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
             _typeTable[5] = typeof(global::Microsoft.UI.Xaml.Controls.Page);
             _typeTable[6] = typeof(global::Microsoft.UI.Xaml.Controls.UserControl);
             _typeTable[7] = typeof(global::Horoazhon.Features.Agenda.Views.AgendaPage);
-            _typeTable[8] = typeof(global::Horoazhon.Features.Auth.Views.AuthControl);
-            _typeTable[9] = typeof(global::Horoazhon.Features.Clients.Views.ConsultationListControl);
-            _typeTable[10] = typeof(global::System.Collections.IEnumerable);
-            _typeTable[11] = typeof(global::Horoazhon.Domain.Models.Consultation);
-            _typeTable[12] = typeof(global::Horoazhon.Features.Clients.Views.ClientEditControl);
-            _typeTable[13] = typeof(global::Horoazhon.Features.Clients.Views.ClientListControl);
-            _typeTable[14] = typeof(global::Horoazhon.Features.Clients.Views.ClientsearchControl);
-            _typeTable[15] = typeof(global::Microsoft.UI.Xaml.Controls.Expander);
-            _typeTable[16] = typeof(global::Microsoft.UI.Xaml.Controls.ContentControl);
-            _typeTable[17] = typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection);
-            _typeTable[18] = typeof(global::System.Enum);
-            _typeTable[19] = typeof(global::System.ValueType);
-            _typeTable[20] = typeof(global::Microsoft.UI.Xaml.DataTemplate);
-            _typeTable[21] = typeof(global::Microsoft.UI.Xaml.Controls.DataTemplateSelector);
-            _typeTable[22] = typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings);
-            _typeTable[23] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
-            _typeTable[24] = typeof(global::Horoazhon.Features.Clients.Views.RdvListControl);
-            _typeTable[25] = typeof(global::Horoazhon.Features.Clients.Views.ClientsPage);
-            _typeTable[26] = typeof(global::Horoazhon.Features.Clients.ViewModel.ClientViewModel);
-            _typeTable[27] = typeof(global::Horoazhon.Features.Consultations.Views.ConsultationListControl);
-            _typeTable[28] = typeof(global::Horoazhon.Features.Consultations.Views.ConsultationPage);
-            _typeTable[29] = typeof(global::Horoazhon.Features.Dashboard.Views.DashboardPage);
-            _typeTable[30] = typeof(global::Horoazhon.Features.Medecins.Views.ConsultationListControl);
-            _typeTable[31] = typeof(global::Horoazhon.Features.Medecins.Views.MedecinEditControl);
-            _typeTable[32] = typeof(global::Horoazhon.Features.Medecins.Views.MedecinListControl);
-            _typeTable[33] = typeof(global::Horoazhon.Features.Medecins.Views.MedecinSearchControl);
-            _typeTable[34] = typeof(global::Horoazhon.Features.Medecins.Views.RdvListControl);
-            _typeTable[35] = typeof(global::Horoazhon.Features.Medecins.Views.MedecinsPage);
+            _typeTable[8] = typeof(global::Horoazhon.Features.Medecins.Views.AgentEditControl);
+            _typeTable[9] = typeof(global::Horoazhon.Features.Medecins.Views.AgentListControl);
+            _typeTable[10] = typeof(global::Microsoft.UI.Xaml.Controls.Expander);
+            _typeTable[11] = typeof(global::Microsoft.UI.Xaml.Controls.ContentControl);
+            _typeTable[12] = typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection);
+            _typeTable[13] = typeof(global::System.Enum);
+            _typeTable[14] = typeof(global::System.ValueType);
+            _typeTable[15] = typeof(global::Microsoft.UI.Xaml.DataTemplate);
+            _typeTable[16] = typeof(global::Microsoft.UI.Xaml.Controls.DataTemplateSelector);
+            _typeTable[17] = typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings);
+            _typeTable[18] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
+            _typeTable[19] = typeof(global::Horoazhon.Features.Medecins.Views.VisiteListControl);
+            _typeTable[20] = typeof(global::System.Collections.IEnumerable);
+            _typeTable[21] = typeof(global::Horoazhon.Domain.Models.Consultation);
+            _typeTable[22] = typeof(global::Horoazhon.Features.Medecins.Views.RdvListControl);
+            _typeTable[23] = typeof(global::Horoazhon.Features.Medecins.Views.AgentPage);
+            _typeTable[24] = typeof(global::Horoazhon.Features.Medecins.Views.AgentSearchControl);
+            _typeTable[25] = typeof(global::Horoazhon.Features.Auth.Views.AuthControl);
+            _typeTable[26] = typeof(global::Horoazhon.Features.Clients.Views.ClientEditControl);
+            _typeTable[27] = typeof(global::Horoazhon.Features.Clients.Views.ClientListControl);
+            _typeTable[28] = typeof(global::Horoazhon.Features.Clients.Views.VisiteListControl);
+            _typeTable[29] = typeof(global::Horoazhon.Features.Clients.Views.RdvListControl);
+            _typeTable[30] = typeof(global::Horoazhon.Features.Clients.Views.ClientsearchControl);
+            _typeTable[31] = typeof(global::Horoazhon.Features.Clients.Views.ClientPage);
+            _typeTable[32] = typeof(global::Horoazhon.Features.Clients.ViewModel.ClientViewModel);
+            _typeTable[33] = typeof(global::Horoazhon.Features.Consultations.Views.VisiteListControl);
+            _typeTable[34] = typeof(global::Horoazhon.Features.Consultations.Views.VisitePage);
+            _typeTable[35] = typeof(global::Horoazhon.Features.Dashboard.Views.DashboardPage);
             _typeTable[36] = typeof(global::Horoazhon.Features.Rdvs.Views.RdvListControl);
             _typeTable[37] = typeof(global::Horoazhon.Features.Rdvs.Views.RdvPage);
             _typeTable[38] = typeof(global::Horoazhon.Features.Rdvs.Views.RdvResumeControl);
@@ -408,25 +408,25 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
         private object Activate_0_XamlControlsResources() { return new global::Microsoft.UI.Xaml.Controls.XamlControlsResources(); }
         private object Activate_4_AgendaIndisponibilitePage() { return new global::Horoazhon.Features.Agenda.Views.AgendaIndisponibilitePage(); }
         private object Activate_7_AgendaPage() { return new global::Horoazhon.Features.Agenda.Views.AgendaPage(); }
-        private object Activate_8_AuthControl() { return new global::Horoazhon.Features.Auth.Views.AuthControl(); }
-        private object Activate_9_ConsultationListControl() { return new global::Horoazhon.Features.Clients.Views.ConsultationListControl(); }
-        private object Activate_11_Consultation() { return new global::Horoazhon.Domain.Models.Consultation(); }
-        private object Activate_12_ClientEditControl() { return new global::Horoazhon.Features.Clients.Views.ClientEditControl(); }
-        private object Activate_13_ClientListControl() { return new global::Horoazhon.Features.Clients.Views.ClientListControl(); }
-        private object Activate_14_ClientsearchControl() { return new global::Horoazhon.Features.Clients.Views.ClientsearchControl(); }
-        private object Activate_15_Expander() { return new global::Microsoft.UI.Xaml.Controls.Expander(); }
-        private object Activate_24_RdvListControl() { return new global::Horoazhon.Features.Clients.Views.RdvListControl(); }
-        private object Activate_25_ClientsPage() { return new global::Horoazhon.Features.Clients.Views.ClientsPage(); }
-        private object Activate_26_ClientViewModel() { return new global::Horoazhon.Features.Clients.ViewModel.ClientViewModel(); }
-        private object Activate_27_ConsultationListControl() { return new global::Horoazhon.Features.Consultations.Views.ConsultationListControl(); }
-        private object Activate_28_ConsultationPage() { return new global::Horoazhon.Features.Consultations.Views.ConsultationPage(); }
-        private object Activate_29_DashboardPage() { return new global::Horoazhon.Features.Dashboard.Views.DashboardPage(); }
-        private object Activate_30_ConsultationListControl() { return new global::Horoazhon.Features.Medecins.Views.ConsultationListControl(); }
-        private object Activate_31_MedecinEditControl() { return new global::Horoazhon.Features.Medecins.Views.MedecinEditControl(); }
-        private object Activate_32_MedecinListControl() { return new global::Horoazhon.Features.Medecins.Views.MedecinListControl(); }
-        private object Activate_33_MedecinSearchControl() { return new global::Horoazhon.Features.Medecins.Views.MedecinSearchControl(); }
-        private object Activate_34_RdvListControl() { return new global::Horoazhon.Features.Medecins.Views.RdvListControl(); }
-        private object Activate_35_MedecinsPage() { return new global::Horoazhon.Features.Medecins.Views.MedecinsPage(); }
+        private object Activate_8_AgentEditControl() { return new global::Horoazhon.Features.Medecins.Views.AgentEditControl(); }
+        private object Activate_9_AgentListControl() { return new global::Horoazhon.Features.Medecins.Views.AgentListControl(); }
+        private object Activate_10_Expander() { return new global::Microsoft.UI.Xaml.Controls.Expander(); }
+        private object Activate_19_VisiteListControl() { return new global::Horoazhon.Features.Medecins.Views.VisiteListControl(); }
+        private object Activate_21_Consultation() { return new global::Horoazhon.Domain.Models.Consultation(); }
+        private object Activate_22_RdvListControl() { return new global::Horoazhon.Features.Medecins.Views.RdvListControl(); }
+        private object Activate_23_AgentPage() { return new global::Horoazhon.Features.Medecins.Views.AgentPage(); }
+        private object Activate_24_AgentSearchControl() { return new global::Horoazhon.Features.Medecins.Views.AgentSearchControl(); }
+        private object Activate_25_AuthControl() { return new global::Horoazhon.Features.Auth.Views.AuthControl(); }
+        private object Activate_26_ClientEditControl() { return new global::Horoazhon.Features.Clients.Views.ClientEditControl(); }
+        private object Activate_27_ClientListControl() { return new global::Horoazhon.Features.Clients.Views.ClientListControl(); }
+        private object Activate_28_VisiteListControl() { return new global::Horoazhon.Features.Clients.Views.VisiteListControl(); }
+        private object Activate_29_RdvListControl() { return new global::Horoazhon.Features.Clients.Views.RdvListControl(); }
+        private object Activate_30_ClientsearchControl() { return new global::Horoazhon.Features.Clients.Views.ClientsearchControl(); }
+        private object Activate_31_ClientPage() { return new global::Horoazhon.Features.Clients.Views.ClientPage(); }
+        private object Activate_32_ClientViewModel() { return new global::Horoazhon.Features.Clients.ViewModel.ClientViewModel(); }
+        private object Activate_33_VisiteListControl() { return new global::Horoazhon.Features.Consultations.Views.VisiteListControl(); }
+        private object Activate_34_VisitePage() { return new global::Horoazhon.Features.Consultations.Views.VisitePage(); }
+        private object Activate_35_DashboardPage() { return new global::Horoazhon.Features.Dashboard.Views.DashboardPage(); }
         private object Activate_36_RdvListControl() { return new global::Horoazhon.Features.Rdvs.Views.RdvListControl(); }
         private object Activate_37_RdvPage() { return new global::Horoazhon.Features.Rdvs.Views.RdvPage(); }
         private object Activate_40_RdvStatutControl() { return new global::Horoazhon.Features.Rdvs.Views.RdvStatutControl(); }
@@ -441,30 +441,30 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
         private void StaticInitializer_0_XamlControlsResources() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.XamlControlsResources).TypeHandle);
         private void StaticInitializer_4_AgendaIndisponibilitePage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Agenda.Views.AgendaIndisponibilitePage).TypeHandle);
         private void StaticInitializer_7_AgendaPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Agenda.Views.AgendaPage).TypeHandle);
-        private void StaticInitializer_8_AuthControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Auth.Views.AuthControl).TypeHandle);
-        private void StaticInitializer_9_ConsultationListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ConsultationListControl).TypeHandle);
-        private void StaticInitializer_10_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.IEnumerable).TypeHandle);
-        private void StaticInitializer_11_Consultation() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Domain.Models.Consultation).TypeHandle);
-        private void StaticInitializer_12_ClientEditControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientEditControl).TypeHandle);
-        private void StaticInitializer_13_ClientListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientListControl).TypeHandle);
-        private void StaticInitializer_14_ClientsearchControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientsearchControl).TypeHandle);
-        private void StaticInitializer_15_Expander() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.Expander).TypeHandle);
-        private void StaticInitializer_17_ExpandDirection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection).TypeHandle);
-        private void StaticInitializer_18_Enum() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Enum).TypeHandle);
-        private void StaticInitializer_19_ValueType() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.ValueType).TypeHandle);
-        private void StaticInitializer_22_ExpanderTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings).TypeHandle);
-        private void StaticInitializer_24_RdvListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.RdvListControl).TypeHandle);
-        private void StaticInitializer_25_ClientsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientsPage).TypeHandle);
-        private void StaticInitializer_26_ClientViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.ViewModel.ClientViewModel).TypeHandle);
-        private void StaticInitializer_27_ConsultationListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Consultations.Views.ConsultationListControl).TypeHandle);
-        private void StaticInitializer_28_ConsultationPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Consultations.Views.ConsultationPage).TypeHandle);
-        private void StaticInitializer_29_DashboardPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Dashboard.Views.DashboardPage).TypeHandle);
-        private void StaticInitializer_30_ConsultationListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.ConsultationListControl).TypeHandle);
-        private void StaticInitializer_31_MedecinEditControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.MedecinEditControl).TypeHandle);
-        private void StaticInitializer_32_MedecinListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.MedecinListControl).TypeHandle);
-        private void StaticInitializer_33_MedecinSearchControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.MedecinSearchControl).TypeHandle);
-        private void StaticInitializer_34_RdvListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.RdvListControl).TypeHandle);
-        private void StaticInitializer_35_MedecinsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.MedecinsPage).TypeHandle);
+        private void StaticInitializer_8_AgentEditControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.AgentEditControl).TypeHandle);
+        private void StaticInitializer_9_AgentListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.AgentListControl).TypeHandle);
+        private void StaticInitializer_10_Expander() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.Expander).TypeHandle);
+        private void StaticInitializer_12_ExpandDirection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection).TypeHandle);
+        private void StaticInitializer_13_Enum() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Enum).TypeHandle);
+        private void StaticInitializer_14_ValueType() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.ValueType).TypeHandle);
+        private void StaticInitializer_17_ExpanderTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings).TypeHandle);
+        private void StaticInitializer_19_VisiteListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.VisiteListControl).TypeHandle);
+        private void StaticInitializer_20_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.IEnumerable).TypeHandle);
+        private void StaticInitializer_21_Consultation() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Domain.Models.Consultation).TypeHandle);
+        private void StaticInitializer_22_RdvListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.RdvListControl).TypeHandle);
+        private void StaticInitializer_23_AgentPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.AgentPage).TypeHandle);
+        private void StaticInitializer_24_AgentSearchControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Medecins.Views.AgentSearchControl).TypeHandle);
+        private void StaticInitializer_25_AuthControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Auth.Views.AuthControl).TypeHandle);
+        private void StaticInitializer_26_ClientEditControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientEditControl).TypeHandle);
+        private void StaticInitializer_27_ClientListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientListControl).TypeHandle);
+        private void StaticInitializer_28_VisiteListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.VisiteListControl).TypeHandle);
+        private void StaticInitializer_29_RdvListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.RdvListControl).TypeHandle);
+        private void StaticInitializer_30_ClientsearchControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientsearchControl).TypeHandle);
+        private void StaticInitializer_31_ClientPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.Views.ClientPage).TypeHandle);
+        private void StaticInitializer_32_ClientViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Clients.ViewModel.ClientViewModel).TypeHandle);
+        private void StaticInitializer_33_VisiteListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Consultations.Views.VisiteListControl).TypeHandle);
+        private void StaticInitializer_34_VisitePage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Consultations.Views.VisitePage).TypeHandle);
+        private void StaticInitializer_35_DashboardPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Dashboard.Views.DashboardPage).TypeHandle);
         private void StaticInitializer_36_RdvListControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Rdvs.Views.RdvListControl).TypeHandle);
         private void StaticInitializer_37_RdvPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Rdvs.Views.RdvPage).TypeHandle);
         private void StaticInitializer_38_RdvResumeControl() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Horoazhon.Features.Rdvs.Views.RdvResumeControl).TypeHandle);
@@ -563,67 +563,26 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 8:   //  Horoazhon.Features.Auth.Views.AuthControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_8_AuthControl;
-                userType.StaticInitializer = StaticInitializer_8_AuthControl;
+            case 8:   //  Horoazhon.Features.Medecins.Views.AgentEditControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
+                userType.Activator = Activate_8_AgentEditControl;
+                userType.StaticInitializer = StaticInitializer_8_AgentEditControl;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 9:   //  Horoazhon.Features.Clients.Views.ConsultationListControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_9_ConsultationListControl;
-                userType.StaticInitializer = StaticInitializer_9_ConsultationListControl;
-                userType.AddMemberName("ItemsSource");
-                userType.AddMemberName("SelectedItem");
+            case 9:   //  Horoazhon.Features.Medecins.Views.AgentListControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
+                userType.Activator = Activate_9_AgentListControl;
+                userType.StaticInitializer = StaticInitializer_9_AgentListControl;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 10:   //  System.Collections.IEnumerable
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_10_IEnumerable;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 11:   //  Horoazhon.Domain.Models.Consultation
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_11_Consultation;
-                userType.SetIsReturnTypeStub();
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 12:   //  Horoazhon.Features.Clients.Views.ClientEditControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_12_ClientEditControl;
-                userType.StaticInitializer = StaticInitializer_12_ClientEditControl;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 13:   //  Horoazhon.Features.Clients.Views.ClientListControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_13_ClientListControl;
-                userType.StaticInitializer = StaticInitializer_13_ClientListControl;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 14:   //  Horoazhon.Features.Clients.Views.ClientsearchControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_14_ClientsearchControl;
-                userType.StaticInitializer = StaticInitializer_14_ClientsearchControl;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 15:   //  Microsoft.UI.Xaml.Controls.Expander
+            case 10:   //  Microsoft.UI.Xaml.Controls.Expander
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentControl"));
-                userType.Activator = Activate_15_Expander;
-                userType.StaticInitializer = StaticInitializer_15_Expander;
+                userType.Activator = Activate_10_Expander;
+                userType.StaticInitializer = StaticInitializer_10_Expander;
                 userType.AddMemberName("Header");
                 userType.AddMemberName("IsExpanded");
                 userType.AddMemberName("ExpandDirection");
@@ -633,144 +592,185 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 16:   //  Microsoft.UI.Xaml.Controls.ContentControl
+            case 11:   //  Microsoft.UI.Xaml.Controls.ContentControl
                 xamlType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 17:   //  Microsoft.UI.Xaml.Controls.ExpandDirection
+            case 12:   //  Microsoft.UI.Xaml.Controls.ExpandDirection
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_17_ExpandDirection;
+                userType.StaticInitializer = StaticInitializer_12_ExpandDirection;
                 userType.AddEnumValue("Down", global::Microsoft.UI.Xaml.Controls.ExpandDirection.Down);
                 userType.AddEnumValue("Up", global::Microsoft.UI.Xaml.Controls.ExpandDirection.Up);
                 xamlType = userType;
                 break;
 
-            case 18:   //  System.Enum
+            case 13:   //  System.Enum
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
-                userType.StaticInitializer = StaticInitializer_18_Enum;
+                userType.StaticInitializer = StaticInitializer_13_Enum;
                 xamlType = userType;
                 break;
 
-            case 19:   //  System.ValueType
+            case 14:   //  System.ValueType
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_19_ValueType;
+                userType.StaticInitializer = StaticInitializer_14_ValueType;
                 xamlType = userType;
                 break;
 
-            case 20:   //  Microsoft.UI.Xaml.DataTemplate
+            case 15:   //  Microsoft.UI.Xaml.DataTemplate
                 xamlType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 21:   //  Microsoft.UI.Xaml.Controls.DataTemplateSelector
+            case 16:   //  Microsoft.UI.Xaml.Controls.DataTemplateSelector
                 xamlType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 22:   //  Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings
+            case 17:   //  Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.StaticInitializer = StaticInitializer_22_ExpanderTemplateSettings;
+                userType.StaticInitializer = StaticInitializer_17_ExpanderTemplateSettings;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 23:   //  Microsoft.UI.Xaml.DependencyObject
+            case 18:   //  Microsoft.UI.Xaml.DependencyObject
                 xamlType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 24:   //  Horoazhon.Features.Clients.Views.RdvListControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_24_RdvListControl;
-                userType.StaticInitializer = StaticInitializer_24_RdvListControl;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 25:   //  Horoazhon.Features.Clients.Views.ClientsPage
+            case 19:   //  Horoazhon.Features.Medecins.Views.VisiteListControl
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_25_ClientsPage;
-                userType.StaticInitializer = StaticInitializer_25_ClientsPage;
-                userType.AddMemberName("ViewModel");
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 26:   //  Horoazhon.Features.Clients.ViewModel.ClientViewModel
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_26_ClientViewModel;
-                userType.SetIsReturnTypeStub();
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 27:   //  Horoazhon.Features.Consultations.Views.ConsultationListControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.Activator = Activate_27_ConsultationListControl;
-                userType.StaticInitializer = StaticInitializer_27_ConsultationListControl;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 28:   //  Horoazhon.Features.Consultations.Views.ConsultationPage
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_28_ConsultationPage;
-                userType.StaticInitializer = StaticInitializer_28_ConsultationPage;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 29:   //  Horoazhon.Features.Dashboard.Views.DashboardPage
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_29_DashboardPage;
-                userType.StaticInitializer = StaticInitializer_29_DashboardPage;
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 30:   //  Horoazhon.Features.Medecins.Views.ConsultationListControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_30_ConsultationListControl;
-                userType.StaticInitializer = StaticInitializer_30_ConsultationListControl;
+                userType.Activator = Activate_19_VisiteListControl;
+                userType.StaticInitializer = StaticInitializer_19_VisiteListControl;
                 userType.AddMemberName("ItemsSource");
                 userType.AddMemberName("SelectedItem");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 31:   //  Horoazhon.Features.Medecins.Views.MedecinEditControl
-                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_31_MedecinEditControl;
-                userType.StaticInitializer = StaticInitializer_31_MedecinEditControl;
+            case 20:   //  System.Collections.IEnumerable
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_20_IEnumerable;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 21:   //  Horoazhon.Domain.Models.Consultation
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_21_Consultation;
+                userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 32:   //  Horoazhon.Features.Medecins.Views.MedecinListControl
+            case 22:   //  Horoazhon.Features.Medecins.Views.RdvListControl
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_32_MedecinListControl;
-                userType.StaticInitializer = StaticInitializer_32_MedecinListControl;
+                userType.Activator = Activate_22_RdvListControl;
+                userType.StaticInitializer = StaticInitializer_22_RdvListControl;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 33:   //  Horoazhon.Features.Medecins.Views.MedecinSearchControl
+            case 23:   //  Horoazhon.Features.Medecins.Views.AgentPage
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_33_MedecinSearchControl;
-                userType.StaticInitializer = StaticInitializer_33_MedecinSearchControl;
+                userType.Activator = Activate_23_AgentPage;
+                userType.StaticInitializer = StaticInitializer_23_AgentPage;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 34:   //  Horoazhon.Features.Medecins.Views.RdvListControl
+            case 24:   //  Horoazhon.Features.Medecins.Views.AgentSearchControl
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_34_RdvListControl;
-                userType.StaticInitializer = StaticInitializer_34_RdvListControl;
+                userType.Activator = Activate_24_AgentSearchControl;
+                userType.StaticInitializer = StaticInitializer_24_AgentSearchControl;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 35:   //  Horoazhon.Features.Medecins.Views.MedecinsPage
+            case 25:   //  Horoazhon.Features.Auth.Views.AuthControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_25_AuthControl;
+                userType.StaticInitializer = StaticInitializer_25_AuthControl;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 26:   //  Horoazhon.Features.Clients.Views.ClientEditControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_26_ClientEditControl;
+                userType.StaticInitializer = StaticInitializer_26_ClientEditControl;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 27:   //  Horoazhon.Features.Clients.Views.ClientListControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_27_ClientListControl;
+                userType.StaticInitializer = StaticInitializer_27_ClientListControl;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 28:   //  Horoazhon.Features.Clients.Views.VisiteListControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_28_VisiteListControl;
+                userType.StaticInitializer = StaticInitializer_28_VisiteListControl;
+                userType.AddMemberName("ItemsSource");
+                userType.AddMemberName("SelectedItem");
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 29:   //  Horoazhon.Features.Clients.Views.RdvListControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_29_RdvListControl;
+                userType.StaticInitializer = StaticInitializer_29_RdvListControl;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 30:   //  Horoazhon.Features.Clients.Views.ClientsearchControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_30_ClientsearchControl;
+                userType.StaticInitializer = StaticInitializer_30_ClientsearchControl;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 31:   //  Horoazhon.Features.Clients.Views.ClientPage
                 userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_35_MedecinsPage;
-                userType.StaticInitializer = StaticInitializer_35_MedecinsPage;
+                userType.Activator = Activate_31_ClientPage;
+                userType.StaticInitializer = StaticInitializer_31_ClientPage;
+                userType.AddMemberName("ViewModel");
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 32:   //  Horoazhon.Features.Clients.ViewModel.ClientViewModel
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_32_ClientViewModel;
+                userType.SetIsReturnTypeStub();
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 33:   //  Horoazhon.Features.Consultations.Views.VisiteListControl
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_33_VisiteListControl;
+                userType.StaticInitializer = StaticInitializer_33_VisiteListControl;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 34:   //  Horoazhon.Features.Consultations.Views.VisitePage
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
+                userType.Activator = Activate_34_VisitePage;
+                userType.StaticInitializer = StaticInitializer_34_VisitePage;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 35:   //  Horoazhon.Features.Dashboard.Views.DashboardPage
+                userType = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
+                userType.Activator = Activate_35_DashboardPage;
+                userType.StaticInitializer = StaticInitializer_35_DashboardPage;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
@@ -1129,105 +1129,105 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
             var that = (global::Microsoft.UI.Xaml.Controls.XamlControlsResources)instance;
             that.UseCompactResources = (global::System.Boolean)Value;
         }
-        private object get_1_ConsultationListControl_ItemsSource(object instance)
-        {
-            var that = (global::Horoazhon.Features.Clients.Views.ConsultationListControl)instance;
-            return that.ItemsSource;
-        }
-        private void set_1_ConsultationListControl_ItemsSource(object instance, object Value)
-        {
-            var that = (global::Horoazhon.Features.Clients.Views.ConsultationListControl)instance;
-            that.ItemsSource = (global::System.Collections.IEnumerable)Value;
-        }
-        private object get_2_ConsultationListControl_SelectedItem(object instance)
-        {
-            var that = (global::Horoazhon.Features.Clients.Views.ConsultationListControl)instance;
-            return that.SelectedItem;
-        }
-        private void set_2_ConsultationListControl_SelectedItem(object instance, object Value)
-        {
-            var that = (global::Horoazhon.Features.Clients.Views.ConsultationListControl)instance;
-            that.SelectedItem = (global::Horoazhon.Domain.Models.Consultation)Value;
-        }
-        private object get_3_Expander_Header(object instance)
+        private object get_1_Expander_Header(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             return that.Header;
         }
-        private void set_3_Expander_Header(object instance, object Value)
+        private void set_1_Expander_Header(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             that.Header = (global::System.Object)Value;
         }
-        private object get_4_Expander_IsExpanded(object instance)
+        private object get_2_Expander_IsExpanded(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             return that.IsExpanded;
         }
-        private void set_4_Expander_IsExpanded(object instance, object Value)
+        private void set_2_Expander_IsExpanded(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             that.IsExpanded = (global::System.Boolean)Value;
         }
-        private object get_5_Expander_ExpandDirection(object instance)
+        private object get_3_Expander_ExpandDirection(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             return that.ExpandDirection;
         }
-        private void set_5_Expander_ExpandDirection(object instance, object Value)
+        private void set_3_Expander_ExpandDirection(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             that.ExpandDirection = (global::Microsoft.UI.Xaml.Controls.ExpandDirection)Value;
         }
-        private object get_6_Expander_HeaderTemplate(object instance)
+        private object get_4_Expander_HeaderTemplate(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             return that.HeaderTemplate;
         }
-        private void set_6_Expander_HeaderTemplate(object instance, object Value)
+        private void set_4_Expander_HeaderTemplate(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
         }
-        private object get_7_Expander_HeaderTemplateSelector(object instance)
+        private object get_5_Expander_HeaderTemplateSelector(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             return that.HeaderTemplateSelector;
         }
-        private void set_7_Expander_HeaderTemplateSelector(object instance, object Value)
+        private void set_5_Expander_HeaderTemplateSelector(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             that.HeaderTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
         }
-        private object get_8_Expander_TemplateSettings(object instance)
+        private object get_6_Expander_TemplateSettings(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
             return that.TemplateSettings;
         }
-        private object get_9_ClientsPage_ViewModel(object instance)
+        private object get_7_VisiteListControl_ItemsSource(object instance)
         {
-            var that = (global::Horoazhon.Features.Clients.Views.ClientsPage)instance;
-            return that.ViewModel;
-        }
-        private object get_10_ConsultationListControl_ItemsSource(object instance)
-        {
-            var that = (global::Horoazhon.Features.Medecins.Views.ConsultationListControl)instance;
+            var that = (global::Horoazhon.Features.Medecins.Views.VisiteListControl)instance;
             return that.ItemsSource;
         }
-        private void set_10_ConsultationListControl_ItemsSource(object instance, object Value)
+        private void set_7_VisiteListControl_ItemsSource(object instance, object Value)
         {
-            var that = (global::Horoazhon.Features.Medecins.Views.ConsultationListControl)instance;
+            var that = (global::Horoazhon.Features.Medecins.Views.VisiteListControl)instance;
             that.ItemsSource = (global::System.Collections.IEnumerable)Value;
         }
-        private object get_11_ConsultationListControl_SelectedItem(object instance)
+        private object get_8_VisiteListControl_SelectedItem(object instance)
         {
-            var that = (global::Horoazhon.Features.Medecins.Views.ConsultationListControl)instance;
+            var that = (global::Horoazhon.Features.Medecins.Views.VisiteListControl)instance;
             return that.SelectedItem;
         }
-        private void set_11_ConsultationListControl_SelectedItem(object instance, object Value)
+        private void set_8_VisiteListControl_SelectedItem(object instance, object Value)
         {
-            var that = (global::Horoazhon.Features.Medecins.Views.ConsultationListControl)instance;
+            var that = (global::Horoazhon.Features.Medecins.Views.VisiteListControl)instance;
             that.SelectedItem = (global::Horoazhon.Domain.Models.Consultation)Value;
+        }
+        private object get_9_VisiteListControl_ItemsSource(object instance)
+        {
+            var that = (global::Horoazhon.Features.Clients.Views.VisiteListControl)instance;
+            return that.ItemsSource;
+        }
+        private void set_9_VisiteListControl_ItemsSource(object instance, object Value)
+        {
+            var that = (global::Horoazhon.Features.Clients.Views.VisiteListControl)instance;
+            that.ItemsSource = (global::System.Collections.IEnumerable)Value;
+        }
+        private object get_10_VisiteListControl_SelectedItem(object instance)
+        {
+            var that = (global::Horoazhon.Features.Clients.Views.VisiteListControl)instance;
+            return that.SelectedItem;
+        }
+        private void set_10_VisiteListControl_SelectedItem(object instance, object Value)
+        {
+            var that = (global::Horoazhon.Features.Clients.Views.VisiteListControl)instance;
+            that.SelectedItem = (global::Horoazhon.Domain.Models.Consultation)Value;
+        }
+        private object get_11_ClientPage_ViewModel(object instance)
+        {
+            var that = (global::Horoazhon.Features.Clients.Views.ClientPage)instance;
+            return that.ViewModel;
         }
         private object get_12_RdvStatutControl_Text(object instance)
         {
@@ -1754,80 +1754,80 @@ namespace Horoazhon.Horoazhon_XamlTypeInfo
                 xamlMember.Getter = get_0_XamlControlsResources_UseCompactResources;
                 xamlMember.Setter = set_0_XamlControlsResources_UseCompactResources;
                 break;
-            case "Horoazhon.Features.Clients.Views.ConsultationListControl.ItemsSource":
-                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Clients.Views.ConsultationListControl");
-                xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "ItemsSource", "System.Collections.IEnumerable");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_1_ConsultationListControl_ItemsSource;
-                xamlMember.Setter = set_1_ConsultationListControl_ItemsSource;
-                break;
-            case "Horoazhon.Features.Clients.Views.ConsultationListControl.SelectedItem":
-                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Clients.Views.ConsultationListControl");
-                xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "SelectedItem", "Horoazhon.Domain.Models.Consultation");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_2_ConsultationListControl_SelectedItem;
-                xamlMember.Setter = set_2_ConsultationListControl_SelectedItem;
-                break;
             case "Microsoft.UI.Xaml.Controls.Expander.Header":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "Header", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_3_Expander_Header;
-                xamlMember.Setter = set_3_Expander_Header;
+                xamlMember.Getter = get_1_Expander_Header;
+                xamlMember.Setter = set_1_Expander_Header;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.IsExpanded":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_4_Expander_IsExpanded;
-                xamlMember.Setter = set_4_Expander_IsExpanded;
+                xamlMember.Getter = get_2_Expander_IsExpanded;
+                xamlMember.Setter = set_2_Expander_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.ExpandDirection":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "ExpandDirection", "Microsoft.UI.Xaml.Controls.ExpandDirection");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_5_Expander_ExpandDirection;
-                xamlMember.Setter = set_5_Expander_ExpandDirection;
+                xamlMember.Getter = get_3_Expander_ExpandDirection;
+                xamlMember.Setter = set_3_Expander_ExpandDirection;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.HeaderTemplate":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "HeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_6_Expander_HeaderTemplate;
-                xamlMember.Setter = set_6_Expander_HeaderTemplate;
+                xamlMember.Getter = get_4_Expander_HeaderTemplate;
+                xamlMember.Setter = set_4_Expander_HeaderTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.HeaderTemplateSelector":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "HeaderTemplateSelector", "Microsoft.UI.Xaml.Controls.DataTemplateSelector");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_7_Expander_HeaderTemplateSelector;
-                xamlMember.Setter = set_7_Expander_HeaderTemplateSelector;
+                xamlMember.Getter = get_5_Expander_HeaderTemplateSelector;
+                xamlMember.Setter = set_5_Expander_HeaderTemplateSelector;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.TemplateSettings":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "TemplateSettings", "Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings");
-                xamlMember.Getter = get_8_Expander_TemplateSettings;
+                xamlMember.Getter = get_6_Expander_TemplateSettings;
                 xamlMember.SetIsReadOnly();
                 break;
-            case "Horoazhon.Features.Clients.Views.ClientsPage.ViewModel":
-                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Clients.Views.ClientsPage");
-                xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "ViewModel", "Horoazhon.Features.Clients.ViewModel.ClientViewModel");
-                xamlMember.Getter = get_9_ClientsPage_ViewModel;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "Horoazhon.Features.Medecins.Views.ConsultationListControl.ItemsSource":
-                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Medecins.Views.ConsultationListControl");
+            case "Horoazhon.Features.Medecins.Views.VisiteListControl.ItemsSource":
+                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Medecins.Views.VisiteListControl");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "ItemsSource", "System.Collections.IEnumerable");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_10_ConsultationListControl_ItemsSource;
-                xamlMember.Setter = set_10_ConsultationListControl_ItemsSource;
+                xamlMember.Getter = get_7_VisiteListControl_ItemsSource;
+                xamlMember.Setter = set_7_VisiteListControl_ItemsSource;
                 break;
-            case "Horoazhon.Features.Medecins.Views.ConsultationListControl.SelectedItem":
-                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Medecins.Views.ConsultationListControl");
+            case "Horoazhon.Features.Medecins.Views.VisiteListControl.SelectedItem":
+                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Medecins.Views.VisiteListControl");
                 xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "SelectedItem", "Horoazhon.Domain.Models.Consultation");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_11_ConsultationListControl_SelectedItem;
-                xamlMember.Setter = set_11_ConsultationListControl_SelectedItem;
+                xamlMember.Getter = get_8_VisiteListControl_SelectedItem;
+                xamlMember.Setter = set_8_VisiteListControl_SelectedItem;
+                break;
+            case "Horoazhon.Features.Clients.Views.VisiteListControl.ItemsSource":
+                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Clients.Views.VisiteListControl");
+                xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "ItemsSource", "System.Collections.IEnumerable");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_9_VisiteListControl_ItemsSource;
+                xamlMember.Setter = set_9_VisiteListControl_ItemsSource;
+                break;
+            case "Horoazhon.Features.Clients.Views.VisiteListControl.SelectedItem":
+                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Clients.Views.VisiteListControl");
+                xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "SelectedItem", "Horoazhon.Domain.Models.Consultation");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_10_VisiteListControl_SelectedItem;
+                xamlMember.Setter = set_10_VisiteListControl_SelectedItem;
+                break;
+            case "Horoazhon.Features.Clients.Views.ClientPage.ViewModel":
+                userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Clients.Views.ClientPage");
+                xamlMember = new global::Horoazhon.Horoazhon_XamlTypeInfo.XamlMember(this, "ViewModel", "Horoazhon.Features.Clients.ViewModel.ClientViewModel");
+                xamlMember.Getter = get_11_ClientPage_ViewModel;
+                xamlMember.SetIsReadOnly();
                 break;
             case "Horoazhon.Features.Rdvs.Views.RdvStatutControl.Text":
                 userType = (global::Horoazhon.Horoazhon_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Horoazhon.Features.Rdvs.Views.RdvStatutControl");

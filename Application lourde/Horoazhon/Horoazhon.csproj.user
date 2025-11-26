@@ -5,22 +5,7 @@
     <None Update="App.xaml">
       <SubType>Designer</SubType>
     </None>
-    <Page Update="Features\Rdvs\Views\RdvStatutControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Rdvs\Views\RdvResumeIndisponibiliteControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Rdvs\Views\RdvResumeControl.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="Features\Agenda\Views\AgendaIndisponibilitePage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Rdvs\Views\RdvPage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Features\Consultations\Views\VisiteListControl.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Features\Dashboard\Views\DashboardPage.xaml">

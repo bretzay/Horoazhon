@@ -34,5 +34,6 @@
     <PkgMicrosoft_Web_WebView2 Condition=" '$(PkgMicrosoft_Web_WebView2)' == '' ">C:\Users\frant\.nuget\packages\microsoft.web.webview2\1.0.3179.45</PkgMicrosoft_Web_WebView2>
     <PkgMicrosoft_WindowsAppSDK_WinUI Condition=" '$(PkgMicrosoft_WindowsAppSDK_WinUI)' == '' ">C:\Users\frant\.nuget\packages\microsoft.windowsappsdk.winui\1.8.251105000</PkgMicrosoft_WindowsAppSDK_WinUI>
     <PkgMicrosoft_WindowsAppSDK_Runtime Condition=" '$(PkgMicrosoft_WindowsAppSDK_Runtime)' == '' ">C:\Users\frant\.nuget\packages\microsoft.windowsappsdk.runtime\1.8.251106002</PkgMicrosoft_WindowsAppSDK_Runtime>
+    <PkgMicrosoft_EntityFrameworkCore_Tools Condition=" '$(PkgMicrosoft_EntityFrameworkCore_Tools)' == '' ">C:\Users\frant\.nuget\packages\microsoft.entityframeworkcore.tools\10.0.0</PkgMicrosoft_EntityFrameworkCore_Tools>
   </PropertyGroup>
 </Project>

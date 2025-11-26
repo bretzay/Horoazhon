@@ -40,7 +40,7 @@ namespace Horoazhon.Features.Auth.ViewModel
         private string? _codePin = null;
         private bool? _isEditable = false;
         private string? _messageInfo = "Veuillez saisir le mot de passe et le login";
-        private Connexion? _connexion;
+        private Utilisateur? _connexion;
         private Personne? _personne;
 
 
@@ -95,12 +95,12 @@ namespace Horoazhon.Features.Auth.ViewModel
         /// <summary>
         /// Contexte de la base de données
         /// </summary>     
-        CabinetContext dbContext = new CabinetContext();
+        HoroazhonContext dbContext = new HoroazhonContext();
 
         /// <summary>
         /// Liste des connexions
         /// </summary>
-        List<Connexion> connexions;
+        List<Utilisateur> connexions;
 
         /// <summary>
         /// Constructeur
@@ -147,7 +147,7 @@ namespace Horoazhon.Features.Auth.ViewModel
                 dbContext.SaveChanges();
 
                 //Trace de connexion
-                Trace.TraceInformation($"{DateTime.Now} : {User.UserName} - {User.UserRole} : Connexion réussie");
+                Trace.TraceInformation($"{DateTime.Now} : {User.UserName} - {User.UserRole} : Utilisateur réussie");
             }
 
             return IsAuthenticated;

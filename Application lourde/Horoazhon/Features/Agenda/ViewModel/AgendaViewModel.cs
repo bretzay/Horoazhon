@@ -16,7 +16,7 @@ namespace Horoazhon.Features.Agenda.ViewModel
     public class AgendaViewModel : INotifyPropertyChanged, IAgendaViewModel
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        CabinetContext? HoroazhonContext = new();
+        HoroazhonContext? HoroazhonContext = new();
         private List<Agent>? _medecins;
         private Agent? _medecinSelected;
         private string? _nomMedecin;        

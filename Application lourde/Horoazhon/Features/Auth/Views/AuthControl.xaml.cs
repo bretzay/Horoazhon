@@ -39,7 +39,7 @@ namespace Horoazhon.Features.Auth.Views
             {
 
 
-                App.Connexion();
+                App.Utilisateur();
 
             }
             else
@@ -57,7 +57,7 @@ namespace Horoazhon.Features.Auth.Views
         private void BtnValiderFake_Click(object sender, RoutedEventArgs e)
         {
             authViewModel.ActionLogin();
-            App.Connexion();
+            App.Utilisateur();
         }
     }
 

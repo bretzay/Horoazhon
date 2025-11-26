@@ -5,23 +5,27 @@ namespace Horoazhon.Domain.Models;
 
 public partial class Personne
 {
-    public short Idpers { get; set; }
+    public string Siret { get; set; } = null!;
 
-    public string? Nompers { get; set; }
+    public short Id { get; set; }
 
-    public string? Prenompers { get; set; }
+    public string? Adresse { get; set; }
 
-    public string? Rolepers { get; set; }
+    public string? Rib { get; set; }
 
-    public string? Emailpers { get; set; }
+    public string Nom { get; set; } = null!;
 
-    public string? Telpers { get; set; }
+    public string Prenom { get; set; } = null!;
 
-    public DateTime? Datecreation { get; set; }
+    public DateTime Datenais { get; set; }
 
-    public virtual Connexion? Connexion { get; set; }
+    public DateTime Derniereco { get; set; }
 
-    public virtual Agent? Agent { get; set; }
+    public virtual ICollection<Cosigner> Cosigners { get; set; } = new List<Cosigner>();
 
-    public virtual Client? Client { get; set; }
+    public virtual Agence SiretNavigation { get; set; } = null!;
+
+    public virtual Utilisateur? Utilisateur { get; set; }
+
+    public virtual ICollection<Bien> Ids { get; set; } = new List<Bien>();
 }

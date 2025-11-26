@@ -51,10 +51,10 @@ namespace Horoazhon
         {
             _window = new MainWindow();
             _window.Activate();
-            Connexion();
+            Utilisateur();
         }
 
-        public static void Connexion()
+        public static void Utilisateur()
         {
             //On copie la fenetre actuelle
             var oldWindow = WindowSelected;
