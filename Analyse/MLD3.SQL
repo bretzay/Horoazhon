@@ -2,12 +2,12 @@
  ----------------------------------------------------------------------------
              Génération d'une base de données pour
                         SQL Server 2005
-                       (26/11/2025 13:48:55)
+                       (26/11/2025 13:59:30)
  ----------------------------------------------------------------------------
      Nom de la base : Horoazhon
      Projet : MCD3
      Auteur : *
-     Date de dernière modification : 26/11/2025 13:47:42
+     Date de dernière modification : 26/11/2025 13:59:20
  ----------------------------------------------------------------------------
 */
 
@@ -266,21 +266,21 @@ go
 
 
 /* -----------------------------------------------------------------------------
-      TABLE : POSSÉDER
+      TABLE : POSSEDER
 ----------------------------------------------------------------------------- */
 
-create table POSSÉDER
+create table POSSEDER
   (
      ID smallint  not null  ,
      ID_1 smallint  not null  
      ,
-     constraint PK_POSSÉDER primary key (ID, ID_1)
+     constraint PK_POSSEDER primary key (ID, ID_1)
   ) 
 go
 
 
 
-/*      INDEX DE POSSÉDER      */
+/*      INDEX DE POSSEDER      */
 
 
 
@@ -402,16 +402,16 @@ go
 
 
 
-alter table POSSÉDER 
-     add constraint FK_POSSÉDER_BIEN foreign key (ID) 
+alter table POSSEDER 
+     add constraint FK_POSSEDER_BIEN foreign key (ID) 
                references BIEN (ID)
 go
 
 
 
 
-alter table POSSÉDER 
-     add constraint FK_POSSÉDER_PERSONNE foreign key (ID_1) 
+alter table POSSEDER 
+     add constraint FK_POSSEDER_PERSONNE foreign key (ID_1) 
                references PERSONNE (ID)
 go
 
