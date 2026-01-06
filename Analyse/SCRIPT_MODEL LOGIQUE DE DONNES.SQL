@@ -2,12 +2,12 @@
  ----------------------------------------------------------------------------
              Génération d'une base de données pour
                         SQL Server 2005
-                       (6/1/2026 11:20:19)
+                       (6/1/2026 11:26:28)
  ----------------------------------------------------------------------------
      Nom de la base : horoazhon
-     Projet : 
+     Projet : Aggregation
      Auteur : *
-     Date de dernière modification : 6/1/2026 11:15:12
+     Date de dernière modification : 6/1/2026 11:24:50
  ----------------------------------------------------------------------------
 */
 
@@ -177,7 +177,8 @@ create table LOCATION
      ID smallint  not null  ,
      ID_SIGNER smallint  null  ,
      CAUTION NS  not null  ,
-     DATEDISPO char(32)  null  
+     DATEDISPO char(32)  null  ,
+     MENSUALITE smallint  not null  
      ,
      constraint PK_LOCATION primary key (ID_ETRE_DISPONIBLE, ID)
   ) 
