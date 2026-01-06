@@ -2,26 +2,26 @@
  ----------------------------------------------------------------------------
              Génération d'une base de données pour
                         SQL Server 2005
-                       (26/11/2025 16:32:32)
+                       (6/1/2026 11:20:19)
  ----------------------------------------------------------------------------
-     Nom de la base : Horoazhon
-     Projet : MCD3
+     Nom de la base : horoazhon
+     Projet : 
      Auteur : *
-     Date de dernière modification : 26/11/2025 16:32:19
+     Date de dernière modification : 6/1/2026 11:15:12
  ----------------------------------------------------------------------------
 */
 
-drop database Horoazhon
+drop database horoazhon
 go
 
 /* -----------------------------------------------------------------------------
-      OUVERTURE DE LA BASE Horoazhon
+      OUVERTURE DE LA BASE horoazhon
 ----------------------------------------------------------------------------- */
 
-create database Horoazhon
+create database horoazhon
 go
 
-use Horoazhon
+use horoazhon
 go
 
 
@@ -47,11 +47,13 @@ go
 
 create table PERSONNE
   (
-     SIRET char(32)  not null  ,
+     SIRET char(14)  not null  ,
      ID smallint  not null  ,
-     ADRESSE varchar(128)  null  ,
-     RIB varchar(128)  null  ,
-     NOM char(32)  not null  ,
+     RUE char(200)  null  ,
+     VILLE char(200)  null  ,
+     CODE_POSTAL char(5)  null  ,
+     RIB A(23)  null  ,
+     NOM char(64)  not null  ,
      PRENOM char(32)  not null  ,
      DATENAIS datetime  not null  ,
      DERNIERECO datetime  not null  
@@ -72,7 +74,7 @@ go
 
 create table UTILISATEUR
   (
-     SIRET char(32)  not null  ,
+     SIRET char(14)  not null  ,
      ID smallint  not null  ,
      LOGIN char(32)  null  ,
      MDP char(32)  null  ,
@@ -108,12 +110,12 @@ go
 create table BIEN
   (
      ID smallint  not null  ,
-     RUE varchar(128)  not null  ,
-     VILLE char(32)  not null  ,
-     CODEPOSTAL char(32)  not null  ,
+     RUE A(200)  not null  ,
+     VILLE char(200)  not null  ,
+     CODEPOSTAL char(5)  not null  ,
      ECOSCORE smallint  null  ,
-     SUPERFICIE decimal(10,2)  null  ,
-     DESCRIPTION varchar(128)  not null  ,
+     SUPERFICIE smallint  null  ,
+     DESCRIPTION A(500)  not null  ,
      TYPE char(32)  not null       CHECK (TYPE in ('Immeuble', 'Appartement', 'Maison', 'Garage', 'Parking', 'Terre arable'))
      ,
      constraint PK_BIEN primary key (ID)
@@ -174,7 +176,7 @@ create table LOCATION
      ID_ETRE_DISPONIBLE smallint  not null  ,
      ID smallint  not null  ,
      ID_SIGNER smallint  null  ,
-     CAUTION decimal(10,2)  not null  ,
+     CAUTION NS  not null  ,
      DATEDISPO char(32)  null  
      ,
      constraint PK_LOCATION primary key (ID_ETRE_DISPONIBLE, ID)
@@ -196,7 +198,7 @@ create table ACHAT
      ID_OFFRIR smallint  not null  ,
      ID smallint  not null  ,
      ID_CONCLURE smallint  null  ,
-     PRIX decimal(10,2)  not null  ,
+     PRIX NS  not null  ,
      DATEDISPO datetime  null  
      ,
      constraint PK_ACHAT primary key (ID_OFFRIR, ID)
@@ -215,12 +217,12 @@ go
 
 create table AGENCE
   (
-     SIRET char(32)  not null  ,
-     NOM char(32)  not null  ,
-     NUMEROTVA char(32)  not null  ,
-     RUE char(32)  not null  ,
-     VILLE char(32)  not null  ,
-     CODEPOSTAL char(32)  not null  
+     SIRET char(14)  not null  ,
+     NOM char(64)  not null  ,
+     NUMEROTVA char(13)  not null  ,
+     RUE char(200)  not null  ,
+     VILLE char(64)  not null  ,
+     CODEPOSTAL char(5)  not null  
      ,
      constraint PK_AGENCE primary key (SIRET)
   ) 
@@ -235,7 +237,7 @@ go
 create table POSSEDER
   (
      ID smallint  not null  ,
-     SIRET char(32)  not null  ,
+     SIRET char(14)  not null  ,
      ID_1 smallint  not null  
      ,
      constraint PK_POSSEDER primary key (ID, SIRET, ID_1)
@@ -275,7 +277,7 @@ go
 
 create table COSIGNER
   (
-     SIRET char(32)  not null  ,
+     SIRET char(14)  not null  ,
      ID smallint  not null  ,
      ID_1 smallint  not null  ,
      TYPESIGNATAIRE char(32)  null  
