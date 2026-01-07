@@ -2,26 +2,26 @@
  ----------------------------------------------------------------------------
              Génération d'une base de données pour
                         SQL Server 2005
-                       (7/1/2026 10:16:07)
+                       (7/1/2026 14:30:43)
  ----------------------------------------------------------------------------
-     Nom de la base : horoazhon
+     Nom de la base : model logique de donnes
      Projet : Aggregation
      Auteur : *
-     Date de dernière modification : 7/1/2026 10:14:36
+     Date de dernière modification : 7/1/2026 14:29:12
  ----------------------------------------------------------------------------
 */
 
-drop database horoazhon
+drop database model logique de donnes
 go
 
 /* -----------------------------------------------------------------------------
-      OUVERTURE DE LA BASE horoazhon
+      OUVERTURE DE LA BASE model logique de donnes
 ----------------------------------------------------------------------------- */
 
-create database horoazhon
+create database model logique de donnes
 go
 
-use horoazhon
+use model logique de donnes
 go
 
 
@@ -47,8 +47,8 @@ go
 
 create table PERSONNE
   (
-     SIRET char(14)  not null  ,
      ID smallint  not null  ,
+     SIRET char(14)  null  ,
      RUE char(200)  null  ,
      VILLE char(200)  null  ,
      CODE_POSTAL char(5)  null  ,
@@ -56,9 +56,11 @@ create table PERSONNE
      NOM char(64)  not null  ,
      PRENOM char(32)  not null  ,
      DATENAIS datetime  not null  ,
+     AVOIRS smallint  null 
+      DEFAULT 0 ,
      DERNIERECO datetime  not null  
      ,
-     constraint PK_PERSONNE primary key (SIRET, ID)
+     constraint PK_PERSONNE primary key (ID)
   ) 
 go
 
@@ -74,7 +76,6 @@ go
 
 create table UTILISATEUR
   (
-     SIRET char(14)  not null  ,
      ID smallint  not null  ,
      LOGIN char(32)  null  ,
      MDP char(32)  null  ,
@@ -83,7 +84,7 @@ create table UTILISATEUR
      DERNIERECO datetime  null  ,
      NIVEAUACCES char(32)  null  
      ,
-     constraint PK_UTILISATEUR primary key (SIRET, ID)
+     constraint PK_UTILISATEUR primary key (ID)
   ) 
 go
 
@@ -239,10 +240,9 @@ go
 create table POSSEDER
   (
      ID smallint  not null  ,
-     SIRET char(14)  not null  ,
      ID_1 smallint  not null  
      ,
-     constraint PK_POSSEDER primary key (ID, SIRET, ID_1)
+     constraint PK_POSSEDER primary key (ID, ID_1)
   ) 
 go
 
@@ -279,12 +279,11 @@ go
 
 create table COSIGNER
   (
-     SIRET char(14)  not null  ,
      ID smallint  not null  ,
      ID_1 smallint  not null  ,
      TYPESIGNATAIRE char(32)  null  
      ,
-     constraint PK_COSIGNER primary key (SIRET, ID, ID_1)
+     constraint PK_COSIGNER primary key (ID, ID_1)
   ) 
 go
 
@@ -330,8 +329,8 @@ go
 
 
 alter table UTILISATEUR 
-     add constraint FK_UTILISATEUR_PERSONNE foreign key (SIRET, ID) 
-               references PERSONNE (SIRET, ID)
+     add constraint FK_UTILISATEUR_PERSONNE foreign key (ID) 
+               references PERSONNE (ID)
 go
 
 
@@ -402,8 +401,8 @@ go
 
 
 alter table POSSEDER 
-     add constraint FK_POSSEDER_PERSONNE foreign key (SIRET, ID_1) 
-               references PERSONNE (SIRET, ID)
+     add constraint FK_POSSEDER_PERSONNE foreign key (ID_1) 
+               references PERSONNE (ID)
 go
 
 
@@ -426,8 +425,8 @@ go
 
 
 alter table COSIGNER 
-     add constraint FK_COSIGNER_PERSONNE foreign key (SIRET, ID) 
-               references PERSONNE (SIRET, ID)
+     add constraint FK_COSIGNER_PERSONNE foreign key (ID) 
+               references PERSONNE (ID)
 go
 
 
