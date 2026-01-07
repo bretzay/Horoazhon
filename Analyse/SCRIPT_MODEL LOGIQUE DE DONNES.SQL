@@ -2,12 +2,12 @@
  ----------------------------------------------------------------------------
              Génération d'une base de données pour
                         SQL Server 2005
-                       (6/1/2026 11:26:28)
+                       (7/1/2026 10:16:07)
  ----------------------------------------------------------------------------
      Nom de la base : horoazhon
      Projet : Aggregation
      Auteur : *
-     Date de dernière modification : 6/1/2026 11:24:50
+     Date de dernière modification : 7/1/2026 10:14:36
  ----------------------------------------------------------------------------
 */
 
@@ -52,7 +52,7 @@ create table PERSONNE
      RUE char(200)  null  ,
      VILLE char(200)  null  ,
      CODE_POSTAL char(5)  null  ,
-     RIB A(23)  null  ,
+     RIB char(23)  null  ,
      NOM char(64)  not null  ,
      PRENOM char(32)  not null  ,
      DATENAIS datetime  not null  ,
@@ -78,6 +78,7 @@ create table UTILISATEUR
      ID smallint  not null  ,
      LOGIN char(32)  null  ,
      MDP char(32)  null  ,
+     EMAIL char(100)  null  ,
      CODEPIN char(6)  null  ,
      DERNIERECO datetime  null  ,
      NIVEAUACCES char(32)  null  
@@ -110,12 +111,12 @@ go
 create table BIEN
   (
      ID smallint  not null  ,
-     RUE A(200)  not null  ,
+     RUE char(200)  not null  ,
      VILLE char(200)  not null  ,
      CODEPOSTAL char(5)  not null  ,
      ECOSCORE smallint  null  ,
      SUPERFICIE smallint  null  ,
-     DESCRIPTION A(500)  not null  ,
+     DESCRIPTION char(500)  not null  ,
      TYPE char(32)  not null       CHECK (TYPE in ('Immeuble', 'Appartement', 'Maison', 'Garage', 'Parking', 'Terre arable'))
      ,
      constraint PK_BIEN primary key (ID)
@@ -176,7 +177,7 @@ create table LOCATION
      ID_ETRE_DISPONIBLE smallint  not null  ,
      ID smallint  not null  ,
      ID_SIGNER smallint  null  ,
-     CAUTION NS  not null  ,
+     CAUTION smallint  not null  ,
      DATEDISPO char(32)  null  ,
      MENSUALITE smallint  not null  
      ,
@@ -199,7 +200,7 @@ create table ACHAT
      ID_OFFRIR smallint  not null  ,
      ID smallint  not null  ,
      ID_CONCLURE smallint  null  ,
-     PRIX NS  not null  ,
+     PRIX smallint  not null  ,
      DATEDISPO datetime  null  
      ,
      constraint PK_ACHAT primary key (ID_OFFRIR, ID)
