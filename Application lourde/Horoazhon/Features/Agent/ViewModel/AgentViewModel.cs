@@ -1,4 +1,4 @@
-﻿using Azure.Messaging;
+using Azure.Messaging;
 using Horoazhon.Domain.Models;
 using Horoazhon.Services.Command;
 using Horoazhon.Services.User;
@@ -15,11 +15,11 @@ using System.Windows.Input;
 using Windows.System;
 using Windows.UI.Popups;
 
-namespace Horoazhon.Features.Medecins.ViewModel
+namespace Horoazhon.Features.Personnes.ViewModel
 {
-    internal class AgentViewModel :  INotifyPropertyChanged, IAgentViewModel
+    internal class AgentViewModel : INotifyPropertyChanged, IAgentViewModel
     {
-        HoroazhonContext? _cabinetmartinContext;
+        HoroazhonContext? _horoazhonContext;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? n = null)
@@ -36,79 +36,82 @@ namespace Horoazhon.Features.Medecins.ViewModel
             }
         }
 
-        private List<Agent>? _medecins;
-        public List<Agent> Medecins
+        private List<Personne>? _personnes;
+        public List<Personne> Personnes
         {
-            get => _medecins ?? new();
+            get => _personnes ?? new();
             set
             {
-                _medecins = value;
+                _personnes = value;
                 OnPropertyChanged();
             }
         }
 
-        private Agent? _medecinSelected;
-        public Agent MedecinSelected
+        private Personne? _personneSelected;
+        public Personne PersonneSelected
         {
-            get => _medecinSelected ?? new();
+            get => _personneSelected ?? new();
             set
             {
-                _medecinSelected = value;
+                _personneSelected = value;
                 OnPropertyChanged();
-                ReloadVisite();
+                // ReloadVisite(); // Neutralized - linked to deleted Agenda service
             }
         }
 
+        // Neutralized - linked to deleted Agenda service
+        //private List<RendezVous>? _rDVs;
+        //public List<RendezVous> RDVs
+        //{
+        //    get => _rDVs ?? new();
+        //    set
+        //    {
+        //        _rDVs = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
-        private List<RendezVous>? _rDVs;
-        public List<RendezVous> RDVs
-        {
-            get => _rDVs ?? new();
-            set
-            {
-                _rDVs = value;
-                OnPropertyChanged();
-            }
-        }
+        //private RendezVous? _rDVSelected;
+        //public RendezVous RDVSelected
+        //{
+        //    get => _rDVSelected ?? new();
+        //    set
+        //    {
+        //        _rDVSelected = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
-        private RendezVous? _rDVSelected;
-        public RendezVous RDVSelected
-        {
-            get => _rDVSelected ?? new();
-            set
-            {
-                _rDVSelected = value;
-                OnPropertyChanged();
-            }
-        }
-        public ObservableCollection<Visite> Visite { get; } = new();
-        private List<Visite>? _Visite;
+        // Neutralized - linked to deleted Agenda service
+        //public ObservableCollection<Visite> Visite { get; } = new();
+        //private List<Visite>? _Visite;
 
-        private Visite? _Visiteelected;
-        public Visite Visiteelected
-        {
-            get => _Visiteelected ?? new();
-            set
-            {
+        //private Visite? _Visiteelected;
+        //public Visite Visiteelected
+        //{
+        //    get => _Visiteelected ?? new();
+        //    set
+        //    {
+        //        _Visiteelected = value ?? new();
+        //        OnPropertyChanged();
+        //    }
+        //}
 
-                _Visiteelected = value ?? new();
-                OnPropertyChanged();
-            }
-        }
-        private void ReloadVisite()
-        {
-            Visite.Clear();
-            if (MedecinSelected is null) return;
+        //private void ReloadVisite()
+        //{
+        //    Visite.Clear();
+        //    if (PersonneSelected is null) return;
 
-            var items = _cabinetmartinContext?.Visite
-                .Where(c => c.RendezVous != null
-                         && c.RendezVous.IdpersmedecinNavigation != null
-                         && c.RendezVous.IdpersmedecinNavigation.Idpers == MedecinSelected.Idpers) // compare par Id
-                .OrderBy(c => c.Datedebutrdv)
-                .ToList() ?? new();
+        //    // Neutralized - linked to deleted Agenda service (RendezVous navigation)
+        //    //var items = _horoazhonContext?.Visite
+        //    //    .Where(c => c.RendezVous != null
+        //    //             && c.RendezVous.IdpersmedecinNavigation != null
+        //    //             && c.RendezVous.IdpersmedecinNavigation.Idpers == PersonneSelected.Idpers) // compare par Id
+        //    //    .OrderBy(c => c.Datedebutrdv)
+        //    //    .ToList() ?? new();
 
-            foreach (var c in items) Visite.Add(c);
-        }
+        //    //foreach (var c in items) Visite.Add(c);
+        //}
 
         private bool _isEditable = false;
         public bool IsEditable
@@ -120,118 +123,112 @@ namespace Horoazhon.Features.Medecins.ViewModel
                 OnPropertyChanged();
             }
         }
-        public ICommand CommandMedecinNew { get; set; }
-        public void ActionMedecinNew()
+
+        public ICommand CommandAgentNew { get; set; }
+        public void ActionAgentNew()
         {
-            MedecinSelected = new Agent()
+            PersonneSelected = new Personne()
             {
-                IdpersNavigation = new Personne() { Rolepers = "Agent" }
-
-
+                Nom = "",
+                Prenom = "",
+                Siret = "",
+                Datenais = DateTime.Now,
+                Derniereco = DateTime.Now
             };
             IsEditable = true;
         }
-        public ICommand CommandMedecinEdit { get; set; }
-        private void ActionMedecinEdit()
 
+        public ICommand CommandAgentEdit { get; set; }
+        private void ActionAgentEdit()
         {
             IsEditable = true;
         }
 
-        private bool CanActionMedecinEdit()
+        private bool CanActionAgentEdit()
         {
-            return MedecinSelected != null && !IsEditable;
+            return PersonneSelected != null && !IsEditable;
         }
 
-        public ICommand CommandMedecinSave { get; set; }
-        private void ActionMedecinSave()
+        public ICommand CommandAgentSave { get; set; }
+        private void ActionAgentSave()
         {
+            if (PersonneSelected == null) return;
 
-            Personne? _medecin = Medecins.Where(x => x.Idpers == MedecinSelected.Idpers).FirstOrDefault();
-            if (_medecin == null)
+            Personne? _agent = Personnes.Where(x => x.Siret == PersonneSelected.Siret && x.Id == PersonneSelected.Id).FirstOrDefault();
+            if (_agent == null)
             {
-                //MedecinSelected.IdpersMedecinNavigation.Rolepers = ;
-                Personne _personne = new Personne()
-                {
-                    Nompers = MedecinSelected.IdpersNavigation?.Nompers,
-                    Prenompers = MedecinSelected.IdpersNavigation?.Prenompers,
-                    Telpers = MedecinSelected.IdpersNavigation?.Telpers,
-                    Rolepers = "Agent",
-                    Emailpers = MedecinSelected?.IdpersNavigation?.Emailpers,
-                };
-                _cabinetmartinContext?.Personnes.Add(_personne);
-                _cabinetmartinContext?.SaveChanges();
-                Trace.TraceInformation($"{UserService.UserName} a ajouté {_personne.Idpers}");
-
+                // Add new person
+                _horoazhonContext?.Personnes.Add(PersonneSelected);
+                _horoazhonContext?.SaveChanges();
+                Trace.TraceInformation($"{UserService.UserName} a ajouté {PersonneSelected.Id}");
             }
             else
             {
-                _cabinetmartinContext?.Medecins.Update(_medecin);
-                Trace.TraceInformation($"{UserService.UserName} a modifié {_medecin.Idpers}");
+                _horoazhonContext?.Personnes.Update(_agent);
+                Trace.TraceInformation($"{UserService.UserName} a modifié {_agent.Id}");
             }
 
-            _cabinetmartinContext?.SaveChanges();
+            _horoazhonContext?.SaveChanges();
             IsEditable = false;
-            Medecins = _cabinetmartinContext?.Medecins.ToList() ?? new();
+            Personnes = _horoazhonContext?.Personnes.ToList() ?? new();
         }
 
-        private bool CanActionMedecinSave()
+        private bool CanActionAgentSave()
         {
-            return MedecinSelected != null;
+            return PersonneSelected != null;
         }
 
-        public ICommand CommandMedecinDelete { get; set; }
-        private void ActionMedecinDelete()
+        public ICommand CommandAgentDelete { get; set; }
+        private void ActionAgentDelete()
         {
-            _cabinetmartinContext?.Medecins.Remove(MedecinSelected);
-            _cabinetmartinContext?.SaveChanges();
-            Medecins = _cabinetmartinContext?.Medecins.ToList() ?? new();
-            Trace.TraceInformation($"{UserService.UserName} a supprimé {MedecinSelected.Idpers}");
-
-
+            _horoazhonContext?.Personnes.Remove(PersonneSelected);
+            _horoazhonContext?.SaveChanges();
+            Personnes = _horoazhonContext?.Personnes.ToList() ?? new();
+            Trace.TraceInformation($"{UserService.UserName} a supprimé {PersonneSelected.Id}");
         }
-        private bool CanActionMedecinDelete()
+
+        private bool CanActionAgentDelete()
         {
-            return MedecinSelected != null;
+            return PersonneSelected != null;
         }
-        public ICommand CommandMedecinSearch { get; set; }
-        public void ActionMedecinSearch()
+
+        public ICommand CommandAgentSearch { get; set; }
+        public void ActionAgentSearch()
         {
-            if (NomSearch != null && Medecins != null)
+            if (NomSearch != null && Personnes != null)
             {
-                Medecins = Medecins!.Where(x => x.IdpersNavigation!.Nompers!.Contains(NomSearch)).ToList();
-                if (Medecins.Count == 0)
+                Personnes = Personnes!.Where(x => x.Nom!.Contains(NomSearch)).ToList();
+                if (Personnes.Count == 0)
                 {
-                    Medecins = _cabinetmartinContext?.Medecins.ToList() ?? new();
+                    Personnes = _horoazhonContext?.Personnes.ToList() ?? new();
                     NomSearch = "Pas de correspondance";
                 }
             }
         }
-        public ICommand CommandMedecinCancel { get; set; }
 
+        public ICommand CommandAgentCancel { get; set; }
 
-        private void ActionMedecinCancel()
+        private void ActionAgentCancel()
         {
-            MedecinSelected = Medecins[Medecins.IndexOf(MedecinSelected)];
-        }
-        private bool CanActionMedecinCancel()
-        {
-            return MedecinSelected != null && Medecins.Contains(MedecinSelected);
+            PersonneSelected = Personnes[Personnes.IndexOf(PersonneSelected)];
         }
 
+        private bool CanActionAgentCancel()
+        {
+            return PersonneSelected != null && Personnes.Contains(PersonneSelected);
+        }
 
         public AgentViewModel()
         {
-            _cabinetmartinContext = new HoroazhonContext();
-            List<Utilisateur> lc = _cabinetmartinContext.Connexions.ToList();
-            Medecins = _cabinetmartinContext.Medecins.ToList();
-            CommandMedecinCancel = new RelayCommand(_ => ActionMedecinCancel(), _ => CanActionMedecinCancel());
-            CommandMedecinNew = new RelayCommand(_ => ActionMedecinNew());
-            CommandMedecinDelete = new RelayCommand(_ => ActionMedecinDelete(), _ => CanActionMedecinDelete());
-            CommandMedecinSave = new RelayCommand(_ => ActionMedecinSave(), _ => CanActionMedecinSave());
-            CommandMedecinEdit = new RelayCommand(_ => ActionMedecinEdit(), _ => CanActionMedecinEdit());
-            CommandMedecinSearch = new RelayCommand(_ => ActionMedecinSearch());
+            _horoazhonContext = new HoroazhonContext();
+            List<Utilisateur> lc = _horoazhonContext.Utilisateurs.ToList();
+            Personnes = _horoazhonContext.Personnes.ToList();
+            CommandAgentCancel = new RelayCommand(_ => ActionAgentCancel(), _ => CanActionAgentCancel());
+            CommandAgentNew = new RelayCommand(_ => ActionAgentNew());
+            CommandAgentDelete = new RelayCommand(_ => ActionAgentDelete(), _ => CanActionAgentDelete());
+            CommandAgentSave = new RelayCommand(_ => ActionAgentSave(), _ => CanActionAgentSave());
+            CommandAgentEdit = new RelayCommand(_ => ActionAgentEdit(), _ => CanActionAgentEdit());
+            CommandAgentSearch = new RelayCommand(_ => ActionAgentSearch());
         }
     }
 }
-

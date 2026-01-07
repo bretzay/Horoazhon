@@ -59,9 +59,7 @@ public partial class HoroazhonContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("DATEDISPO");
             entity.Property(e => e.IdConclure).HasColumnName("ID_CONCLURE");
-            entity.Property(e => e.Prix)
-                .HasColumnType("decimal(10, 2)")
-                .HasColumnName("PRIX");
+            entity.Property(e => e.Prix).HasColumnName("PRIX");
 
             entity.HasOne(d => d.IdConclureNavigation).WithMany(p => p.Achats)
                 .HasForeignKey(d => d.IdConclure)
@@ -80,32 +78,32 @@ public partial class HoroazhonContext : DbContext
             entity.ToTable("AGENCE");
 
             entity.Property(e => e.Siret)
-                .HasMaxLength(32)
+                .HasMaxLength(14)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("SIRET");
             entity.Property(e => e.Codepostal)
-                .HasMaxLength(32)
+                .HasMaxLength(5)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("CODEPOSTAL");
             entity.Property(e => e.Nom)
-                .HasMaxLength(32)
+                .HasMaxLength(64)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("NOM");
             entity.Property(e => e.Numerotva)
-                .HasMaxLength(32)
+                .HasMaxLength(13)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("NUMEROTVA");
             entity.Property(e => e.Rue)
-                .HasMaxLength(32)
+                .HasMaxLength(200)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("RUE");
             entity.Property(e => e.Ville)
-                .HasMaxLength(32)
+                .HasMaxLength(64)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("VILLE");
@@ -119,29 +117,29 @@ public partial class HoroazhonContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("ID");
             entity.Property(e => e.Codepostal)
-                .HasMaxLength(32)
+                .HasMaxLength(5)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("CODEPOSTAL");
             entity.Property(e => e.Description)
-                .HasMaxLength(128)
+                .HasMaxLength(500)
                 .IsUnicode(false)
+                .IsFixedLength()
                 .HasColumnName("DESCRIPTION");
             entity.Property(e => e.Ecoscore).HasColumnName("ECOSCORE");
             entity.Property(e => e.Rue)
-                .HasMaxLength(128)
+                .HasMaxLength(200)
                 .IsUnicode(false)
+                .IsFixedLength()
                 .HasColumnName("RUE");
-            entity.Property(e => e.Superficie)
-                .HasColumnType("decimal(10, 2)")
-                .HasColumnName("SUPERFICIE");
+            entity.Property(e => e.Superficie).HasColumnName("SUPERFICIE");
             entity.Property(e => e.Type)
                 .HasMaxLength(32)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("TYPE");
             entity.Property(e => e.Ville)
-                .HasMaxLength(32)
+                .HasMaxLength(200)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("VILLE");
@@ -163,7 +161,7 @@ public partial class HoroazhonContext : DbContext
                         j.ToTable("POSSEDER");
                         j.IndexerProperty<short>("Id").HasColumnName("ID");
                         j.IndexerProperty<string>("Siret")
-                            .HasMaxLength(32)
+                            .HasMaxLength(14)
                             .IsUnicode(false)
                             .IsFixedLength()
                             .HasColumnName("SIRET");
@@ -252,7 +250,7 @@ public partial class HoroazhonContext : DbContext
             entity.ToTable("COSIGNER");
 
             entity.Property(e => e.Siret)
-                .HasMaxLength(32)
+                .HasMaxLength(14)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("SIRET");
@@ -319,15 +317,14 @@ public partial class HoroazhonContext : DbContext
 
             entity.Property(e => e.IdEtreDisponible).HasColumnName("ID_ETRE_DISPONIBLE");
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Caution)
-                .HasColumnType("decimal(10, 2)")
-                .HasColumnName("CAUTION");
+            entity.Property(e => e.Caution).HasColumnName("CAUTION");
             entity.Property(e => e.Datedispo)
                 .HasMaxLength(32)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("DATEDISPO");
             entity.Property(e => e.IdSigner).HasColumnName("ID_SIGNER");
+            entity.Property(e => e.Mensualite).HasColumnName("MENSUALITE");
 
             entity.HasOne(d => d.IdEtreDisponibleNavigation).WithMany(p => p.Locations)
                 .HasForeignKey(d => d.IdEtreDisponible)
@@ -346,15 +343,16 @@ public partial class HoroazhonContext : DbContext
             entity.ToTable("PERSONNE");
 
             entity.Property(e => e.Siret)
-                .HasMaxLength(32)
+                .HasMaxLength(14)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("SIRET");
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Adresse)
-                .HasMaxLength(128)
+            entity.Property(e => e.CodePostal)
+                .HasMaxLength(5)
                 .IsUnicode(false)
-                .HasColumnName("ADRESSE");
+                .IsFixedLength()
+                .HasColumnName("CODE_POSTAL");
             entity.Property(e => e.Datenais)
                 .HasColumnType("datetime")
                 .HasColumnName("DATENAIS");
@@ -362,7 +360,7 @@ public partial class HoroazhonContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("DERNIERECO");
             entity.Property(e => e.Nom)
-                .HasMaxLength(32)
+                .HasMaxLength(64)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("NOM");
@@ -372,9 +370,20 @@ public partial class HoroazhonContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("PRENOM");
             entity.Property(e => e.Rib)
-                .HasMaxLength(128)
+                .HasMaxLength(23)
                 .IsUnicode(false)
+                .IsFixedLength()
                 .HasColumnName("RIB");
+            entity.Property(e => e.Rue)
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("RUE");
+            entity.Property(e => e.Ville)
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("VILLE");
 
             entity.HasOne(d => d.SiretNavigation).WithMany(p => p.Personnes)
                 .HasForeignKey(d => d.Siret)
@@ -412,7 +421,7 @@ public partial class HoroazhonContext : DbContext
             entity.ToTable("UTILISATEUR");
 
             entity.Property(e => e.Siret)
-                .HasMaxLength(32)
+                .HasMaxLength(14)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("SIRET");
@@ -425,6 +434,11 @@ public partial class HoroazhonContext : DbContext
             entity.Property(e => e.Derniereco)
                 .HasColumnType("datetime")
                 .HasColumnName("DERNIERECO");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("EMAIL");
             entity.Property(e => e.Login)
                 .HasMaxLength(32)
                 .IsUnicode(false)

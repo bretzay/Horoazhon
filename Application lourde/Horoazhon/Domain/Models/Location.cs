@@ -11,9 +11,11 @@ public partial class Location
 
     public short? IdSigner { get; set; }
 
-    public decimal Caution { get; set; }
+    public int Caution { get; set; }
 
     public string? Datedispo { get; set; }
+
+    public short Mensualite { get; set; }
 
     public virtual ICollection<Contrat> Contrats { get; set; } = new List<Contrat>();
 

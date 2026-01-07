@@ -1,4 +1,4 @@
-﻿using Horoazhon.Domain.Models;
+using Horoazhon.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,25 +12,20 @@ namespace Horoazhon.Features.Clients.ViewModel
     interface IClientViewModel
     {
         string NomSearch { get; set; }
-        List<Client> Clients { get; set; }
-        Client Clientselected { get; set; }
+        List<Personne> Personnes { get; set; }
+        Personne? PersonneSelected { get; set; }
 
-        List<RendezVous> RDVs { get; set; }
-        RendezVous RDVSelected { get; set; }
-        ObservableCollection<Visite> Visite { get; }
-        Visite Visiteelected { get; set; }
+        // Neutralized - linked to deleted Agenda service
+        //List<RendezVous> RDVs { get; set; }
+        //RendezVous RDVSelected { get; set; }
+        //ObservableCollection<Visite> Visite { get; }
+        //Visite? Visiteelected { get; set; }
         bool IsEditable { get; set; }
-        ICommand CommandClientNew { get; set; }
-        ICommand CommandClientEdit { get; set; }
-        
-
-
-        ICommand CommandClientsave { get; set; }
-        ICommand CommandClientDelete { get; set; }
-        ICommand CommandClientsearch { get; set; }
-        ICommand CommandClientCancel
-        {
-            get; set;
-        }
+        ICommand CommandPersonneNew { get; set; }
+        ICommand CommandPersonneEdit { get; set; }
+        ICommand CommandPersonnesave { get; set; }
+        ICommand CommandPersonneDelete { get; set; }
+        ICommand CommandPersonnesearch { get; set; }
+        ICommand CommandPersonneCancel { get; set; }
     }
 }

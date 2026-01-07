@@ -6,8 +6,7 @@
     xmlns:local="using:Horoazhon.Features.Shell.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewsMedecins="using:Horoazhon.Features.Medecins.Views"
-    xmlns:viewsAgenda="using:Horoazhon.Features.Agenda.Views"
+    xmlns:viewsMedecins="using:Horoazhon.Features.Personnes.Views"
     xmlns:viewsClients="using:Horoazhon.Features.Clients.Views"
     xmlns:viewsConsult="using:Horoazhon.Features.Visite.Views"
     mc:Ignorable="d"
@@ -18,19 +17,9 @@
         <NavigationView SelectionChanged="NavigationView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Tableau de bord" Icon="Manage" ToolTipService.ToolTip="Home" Tag="Tableau"/>
-                <NavigationViewItem Content="Médecins" Icon="OtherUser" ToolTipService.ToolTip="Medecins" Tag="Medecins"/>
-                <NavigationViewItem Content="Agenda" Icon="Calendar" ToolTipService.ToolTip="Agenda" Tag="Agenda"/>
+                <NavigationViewItem Content="Agents" Icon="OtherUser" ToolTipService.ToolTip="Agents" Tag="Agents"/>
                 <NavigationViewItem Content="Clients" Icon="People" ToolTipService.ToolTip="Clients" Tag="Clients"/>
-                <NavigationViewItem Content="Visite" Icon="People" ToolTipService.ToolTip="Visite" Tag="Visite"/>
-
-                <!--    <NavigationViewItem Content="Médecins" Icon="OtherUser" ToolTipService.ToolTip="Collections">
-                
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Agenda" Icon="Manage" ToolTipService.ToolTip="Notes"/>
-                        <NavigationViewItem Content="Clients" Icon="OtherUser" ToolTipService.ToolTip="Mail"/> 
-                    </NavigationViewItem.MenuItems>
-                </NavigationViewItem>
-                -->
+                <NavigationViewItem Content="Prorpriétés" Icon="People" ToolTipService.ToolTip="Prorpriétés" Tag="Prorpriétés"/>
             </NavigationView.MenuItems>
             <Frame x:Name="Root" />
         </NavigationView>

@@ -2,10 +2,7 @@
 using Horoazhon.Services.Command;
 using Horoazhon.Services.Pin;
 using Horoazhon.Services.User;
-using Horoazhon.Domain.Models;
 using Horoazhon.Domain.Services.Smtp;
-using Horoazhon.Services.Command;
-using Horoazhon.Services.Pin;
 using Isopoh.Cryptography.Argon2;
 using Microsoft.UI.Xaml.Shapes;
 using System;
@@ -98,16 +95,16 @@ namespace Horoazhon.Features.Auth.ViewModel
         HoroazhonContext dbContext = new HoroazhonContext();
 
         /// <summary>
-        /// Liste des connexions
+        /// Liste des utilisateurs
         /// </summary>
-        List<Utilisateur> connexions;
+        List<Utilisateur> utilisateurs;
 
         /// <summary>
         /// Constructeur
         /// </summary>
         public AuthViewModel()
         {
-            connexions = dbContext.Connexions.ToList();
+            utilisateurs = dbContext.Utilisateurs.ToList();
 
         }
 
@@ -135,15 +132,14 @@ namespace Horoazhon.Features.Auth.ViewModel
         public bool VerifiedPin()
         {
 
-            IsAuthenticated = CodePinSelected == _connexion?.Codepincon?.Trim();
-            if (_connexion != null && _connexion.Datedernierecon != null)
+            IsAuthenticated = CodePinSelected == _connexion?.Codepin?.Trim();
+            if (_connexion != null && _connexion.Derniereco != null)
             {
-                User.UserName = $"{_personne?.Nompers?.Trim()} {_personne?.Prenompers?.Trim()}";
-                User.UserRole = _personne?.Rolepers?.Trim() ?? "User";
+                User.UserName = $"{_personne?.Nom?.Trim()} {_personne?.Prenom?.Trim()}";
+                User.UserRole = _connexion?.Niveauacces?.Trim() ?? "User";
                 User.AUser = _personne;
-                _connexion.Codepincon = null;
-                _connexion.Datedernierecon = DateTime.Now;
-                dbContext.Connexions?.Update(_connexion ?? new());
+                _connexion.Codepin = null;
+                dbContext.Utilisateurs?.Update(_connexion ?? new());
                 dbContext.SaveChanges();
 
                 //Trace de connexion
@@ -159,22 +155,31 @@ namespace Horoazhon.Features.Auth.ViewModel
         /// </summary>
         public void ActionLogin()
         {
-            _connexion = connexions.Where(c => c.Logincon!.Trim().Equals(LoginSelected) && c.Mdpcon!.Trim().Equals(PasswordSelected)).FirstOrDefault();
+            _connexion = utilisateurs.Where(c => c.Login!.Trim().Equals(LoginSelected) && c.Mdp!.Trim().Equals(PasswordSelected)).FirstOrDefault();
 
             if (_connexion != null)
             {
                 string hash = Argon2.Hash(PasswordSelected);
-                bool ok = Argon2.Verify(PasswordSelected, _connexion.Mdpcon);
+                bool ok = Argon2.Verify(PasswordSelected, _connexion.Mdp);
 
                 Regex validateGuidRegex = new Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
                 Console.WriteLine(validateGuidRegex.IsMatch(PasswordSelected));
 
-                _personne = dbContext?.Personnes?.Where(p => p.Idpers.Equals(_connexion.Idpers)).FirstOrDefault() ?? null;
-                _connexion.Codepincon = PinService.CreatePin(_personne?.Emailpers ?? "");
+                _personne = dbContext?.Personnes?.Where(p => p.Siret == _connexion.Siret && p.Id == _connexion.Id).FirstOrDefault() ?? null;
+                _connexion.Codepin = PinService.CreatePin(_personne?.Nom ?? "");
 
-                SmtpService.Instance?.Send(_personne?.Emailpers?.Trim() ?? "", _connexion.Codepincon ?? "");
-                MessageInfo = "Utilisateur reconnu, code PIN envoyé par email.";
-                dbContext!.Connexions?.Update(_connexion ?? new());
+                // Check if email exists before sending
+                if (!string.IsNullOrWhiteSpace(_connexion.Email))
+                {
+                    SmtpService.Instance?.Send(_connexion.Email.Trim(), _connexion.Codepin ?? "");
+                    MessageInfo = "Utilisateur reconnu, code PIN envoyé par email.";
+                }
+                else
+                {
+                    MessageInfo = "Utilisateur reconnu, code PIN: " + _connexion.Codepin + " (Email non configuré)";
+                }
+
+                dbContext!.Utilisateurs?.Update(_connexion ?? new());
                 dbContext.SaveChanges();
                 IsEditable = true;
                 //Trace de connexion
@@ -183,18 +188,18 @@ namespace Horoazhon.Features.Auth.ViewModel
 
 
                 // Modifier le login manuellement
-                string username = _connexion!.Logincon!;
-                // 🔧 Paramètres Active Directory 
+                string username = _connexion!.Login!;
+                // 🔧 Paramètres Active Directory
                 string domain = "cabinetmartin.local";
                 string ouPath = "OU=cabMartin,DC=cabinetmartin,DC=local"; // OU où se trouve le groupe
 
-                // Crée un contexte ciblant l’unité d’organisation "cabMartin"
+                // Crée un contexte ciblant l'unité d'organisation "cabMartin"
                 using (var context = new PrincipalContext(ContextType.Domain, domain, ouPath))
                 {
-                    // on cherche l’utilisateur courant
+                    // on cherche l'utilisateur courant
                     UserPrincipal user = UserPrincipal.FindByIdentity(context, username);
 
-                    GroupPrincipal groupMedecin = GroupPrincipal.FindByIdentity(context, "Agent");
+                    GroupPrincipal groupMedecin = GroupPrincipal.FindByIdentity(context, "Personne");
                     GroupPrincipal groupAdmin = GroupPrincipal.FindByIdentity(context, "Administrateurs");
                     GroupPrincipal groupSecret = GroupPrincipal.FindByIdentity(context, "Secretaire");
                     /* Déterminer le groupe de l'utilisateur*/

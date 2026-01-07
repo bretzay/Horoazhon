@@ -1,4 +1,4 @@
-﻿using Horoazhon.Domain.Models;
+using Horoazhon.Domain.Models;
 using Horoazhon.Services.Command;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,6 @@ namespace Horoazhon.Features.Clients.ViewModel
 {
     public class ClientViewModel : IClientViewModel, INotifyPropertyChanged
     {
-
         HoroazhonContext? _horoazhonContext = new HoroazhonContext();
 
         private string? _nomSearch;
@@ -26,203 +25,184 @@ namespace Horoazhon.Features.Clients.ViewModel
             }
         }
 
-
-        private List<Client>? _Clients;
-        public List<Client> Clients
+        private List<Personne>? _Personnes;
+        public List<Personne> Personnes
         {
-            get => _Clients ?? new();
+            get => _Personnes ?? new();
             set
             {
-                _Clients = value;
+                _Personnes = value;
                 OnPropertyChanged();
             }
         }
 
-        private Client _Clientselected;
-        public Client Clientselected
+        private Personne? _PersonneSelected;
+        public Personne? PersonneSelected
         {
-            get => _Clientselected;
+            get => _PersonneSelected;
             set
             {
-                _Clientselected = value;
+                _PersonneSelected = value;
                 OnPropertyChanged();
-                ReloadVisite();
-
-
-
-                if (_Clientselected != null)
-                {
-                    // Charger les rendez-vous du Client sélectionné
-                    RDVs = _horoazhonContext.Rendezvous
-                        .Where(r => r.IdpersClient == _Clientselected.Idpers)
-                        .ToList();
-
-
-                    Visite = new ObservableCollection<Visite>(
-                        _horoazhonContext.Visite
-                            .Where(c => c.RendezVous.IdpersClient == _Clientselected.Idpers)
-                            .ToList());
-                }
-                else
-                {
-                    RDVs = new List<RendezVous>();
-                    Visite = new ObservableCollection<Visite>();
-                }
+                // ReloadVisite(); // Neutralized - linked to deleted Agenda service
             }
         }
 
-        private List<RendezVous>? _rdvs;
-        public List<RendezVous> RDVs
-        {
-            get => _rdvs ?? new();
-            set
-            {
-                _rdvs = value;
-                OnPropertyChanged();
-            }
-        }
+        // Neutralized - linked to deleted Agenda service
+        //private List<RendezVous>? _rdvs;
+        //public List<RendezVous> RDVs
+        //{
+        //    get => _rdvs ?? new();
+        //    set
+        //    {
+        //        _rdvs = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
-        private RendezVous _RDVSelected;
-        public RendezVous RDVSelected
-        {
-            get => _RDVSelected ;
-            set
-            {
-                _RDVSelected = value;
-                OnPropertyChanged();
-            }
-        }
+        //private RendezVous _RDVSelected;
+        //public RendezVous RDVSelected
+        //{
+        //    get => _RDVSelected ;
+        //    set
+        //    {
+        //        _RDVSelected = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
-        private ObservableCollection<Visite> _Visite = new();
-        public ObservableCollection<Visite> Visite
-        {
-            get => _Visite;
-            set { _Visite = value; OnPropertyChanged(); }
-        }
+        // Neutralized - linked to deleted Agenda service
+        //private ObservableCollection<Visite> _Visite = new();
+        //public ObservableCollection<Visite> Visite
+        //{
+        //    get => _Visite;
+        //    set { _Visite = value; OnPropertyChanged(); }
+        //}
 
-
-
-        private Visite? _Visiteelected;
-        public Visite? Visiteelected
-        {
-            get => _Visiteelected;
-            set
-            {
-                _Visiteelected = value;
-                OnPropertyChanged();
-            }
-        }
+        //private Visite? _Visiteelected;
+        //public Visite? Visiteelected
+        //{
+        //    get => _Visiteelected;
+        //    set
+        //    {
+        //        _Visiteelected = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
         public bool IsEditable { get; set; }
-      
 
-        public ICommand CommandClientsave { get; set; }
-        public ICommand CommandClientDelete { get; set; }
-        public ICommand CommandClientsearch { get; set; }
-        public ICommand CommandClientCancel { get; set; }
-        public ICommand CommandClientNew { get; set; }
-        public ICommand CommandClientEdit { get; set; }
+        public ICommand CommandPersonnesave { get; set; }
+        public ICommand CommandPersonneDelete { get; set; }
+        public ICommand CommandPersonnesearch { get; set; }
+        public ICommand CommandPersonneCancel { get; set; }
+        public ICommand CommandPersonneNew { get; set; }
+        public ICommand CommandPersonneEdit { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName] string? n = null)
- => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
 
-        private void ReloadVisite()
-        {
-            Visite.Clear();
-            if (Clientselected is null) return;
+        // Neutralized - linked to deleted Agenda service
+        //private void ReloadVisite()
+        //{
+        //    Visite.Clear();
+        //    if (PersonneSelected is null) return;
 
-            var items = _horoazhonContext.Visite.Where(c => c.RendezVous.IdpersClientNavigation == Clientselected).ToList();
-
-             foreach (var c in items) Visite.Add(c);
-        }
+        //    // Neutralized - linked to deleted Agenda service (RendezVous navigation)
+        //    //var items = _horoazhonContext.Visite.Where(c => c.RendezVous.IdpersClientNavigation == PersonneSelected).ToList();
+        //    // foreach (var c in items) Visite.Add(c);
+        //}
 
         public ClientViewModel()
         {
             _horoazhonContext = new HoroazhonContext();
 
-            Clients = _horoazhonContext.Clients.ToList();
-            CommandClientCancel = new RelayCommand(_ => ActionClientCancel(), _ => CanActionClientCancel());
-            CommandClientNew = new RelayCommand(_ => ActionClientNew());
-            CommandClientDelete = new RelayCommand(_ => ActionClientDelete(), _ => CanActionClientDelete());
-            CommandClientsave = new RelayCommand(_ => ActionClientsave(), _ => CanActionClientsave());
-            CommandClientEdit = new RelayCommand(_ => ActionClientEdit(), _ => CanActionClientEdit());
-            CommandClientsearch = new RelayCommand(_ => ActionClientsearch());
+            // Load all Personnes from the database
+            Personnes = _horoazhonContext.Personnes.ToList();
+
+            CommandPersonneCancel = new RelayCommand(_ => ActionPersonneCancel(), _ => CanActionPersonneCancel());
+            CommandPersonneNew = new RelayCommand(_ => ActionPersonneNew());
+            CommandPersonneDelete = new RelayCommand(_ => ActionPersonneDelete(), _ => CanActionPersonneDelete());
+            CommandPersonnesave = new RelayCommand(_ => ActionPersonnesave(), _ => CanActionPersonnesave());
+            CommandPersonneEdit = new RelayCommand(_ => ActionPersonneEdit(), _ => CanActionPersonneEdit());
+            CommandPersonnesearch = new RelayCommand(_ => ActionPersonnesearch());
         }
-        private void ActionClientsave()
+
+        private void ActionPersonnesave()
         {
-            Client? _Client = _horoazhonContext.Clients
-                 .FirstOrDefault(x => x.Idpers == Clientselected.Idpers);
+            if (PersonneSelected == null) return;
 
-            if (_Client == null)
+            Personne? existing = _horoazhonContext.Personnes
+                 .FirstOrDefault(x => x.Siret == PersonneSelected.Siret && x.Id == PersonneSelected.Id);
+
+            if (existing == null)
             {
-                Personne _personne = new Personne()
-                {
-
-                    Nompers = Clientselected.IdpersNavigation?.Nompers,
-                    Prenompers = Clientselected.IdpersNavigation?.Prenompers,
-                    Telpers = Clientselected.IdpersNavigation?.Telpers,
-                    Rolepers = "Client",
-                    Emailpers = Clientselected?.IdpersNavigation?.Emailpers,
-                    Datecreation = DateTime.Now,
-                    Client = Clientselected
-
-                };
-                _horoazhonContext?.Personnes.Add(_personne);
-                _horoazhonContext?.SaveChanges();
+                // Add new person
+                _horoazhonContext?.Personnes.Add(PersonneSelected);
             }
             else
             {
-                _horoazhonContext?.Clients.Update(_Client);
-
+                // Update existing
+                _horoazhonContext?.Personnes.Update(existing);
             }
 
             _horoazhonContext?.SaveChanges();
             IsEditable = false;
-            Clients = _horoazhonContext?.Clients.ToList() ?? new();
-        }
-        
-        private bool CanActionClientDelete() => true; 
-        private bool CanActionClientsave() => true; 
-        private bool CanActionClientCancel() => true;
-        private bool CanActionClientEdit() => true;
-        private void ActionClientEdit()
-        {
-            if (Clientselected != null)
-                IsEditable = true;
-        }
-        private void ActionClientCancel() {
-            IsEditable = false;
-            Clients = _horoazhonContext.Clients.ToList();
+            Personnes = _horoazhonContext?.Personnes.ToList() ?? new();
         }
 
-        private void ActionClientNew() {
-            Clientselected = new Client
+        private bool CanActionPersonneDelete() => PersonneSelected != null;
+        private bool CanActionPersonnesave() => PersonneSelected != null;
+        private bool CanActionPersonneCancel() => true;
+        private bool CanActionPersonneEdit() => PersonneSelected != null && !IsEditable;
+
+        private void ActionPersonneEdit()
+        {
+            if (PersonneSelected != null)
+                IsEditable = true;
+        }
+
+        private void ActionPersonneCancel()
+        {
+            IsEditable = false;
+            Personnes = _horoazhonContext.Personnes.ToList();
+        }
+
+        private void ActionPersonneNew()
+        {
+            PersonneSelected = new Personne
             {
-                IdpersNavigation = new Personne()
+                Siret = "", // Default or get from user context
+                Nom = "",
+                Prenom = "",
+                Datenais = DateTime.Now,
+                Derniereco = DateTime.Now
             };
             IsEditable = true;
-            OnPropertyChanged(nameof(Clientselected));
+            OnPropertyChanged(nameof(PersonneSelected));
             OnPropertyChanged(nameof(IsEditable));
         }
 
-        private void ActionClientDelete() {
-            if (Clientselected == null) return;
+        private void ActionPersonneDelete()
+        {
+            if (PersonneSelected == null) return;
 
-            _horoazhonContext.Clients.Remove(Clientselected);
+            _horoazhonContext.Personnes.Remove(PersonneSelected);
             _horoazhonContext.SaveChanges();
 
-            Clients = _horoazhonContext.Clients.ToList() ?? new();
-            Clientselected = null;
+            Personnes = _horoazhonContext.Personnes.ToList() ?? new();
+            PersonneSelected = null;
         }
-        private void ActionClientsearch() {
 
+        private void ActionPersonnesearch()
+        {
             if (string.IsNullOrWhiteSpace(NomSearch))
-                Clients = _horoazhonContext.Clients.ToList();
+                Personnes = _horoazhonContext.Personnes.ToList();
             else
-                Clients = _horoazhonContext.Clients
-                    .Where(p => p.IdpersNavigation.Nompers.Contains(NomSearch))
+                Personnes = _horoazhonContext.Personnes
+                    .Where(p => p.Nom.Contains(NomSearch))
                     .ToList();
         }
     }

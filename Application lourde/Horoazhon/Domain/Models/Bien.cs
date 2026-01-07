@@ -15,7 +15,7 @@ public partial class Bien
 
     public short? Ecoscore { get; set; }
 
-    public decimal? Superficie { get; set; }
+    public short? Superficie { get; set; }
 
     public string Description { get; set; } = null!;
 

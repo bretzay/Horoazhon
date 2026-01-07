@@ -1,4 +1,4 @@
-using Horoazhon.Features.Medecins.ViewModel;
+using Horoazhon.Features.Personnes.ViewModel;
 using Horoazhon.Features.Clients.ViewModel;
 using Horoazhon.Features.Shell.Views;
 using Microsoft.UI.Xaml;
@@ -16,7 +16,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
-namespace Horoazhon.Features.Medecins.Views
+namespace Horoazhon.Features.Personnes.Views
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.

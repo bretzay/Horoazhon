@@ -1,7 +1,7 @@
 using Horoazhon.Features.Auth.ViewModel;
 using Horoazhon.Features.Auth.Views;
 
-using Horoazhon.Features.Medecins.ViewModel;
+using Horoazhon.Features.Personnes.ViewModel;
 using Horoazhon.Features.Shell.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -37,10 +37,7 @@ namespace Horoazhon.Features.Auth.Views
         {
             if (authViewModel.VerifiedPin())
             {
-
-
                 App.Utilisateur();
-
             }
             else
             {
@@ -52,12 +49,6 @@ namespace Horoazhon.Features.Auth.Views
                     CloseButtonText = "Ok"
                 }.ShowAsync();
             }
-        }
-
-        private void BtnValiderFake_Click(object sender, RoutedEventArgs e)
-        {
-            authViewModel.ActionLogin();
-            App.Utilisateur();
         }
     }
 

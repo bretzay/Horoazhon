@@ -1,7 +1,5 @@
-using Horoazhon.Features.Agenda.Views;
-using Horoazhon.Features.Visite.Views;
 using Horoazhon.Features.Dashboard.Views;
-using Horoazhon.Features.Medecins.Views;
+using Horoazhon.Features.Personnes.Views;
 using Horoazhon.Features.Clients.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -36,7 +34,7 @@ namespace Horoazhon.Features.Shell.Views
 
        private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-          NavigationViewItem elem = sender.SelectedItem as NavigationViewItem; //Or, ?? sert à fournir une valeur par défaut si la première est null, tandis que as sert à faire un cast sécurisé.
+          NavigationViewItem elem = sender.SelectedItem as NavigationViewItem; //Or, ?? sert ï¿½ fournir une valeur par dï¿½faut si la premiï¿½re est null, tandis que as sert ï¿½ faire un cast sï¿½curisï¿½.
 
 
             switch (elem!.Tag)
@@ -44,19 +42,12 @@ namespace Horoazhon.Features.Shell.Views
                 case "Tableau":
                     Root.Navigate(typeof(DashboardPage));
                     break;
-                case "Medecins":
+                case "Agents":
                     Root.Navigate(typeof(AgentPage));
-                    break;
-                case "Agenda":
-                    Root.Navigate(typeof(AgendaPage));
                     break;
                 case "Clients":
                     Root.Navigate(typeof(ClientPage));
                     break;
-                case "Visite":
-                    Root.Navigate(typeof(VisitePage));
-                    break;
-                
             }
         
         }

@@ -7,8 +7,7 @@
     xmlns:auth="using:Horoazhon.Features.Auth.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:Clients="using:Horoazhon.Features.Clients.Views" 
-    xmlns:Agenda="using:Horoazhon.Features.Agenda.Views"
+    xmlns:Clients="using:Horoazhon.Features.Clients.Views"
     mc:Ignorable="d"
     Title="Horoazhon">
 

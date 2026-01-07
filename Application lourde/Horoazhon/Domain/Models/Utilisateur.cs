@@ -13,6 +13,8 @@ public partial class Utilisateur
 
     public string? Mdp { get; set; }
 
+    public string? Email { get; set; }
+
     public string? Codepin { get; set; }
 
     public DateTime? Derniereco { get; set; }

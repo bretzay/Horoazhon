@@ -13,9 +13,9 @@ using WinRT.Interop;
 namespace Horoazhon.Services.Print
 {
     
-        public sealed class OrdonnancePrinter
+        public sealed class ContratPrinter
         {
-            public static OrdonnancePrinter? InstancePrint = null;
+            public static ContratPrinter? InstancePrint = null;
             // ====== Paramètres "cabinet" (tu peux les modifier ici) ======
             private const string CabinetNom = "Cabinet Martin";
             private const string CabinetAdresse1 = "7 rue des archives";
@@ -33,11 +33,11 @@ namespace Horoazhon.Services.Print
         private List<UIElement> _pages;
         private List<TextBlock> _footers;
         private string _texteLibre;
-        private string _nomMedecin;
+        private string _nomPersonne;
         private string _ClientNom;
         private string _ClientPrenom;
         private DateTime _ClientDob;
-        private OrdonnancePrinter(Window window)
+        private ContratPrinter(Window window)
         {
             if (window is null) throw new ArgumentNullException(nameof(window));
             _dispatcher = window.DispatcherQueue ?? throw new
@@ -45,17 +45,17 @@ namespace Horoazhon.Services.Print
             _hwnd = WindowNative.GetWindowHandle(window);
             if (_hwnd == IntPtr.Zero) throw new InvalidOperationException("HWND invalide (fenêtre non activée ?).");
         }
-        public static OrdonnancePrinter GetOP(Window window)
+        public static ContratPrinter GetOP(Window window)
         {
             if (InstancePrint == null)
             {
-                InstancePrint = new OrdonnancePrinter(window);
+                InstancePrint = new ContratPrinter(window);
             }
 
             return InstancePrint;
 
         }
-        public async Task PrintAsync(string texteLibre, string nomMedecin,
+        public async Task PrintAsync(string texteLibre, string NomPersonne,
         string ClientNom, string ClientPrenom)
         {
             if (texteLibre == null || texteLibre == "") texteLibre = " ";
@@ -112,7 +112,7 @@ namespace Horoazhon.Services.Print
                 stack.Children.Add(new TextBlock
                 {
                     Margin = new Thickness(50, 30, 0, 0),
-                    Text = $"Dr. {nomMedecin} - siret : 01258562541122",
+                    Text = $"Mr. {NomPersonne} - siret : 01258562541122",
                     FontSize = 12,
                     TextAlignment = TextAlignment.Left
                 });

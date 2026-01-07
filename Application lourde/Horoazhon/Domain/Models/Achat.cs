@@ -11,7 +11,7 @@ public partial class Achat
 
     public short? IdConclure { get; set; }
 
-    public decimal Prix { get; set; }
+    public int Prix { get; set; }
 
     public DateTime? Datedispo { get; set; }
 

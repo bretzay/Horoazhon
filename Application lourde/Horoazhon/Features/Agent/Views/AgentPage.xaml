@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="Horoazhon.Features.Medecins.Views.AgentPage"
+    x:Class="Horoazhon.Features.Personnes.Views.AgentPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Horoazhon.Features.Medecins.Views"
+    xmlns:local="using:Horoazhon.Features.Personnes.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Shell="using:Horoazhon.Features.Shell.Views" 
-    xmlns:local1="using:Horoazhon.Features.Medecins.Views" 
+    xmlns:local1="using:Horoazhon.Features.Personnes.Views" 
     xmlns:local2="using:Horoazhon.Features.Visite.Views" 
     xmlns:local3="using:Horoazhon.Features.Clients.Views"
-    xmlns:vm="using:Horoazhon.Features.Medecins.ViewModel"
+    xmlns:vm="using:Horoazhon.Features.Personnes.ViewModel"
     mc:Ignorable="d">
 
    <!-- <Page.DataContext>
@@ -32,7 +32,7 @@
 
 
         <!--  Liste 
-            <ListView ItemsSource="{Binding Medecins}" SelectedItem="{Binding MedecinSelected, Mode=TwoWay}">
+            <ListView ItemsSource="{Binding Personnes}" SelectedItem="{Binding PersonneSelected, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="5">
@@ -48,18 +48,18 @@
 
         <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,20,0">
             <TextBox Width="250"
-                     PlaceholderText="Rechercher un médecin..."
+                     PlaceholderText="Rechercher un agent..."
                      Margin="0,0,0,10"
                      Text="{Binding NomSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <ListView Height="300"
-                      ItemsSource="{Binding Medecins}"
-                      SelectedItem="{Binding MedecinSelected, Mode=TwoWay}">
+                      ItemsSource="{Binding Personnes}"
+                      SelectedItem="{Binding PersonneSelected, Mode=TwoWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="5">
-                            <TextBlock Text="{Binding IdpersNavigation.Nompers}" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Specialitemed}" FontStyle="Italic"/>
+                            <TextBlock Text="{Binding Nom}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Prenom}" FontStyle="Italic"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -67,23 +67,24 @@
         </StackPanel>
         <!-- detailss -->
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="20,0,0,0">
-                <TextBlock Text="Informations du médecin" FontWeight="Bold" FontSize="16"/>
-                <TextBox Header="Nom" Text="{Binding MedecinSelected.IdpersNavigation.Nompers, Mode=TwoWay}" />
-                <TextBox Header="Prénom" Text="{Binding MedecinSelected.IdpersNavigation.Prenompers, Mode=TwoWay}" />
-                <TextBox Header="Téléphone" Text="{Binding MedecinSelected.IdpersNavigation.Telpers, Mode=TwoWay}" />
-                <TextBox Header="Email" Text="{Binding MedecinSelected.IdpersNavigation.Emailpers, Mode=TwoWay}" />
-                <TextBox Header="Spécialité" Text="{Binding MedecinSelected.Specmedecin, Mode=TwoWay}" />
-                <TextBox Header="NumSiret" Text="{Binding MedecinSelected.Numsiretmedecin, Mode=TwoWay}" />
+                <TextBlock Text="Informations de l'agent" FontWeight="Bold" FontSize="16"/>
+                <TextBox Header="Id" Text="{Binding PersonneSelected.Id, Mode=TwoWay}" />
+                <TextBox Header="SIRET" Text="{Binding PersonneSelected.Siret, Mode=TwoWay}" />
+                <TextBox Header="Nom" Text="{Binding PersonneSelected.Nom, Mode=TwoWay}" />
+                <TextBox Header="Prénom" Text="{Binding PersonneSelected.Prenom, Mode=TwoWay}" />
+                <TextBox Header="Adresse" Text="{Binding PersonneSelected.Adresse, Mode=TwoWay}" />
+                <TextBox Header="RIB" Text="{Binding PersonneSelected.Rib, Mode=TwoWay}" />
+                <DatePicker Header="Date de naissance" Date="{Binding PersonneSelected.Datenais, Mode=TwoWay}" />
 
             </StackPanel>
 
 <!-- boutons -->
         <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top">
-            <Button Content="Rechercher" Command="{Binding CommandMedecinSearch}"/>
-            <Button Content="Nouveau" Command="{Binding CommandMedecinNew}"/>
-            <Button Content="Enregistrer" Command="{Binding CommandMedecinSave}"/>
-            <Button Content="Supprimer" Command="{Binding CommandMedecinDelete}"/>
-            <Button Content="Annuler" Command="{Binding CommandMedecinCancel}" Margin="5"/>
+            <Button Content="Rechercher" Command="{Binding CommandAgentSearch}"/>
+            <Button Content="Nouveau" Command="{Binding CommandAgentNew}"/>
+            <Button Content="Enregistrer" Command="{Binding CommandAgentSave}"/>
+            <Button Content="Supprimer" Command="{Binding CommandAgentDelete}"/>
+            <Button Content="Annuler" Command="{Binding CommandAgentCancel}" Margin="5"/>
         </StackPanel>
 
             
@@ -95,17 +96,18 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
-                <Expander Header="Rendes Vous" Grid.Column="0" IsExpanded="True" Margin="10,0,10,0">
+                <!-- Neutralized - linked to deleted Agenda service -->
+                <!--<Expander Header="Rendes Vous" Grid.Column="0" IsExpanded="True" Margin="10,0,10,0">
                     <StackPanel Orientation="Horizontal">
                         <local:RdvListControl DataContext="{Binding RDVs}" />
 
                     </StackPanel>
-                </Expander>
+                </Expander>-->
 
-
-            <Expander Header="Visite"   IsExpanded="True"  Grid.Column="1">
-                <local:VisiteListControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" ItemsSource="{Binding Visite}" SelectedItem="{Binding Visiteelected, Mode=TwoWay}" />
-                </Expander>
+                <!-- Neutralized - linked to deleted Agenda service -->
+                <!--<Expander Header="Visite"   IsExpanded="True"  Grid.Column="1">
+                    <local:VisiteListControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" ItemsSource="{Binding Visite}" SelectedItem="{Binding Visiteelected, Mode=TwoWay}" />
+                </Expander>-->
 
             </Grid>
             
