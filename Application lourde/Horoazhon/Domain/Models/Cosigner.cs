@@ -5,8 +5,6 @@ namespace Horoazhon.Domain.Models;
 
 public partial class Cosigner
 {
-    public string Siret { get; set; } = null!;
-
     public short Id { get; set; }
 
     public short Id1 { get; set; }
@@ -15,5 +13,5 @@ public partial class Cosigner
 
     public virtual Contrat Id1Navigation { get; set; } = null!;
 
-    public virtual Personne Personne { get; set; } = null!;
+    public virtual Personne IdNavigation { get; set; } = null!;
 }

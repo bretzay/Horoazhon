@@ -18,12 +18,6 @@
 
     <Grid>
         <auth:AuthControl VerticalAlignment="Center" HorizontalAlignment="Center"/>
-
-
-
-
-
-
     </Grid>
 </Window>
 

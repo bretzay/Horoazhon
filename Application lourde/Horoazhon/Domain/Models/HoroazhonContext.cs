@@ -144,11 +144,11 @@ public partial class HoroazhonContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("VILLE");
 
-            entity.HasMany(d => d.Personnes).WithMany(p => p.Ids)
+            entity.HasMany(d => d.Id1s).WithMany(p => p.Ids)
                 .UsingEntity<Dictionary<string, object>>(
                     "Posseder",
                     r => r.HasOne<Personne>().WithMany()
-                        .HasForeignKey("Siret", "Id1")
+                        .HasForeignKey("Id1")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_POSSEDER_PERSONNE"),
                     l => l.HasOne<Bien>().WithMany()
@@ -157,14 +157,9 @@ public partial class HoroazhonContext : DbContext
                         .HasConstraintName("FK_POSSEDER_BIEN"),
                     j =>
                     {
-                        j.HasKey("Id", "Siret", "Id1");
+                        j.HasKey("Id", "Id1");
                         j.ToTable("POSSEDER");
                         j.IndexerProperty<short>("Id").HasColumnName("ID");
-                        j.IndexerProperty<string>("Siret")
-                            .HasMaxLength(14)
-                            .IsUnicode(false)
-                            .IsFixedLength()
-                            .HasColumnName("SIRET");
                         j.IndexerProperty<short>("Id1").HasColumnName("ID_1");
                     });
         });
@@ -245,15 +240,10 @@ public partial class HoroazhonContext : DbContext
 
         modelBuilder.Entity<Cosigner>(entity =>
         {
-            entity.HasKey(e => new { e.Siret, e.Id, e.Id1 });
+            entity.HasKey(e => new { e.Id, e.Id1 });
 
             entity.ToTable("COSIGNER");
 
-            entity.Property(e => e.Siret)
-                .HasMaxLength(14)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("SIRET");
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.Id1).HasColumnName("ID_1");
             entity.Property(e => e.Typesignataire)
@@ -262,15 +252,15 @@ public partial class HoroazhonContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("TYPESIGNATAIRE");
 
+            entity.HasOne(d => d.IdNavigation).WithMany(p => p.Cosigners)
+                .HasForeignKey(d => d.Id)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_COSIGNER_PERSONNE");
+
             entity.HasOne(d => d.Id1Navigation).WithMany(p => p.Cosigners)
                 .HasForeignKey(d => d.Id1)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_COSIGNER_CONTRAT");
-
-            entity.HasOne(d => d.Personne).WithMany(p => p.Cosigners)
-                .HasForeignKey(d => new { d.Siret, d.Id })
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_COSIGNER_PERSONNE");
         });
 
         modelBuilder.Entity<Deplacer>(entity =>
@@ -338,16 +328,14 @@ public partial class HoroazhonContext : DbContext
 
         modelBuilder.Entity<Personne>(entity =>
         {
-            entity.HasKey(e => new { e.Siret, e.Id });
-
             entity.ToTable("PERSONNE");
 
-            entity.Property(e => e.Siret)
-                .HasMaxLength(14)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("SIRET");
-            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("ID");
+            entity.Property(e => e.Avoirs)
+                .HasDefaultValue((short)0)
+                .HasColumnName("AVOIRS");
             entity.Property(e => e.CodePostal)
                 .HasMaxLength(5)
                 .IsUnicode(false)
@@ -379,6 +367,11 @@ public partial class HoroazhonContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("RUE");
+            entity.Property(e => e.Siret)
+                .HasMaxLength(14)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("SIRET");
             entity.Property(e => e.Ville)
                 .HasMaxLength(200)
                 .IsUnicode(false)
@@ -387,7 +380,6 @@ public partial class HoroazhonContext : DbContext
 
             entity.HasOne(d => d.SiretNavigation).WithMany(p => p.Personnes)
                 .HasForeignKey(d => d.Siret)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PERSONNE_AGENCE");
         });
 
@@ -416,16 +408,11 @@ public partial class HoroazhonContext : DbContext
 
         modelBuilder.Entity<Utilisateur>(entity =>
         {
-            entity.HasKey(e => new { e.Siret, e.Id });
-
             entity.ToTable("UTILISATEUR");
 
-            entity.Property(e => e.Siret)
-                .HasMaxLength(14)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("SIRET");
-            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("ID");
             entity.Property(e => e.Codepin)
                 .HasMaxLength(6)
                 .IsUnicode(false)
@@ -455,8 +442,8 @@ public partial class HoroazhonContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("NIVEAUACCES");
 
-            entity.HasOne(d => d.Personne).WithOne(p => p.Utilisateur)
-                .HasForeignKey<Utilisateur>(d => new { d.Siret, d.Id })
+            entity.HasOne(d => d.IdNavigation).WithOne(p => p.Utilisateur)
+                .HasForeignKey<Utilisateur>(d => d.Id)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UTILISATEUR_PERSONNE");
         });

@@ -5,8 +5,6 @@ namespace Horoazhon.Domain.Models;
 
 public partial class Utilisateur
 {
-    public string Siret { get; set; } = null!;
-
     public short Id { get; set; }
 
     public string? Login { get; set; }
@@ -21,5 +19,5 @@ public partial class Utilisateur
 
     public string? Niveauacces { get; set; }
 
-    public virtual Personne Personne { get; set; } = null!;
+    public virtual Personne IdNavigation { get; set; } = null!;
 }

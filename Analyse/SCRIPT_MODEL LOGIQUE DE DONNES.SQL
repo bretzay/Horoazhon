@@ -1,27 +1,27 @@
-/*
+ï»¿/*
  ----------------------------------------------------------------------------
-             Génération d'une base de données pour
+             GÃ©nÃ©ration d'une base de donnÃ©es pour
                         SQL Server 2005
                        (7/1/2026 14:30:43)
  ----------------------------------------------------------------------------
      Nom de la base : model logique de donnes
      Projet : Aggregation
      Auteur : *
-     Date de dernière modification : 7/1/2026 14:29:12
+     Date de derniÃ¨re modification : 7/1/2026 14:29:12
  ----------------------------------------------------------------------------
 */
 
-drop database model logique de donnes
+drop database horoazhon
 go
 
 /* -----------------------------------------------------------------------------
       OUVERTURE DE LA BASE model logique de donnes
 ----------------------------------------------------------------------------- */
 
-create database model logique de donnes
+create database horoazhon
 go
 
-use model logique de donnes
+use horoazhon
 go
 
 
@@ -302,7 +302,7 @@ create table DEPLACER
      ID smallint  not null  ,
      ID_1 int  not null  ,
      MINUTES tinyint  null  ,
-     TYPELOCOMOTION char(32)  null       CHECK (TYPELOCOMOTION in ('Pieds', 'Vélo', 'Voiture', 'Train', 'Métro', 'Bus'))
+     TYPELOCOMOTION char(32)  null       CHECK (TYPELOCOMOTION in ('Pieds', 'VÃ©lo', 'Voiture', 'Train', 'MÃ©tro', 'Bus'))
      ,
      constraint PK_DEPLACER primary key (ID, ID_1)
   ) 

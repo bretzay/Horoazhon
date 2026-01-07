@@ -165,7 +165,7 @@ namespace Horoazhon.Features.Auth.ViewModel
                 Regex validateGuidRegex = new Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
                 Console.WriteLine(validateGuidRegex.IsMatch(PasswordSelected));
 
-                _personne = dbContext?.Personnes?.Where(p => p.Siret == _connexion.Siret && p.Id == _connexion.Id).FirstOrDefault() ?? null;
+                _personne = dbContext?.Personnes?.Where(p => p.Id == _connexion.Id).FirstOrDefault() ?? null;
                 _connexion.Codepin = PinService.CreatePin(_personne?.Nom ?? "");
 
                 // Check if email exists before sending

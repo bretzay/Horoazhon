@@ -11,7 +11,7 @@ public partial class Location
 
     public short? IdSigner { get; set; }
 
-    public int Caution { get; set; }
+    public short Caution { get; set; }
 
     public string? Datedispo { get; set; }
 

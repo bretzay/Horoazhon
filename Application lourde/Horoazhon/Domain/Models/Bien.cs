@@ -31,5 +31,5 @@ public partial class Bien
 
     public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
 
-    public virtual ICollection<Personne> Personnes { get; set; } = new List<Personne>();
+    public virtual ICollection<Personne> Id1s { get; set; } = new List<Personne>();
 }
