@@ -1,3 +1,54 @@
+# Java/Maven
+backend/target/
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Spring Boot
+backend/HELP.md
+backend/spring-boot-starter-parent/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Symfony
+frontend-web/var/
+frontend-web/vendor/
+frontend-web/.env.local
+frontend-web/.env.*.local
+
+# Flutter
+frontend-mobile/.dart_tool/
+frontend-mobile/.flutter-plugins
+frontend-mobile/.flutter-plugins-dependencies
+frontend-mobile/.packages
+frontend-mobile/build/
+frontend-mobile/ios/
+frontend-mobile/android/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads
+uploads/
+*.log
+
+# Sensitive
+*.key
+*.pem
+*.p12
+.env.local
+application-prod.properties
+
 .vs/
 bin/
 obj/
