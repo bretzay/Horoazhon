@@ -1,0 +1,42 @@
+# Backend (Java/Maven)
+backend/target/
+backend/*.jar
+backend/*.war
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Frontend Web (Symfony/PHP)
+frontend-web/vendor/
+frontend-web/var/
+frontend-web/.env.local
+frontend-web/.env.local.php
+frontend-web/.env.*.local
+frontend-web/public/bundles/
+
+# Frontend Mobile (Flutter)
+frontend-mobile/.dart_tool/
+frontend-mobile/.packages
+frontend-mobile/build/
+frontend-mobile/.flutter-plugins
+frontend-mobile/.flutter-plugins-dependencies
+frontend-mobile/*.iml
+frontend-mobile/android/.gradle/
+frontend-mobile/android/local.properties
+frontend-mobile/ios/Pods/
+frontend-mobile/ios/.symlinks/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files with secrets
+*.local
+.env.production
