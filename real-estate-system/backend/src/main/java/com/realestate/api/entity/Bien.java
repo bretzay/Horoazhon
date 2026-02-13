@@ -38,7 +38,7 @@ public class Bien {
     @Column
     private Integer superficie; // Total surface area in m²
 
-    @Column(columnDefinition = "NTEXT")
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     @Column(length = 50)
