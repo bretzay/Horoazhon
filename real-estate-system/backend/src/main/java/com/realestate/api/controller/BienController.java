@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -19,9 +18,9 @@ import java.math.BigDecimal;
 @RequestMapping("/api/biens")
 @RequiredArgsConstructor
 public class BienController {
-    
+
     private final BienService bienService;
-    
+
     @GetMapping
     public ResponseEntity<Page<BienDTO>> getAllBiens(
         @RequestParam(required = false) String ville,
@@ -38,17 +37,28 @@ public class BienController {
         Page<BienDTO> biens = bienService.findAll(ville, type, prixMin, prixMax, forSale, forRent, pageable);
         return ResponseEntity.ok(biens);
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<BienDetailDTO> getBienById(@PathVariable Long id) {
         BienDetailDTO bien = bienService.findById(id);
         return ResponseEntity.ok(bien);
     }
-    
+
     @PostMapping
-    @PreAuthorize("hasAnyRole('AGENT', 'ADMIN')")
     public ResponseEntity<BienDTO> createBien(@Valid @RequestBody CreateBienRequest request) {
         BienDTO created = bienService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BienDTO> updateBien(@PathVariable Long id, @Valid @RequestBody UpdateBienRequest request) {
+        BienDTO updated = bienService.update(id, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBien(@PathVariable Long id) {
+        bienService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
