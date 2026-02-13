@@ -11,7 +11,7 @@ backend/mvnw.cmd
 backend/HELP.md
 backend/spring-boot-starter-parent/
 
-.claude\settings.local.json
+.claude/
 
 # IDE
 .idea/
