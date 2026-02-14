@@ -53,7 +53,7 @@ public class Contrat {
     protected void onCreate() {
         dateCreation = LocalDateTime.now();
         validateExclusivity();
-        validateMinimumSigners();
+        // Minimum signers validated in service layer (cosigners not yet persisted at @PrePersist time)
     }
 
     @PreUpdate
@@ -72,17 +72,6 @@ public class Contrat {
         if ((location == null && achat == null) || (location != null && achat != null)) {
             throw new IllegalStateException(
                 "Un contrat doit être soit une location, soit un achat (pas les deux, pas aucun)"
-            );
-        }
-    }
-
-    /**
-     * Ensures at least 2 persons co-sign the contract (2,n cardinality)
-     */
-    private void validateMinimumSigners() {
-        if (cosigners.size() < 2) {
-            throw new IllegalStateException(
-                "Un contrat doit avoir au moins 2 co-signataires"
             );
         }
     }

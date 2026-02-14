@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Agences{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Gestion des Agences</h1>
+    <a href="{{ path('admin_agences_new') }}" class="btn btn-primary">+ Nouvelle Agence</a>
+</div>
+
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nom</th><th>SIRET</th><th>Ville</th><th>Telephone</th><th>Email</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for a in agences %}
+        <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.nom }}</td>
+            <td>{{ a.siret }}</td>
+            <td>{{ a.ville }} {{ a.codePostal }}</td>
+            <td>{{ a.telephone ?? '-' }}</td>
+            <td>{{ a.email ?? '-' }}</td>
+            <td>
+                <a href="{{ path('admin_agences_edit', {id: a.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                <form method="POST" action="{{ path('admin_agences_delete', {id: a.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Suppr.</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7">Aucune agence.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

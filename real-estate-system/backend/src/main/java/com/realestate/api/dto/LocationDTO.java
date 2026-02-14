@@ -15,4 +15,8 @@ public class LocationDTO {
     private LocalDate dateDispo;
     private BigDecimal mensualite;
     private Integer dureeMois;
+    private Long bienId;
+    private String bienType;
+    private String bienRue;
+    private String bienVille;
 }

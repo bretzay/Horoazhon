@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ bien.type ?? 'Bien' }} - {{ bien.ville }}{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>{{ bien.type ?? 'Bien' }} - {{ bien.rue }}, {{ bien.ville }}</h1>
+    <a href="{{ path('biens_list') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="detail-grid">
+    <div class="card">
+        <h3>Informations</h3>
+        <div class="detail-item"><div class="label">Adresse</div><div class="value">{{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}</div></div>
+        <div class="detail-item"><div class="label">Type</div><div class="value">{{ bien.type }}</div></div>
+        <div class="detail-item"><div class="label">Superficie</div><div class="value">{{ bien.superficie }} m²</div></div>
+        {% if bien.ecoScore %}<div class="detail-item"><div class="label">Eco Score</div><div class="value">{{ bien.ecoScore }}/10</div></div>{% endif %}
+        {% if bien.description %}<div class="detail-item"><div class="label">Description</div><div class="value">{{ bien.description }}</div></div>{% endif %}
+    </div>
+
+    <div>
+        {% if bien.availableForSale and bien.achat %}
+        <div class="card">
+            <h3>Vente</h3>
+            <div class="detail-item"><div class="label">Prix</div><div class="value" style="font-size:1.3rem; font-weight:bold; color:#2563eb;">{{ bien.achat.prix|number_format(0, ',', ' ') }} €</div></div>
+            <div class="detail-item"><div class="label">Disponible</div><div class="value">{{ bien.achat.dateDispo }}</div></div>
+        </div>
+        {% endif %}
+
+        {% if bien.availableForRent and bien.location %}
+        <div class="card">
+            <h3>Location</h3>
+            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-size:1.3rem; font-weight:bold; color:#16a34a;">{{ bien.location.mensualite|number_format(0, ',', ' ') }} €/mois</div></div>
+            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ bien.location.caution|number_format(0, ',', ' ') }} €</div></div>
+            <div class="detail-item"><div class="label">Disponible</div><div class="value">{{ bien.location.dateDispo }}</div></div>
+            {% if bien.location.dureeMois %}<div class="detail-item"><div class="label">Duree</div><div class="value">{{ bien.location.dureeMois }} mois</div></div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if bien.agence is defined and bien.agence %}
+        <div class="card">
+            <h3>Agence</h3>
+            <div class="detail-item"><div class="label">Nom</div><div class="value">{{ bien.agence.nom }}</div></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if bien.caracteristiques is defined and bien.caracteristiques|length > 0 %}
+<div class="card">
+    <h3>Caracteristiques</h3>
+    {% for c in bien.caracteristiques %}
+        <span class="badge" style="background:#f1f5f9; color:#475569; margin: 0.2rem;">{{ c.lib }}: {{ c.valeur }}{% if c.unite %} {{ c.unite }}{% endif %}</span>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if bien.lieux is defined and bien.lieux|length > 0 %}
+<div class="card">
+    <h3>Proximite</h3>
+    <table>
+        <tr><th>Lieu</th><th>Temps</th><th>Mode</th></tr>
+        {% for l in bien.lieux %}
+        <tr><td>{{ l.lib }}</td><td>{{ l.minutes }} min</td><td>{{ l.typeLocomotion ?? '-' }}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -86,6 +86,7 @@ public class PersonneService {
         dto.setVille(p.getVille());
         dto.setCodePostal(p.getCodePostal());
         dto.setAvoirs(p.getAvoirs());
+        dto.setRib(p.getRib());
         return dto;
     }
 }

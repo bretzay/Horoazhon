@@ -69,6 +69,12 @@ public class LocationService {
         dto.setDateDispo(loc.getDateDispo());
         dto.setMensualite(loc.getMensualite());
         dto.setDureeMois(loc.getDureeMois());
+        if (loc.getBien() != null) {
+            dto.setBienId(loc.getBien().getId());
+            dto.setBienType(loc.getBien().getType());
+            dto.setBienRue(loc.getBien().getRue());
+            dto.setBienVille(loc.getBien().getVille());
+        }
         return dto;
     }
 }

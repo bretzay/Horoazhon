@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Personnes{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Gestion des Personnes</h1>
+    <a href="{{ path('admin_personnes_new') }}" class="btn btn-primary">+ Nouvelle Personne</a>
+</div>
+
+<form method="GET" class="filters">
+    <div class="form-group">
+        <label>Rechercher</label>
+        <input type="text" name="q" value="{{ search ?? '' }}" placeholder="Nom ou prenom...">
+    </div>
+    <button type="submit" class="btn btn-primary">Chercher</button>
+    {% if search %}<a href="{{ path('admin_personnes') }}" class="btn btn-secondary">Reset</a>{% endif %}
+</form>
+
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nom</th><th>Prenom</th><th>Date Nais.</th><th>Ville</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for p in personnes %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.nom }}</td>
+            <td>{{ p.prenom }}</td>
+            <td>{{ p.dateNais }}</td>
+            <td>{{ p.ville ?? '-' }}</td>
+            <td>
+                <a href="{{ path('admin_personnes_edit', {id: p.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                <form method="POST" action="{{ path('admin_personnes_delete', {id: p.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Suppr.</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6">Aucune personne.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

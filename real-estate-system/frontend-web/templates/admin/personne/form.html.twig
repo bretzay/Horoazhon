@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - {{ personne ? 'Modifier' : 'Nouvelle' }} Personne{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>{{ personne ? 'Modifier Personne #' ~ personne.id : 'Nouvelle Personne' }}</h1>
+    <a href="{{ path('admin_personnes') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group"><label>Nom *</label><input type="text" name="nom" value="{{ personne ? personne.nom : '' }}" required></div>
+            <div class="form-group"><label>Prenom *</label><input type="text" name="prenom" value="{{ personne ? personne.prenom : '' }}" required></div>
+            <div class="form-group"><label>Date de naissance *</label><input type="date" name="dateNais" value="{{ personne ? personne.dateNais : '' }}" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Rue</label><input type="text" name="rue" value="{{ personne ? personne.rue : '' }}"></div>
+            <div class="form-group"><label>Ville</label><input type="text" name="ville" value="{{ personne ? personne.ville : '' }}"></div>
+            <div class="form-group"><label>Code Postal</label><input type="text" name="codePostal" value="{{ personne ? personne.codePostal : '' }}"></div>
+        </div>
+        <div class="form-group"><label>RIB (IBAN)</label><input type="text" name="rib" value="{{ personne ? personne.rib : '' }}" maxlength="34"></div>
+        <button type="submit" class="btn btn-primary">{{ personne ? 'Enregistrer' : 'Creer' }}</button>
+    </form>
+</div>
+{% endblock %}

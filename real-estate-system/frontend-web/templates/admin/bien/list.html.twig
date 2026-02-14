@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Biens{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Gestion des Biens</h1>
+    <a href="{{ path('admin_biens_new') }}" class="btn btn-primary">+ Nouveau Bien</a>
+</div>
+
+<form method="GET" class="filters">
+    <div class="form-group">
+        <label>Ville</label>
+        <input type="text" name="ville" value="{{ filters.ville ?? '' }}">
+    </div>
+    <div class="form-group">
+        <label>Type</label>
+        <select name="type">
+            <option value="">Tous</option>
+            <option value="APPARTEMENT" {{ (filters.type ?? '') == 'APPARTEMENT' ? 'selected' }}>Appartement</option>
+            <option value="MAISON" {{ (filters.type ?? '') == 'MAISON' ? 'selected' }}>Maison</option>
+            <option value="STUDIO" {{ (filters.type ?? '') == 'STUDIO' ? 'selected' }}>Studio</option>
+            <option value="TERRAIN" {{ (filters.type ?? '') == 'TERRAIN' ? 'selected' }}>Terrain</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrer</button>
+    <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Reset</a>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Adresse</th>
+            <th>Ville</th>
+            <th>Superficie</th>
+            <th>Statut</th>
+            <th>Agence</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bien in biens %}
+        <tr>
+            <td>{{ bien.id }}</td>
+            <td>{{ bien.type }}</td>
+            <td>{{ bien.rue }}</td>
+            <td>{{ bien.ville }} {{ bien.codePostal }}</td>
+            <td>{{ bien.superficie }} m²</td>
+            <td>
+                {% if bien.availableForSale %}<span class="badge badge-sale">Vente {{ bien.salePrice|number_format(0, ',', ' ') }}€</span>{% endif %}
+                {% if bien.availableForRent %}<span class="badge badge-rent">Location {{ bien.monthlyRent|number_format(0, ',', ' ') }}€/m</span>{% endif %}
+                {% if not bien.availableForSale and not bien.availableForRent %}<span class="badge" style="background:#f1f5f9;color:#94a3b8;">Aucune annonce</span>{% endif %}
+            </td>
+            <td>{{ bien.agence ? bien.agence.nom : '-' }}</td>
+            <td>
+                <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                <form method="POST" action="{{ path('admin_biens_delete', {id: bien.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce bien ?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Suppr.</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8">Aucun bien.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if totalPages > 1 %}
+<div class="pagination">
+    {% for i in 0..totalPages-1 %}
+        {% if i == currentPage %}
+            <span class="current">{{ i + 1 }}</span>
+        {% else %}
+            <a href="{{ path('admin_biens', filters|merge({page: i})) }}">{{ i + 1 }}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

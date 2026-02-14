@@ -1,13 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Real Estate Management{% endblock %}</title>
+    <title>{% block title %}Horoazhon - Immobilier{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #333; background: #f5f5f5; }
+        a { color: #2563eb; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        nav { background: #1e293b; color: #fff; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        nav .brand { font-size: 1.2rem; font-weight: bold; color: #fff; }
+        nav .links { display: flex; gap: 1.5rem; }
+        nav .links a { color: #cbd5e1; font-size: 0.9rem; }
+        nav .links a:hover { color: #fff; text-decoration: none; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .page-header h1 { font-size: 1.5rem; }
+        .btn { display: inline-block; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem; text-decoration: none; }
+        .btn:hover { text-decoration: none; opacity: 0.9; }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-danger { background: #dc2626; color: #fff; }
+        .btn-success { background: #16a34a; color: #fff; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; font-size: 0.85rem; color: #64748b; text-transform: uppercase; }
+        tr:hover { background: #f8fafc; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.9rem; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-row { display: flex; gap: 1rem; }
+        .form-row .form-group { flex: 1; }
+        .form-inline { display: flex; gap: 0.5rem; align-items: end; }
+        .form-inline .form-group { margin-bottom: 0; }
+        .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.25rem; margin-bottom: 1rem; }
+        .card h3 { margin-bottom: 0.75rem; font-size: 1.1rem; }
+        .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .property-card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .property-card .info { padding: 1rem; }
+        .property-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+        .property-card .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; }
+        .property-card .price { font-size: 1.1rem; font-weight: bold; color: #2563eb; }
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; }
+        .badge-sale { background: #dbeafe; color: #1d4ed8; }
+        .badge-rent { background: #dcfce7; color: #16a34a; }
+        .badge-en_cours { background: #fef3c7; color: #92400e; }
+        .badge-signe { background: #dcfce7; color: #166534; }
+        .badge-annule { background: #fee2e2; color: #991b1b; }
+        .badge-termine { background: #e0e7ff; color: #3730a3; }
+        .filters { background: #fff; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: end; }
+        .filters .form-group { margin-bottom: 0; min-width: 150px; }
+        .flash { padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; }
+        .flash-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .detail-item { margin-bottom: 0.5rem; }
+        .detail-item .label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
+        .detail-item .value { font-size: 1rem; }
+        .section { border: 1px solid #e2e8f0; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; }
+        .section h4 { margin-bottom: 0.75rem; color: #475569; }
+        .section-item { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; }
+        .pagination { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+        .pagination a, .pagination span { padding: 0.4rem 0.8rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; }
+        .pagination span.current { background: #2563eb; color: #fff; border-color: #2563eb; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #fff; padding: 1.25rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-card .number { font-size: 2rem; font-weight: bold; color: #2563eb; }
+        .stat-card .label { font-size: 0.85rem; color: #64748b; }
+    </style>
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    {% block body %}{% endblock %}
+    <nav>
+        <a href="{{ path('home') }}" class="brand">Horoazhon</a>
+        <div class="links">
+            <a href="{{ path('home') }}">Accueil</a>
+            <a href="{{ path('biens_list') }}">Biens</a>
+            <a href="{{ path('admin_dashboard') }}">Admin</a>
+        </div>
+    </nav>
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="flash flash-success">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error">{{ message }}</div>
+        {% endfor %}
+        {% block body %}{% endblock %}
+    </div>
     {% block javascripts %}{% endblock %}
 </body>
 </html>

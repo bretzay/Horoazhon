@@ -18,4 +18,5 @@ public class PersonneDTO {
     private String prenom;
     private LocalDate dateNais;
     private BigDecimal avoirs;
+    private String rib;
 }

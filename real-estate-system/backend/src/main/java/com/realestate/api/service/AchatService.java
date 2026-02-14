@@ -65,6 +65,12 @@ public class AchatService {
         dto.setId(a.getId());
         dto.setPrix(a.getPrix());
         dto.setDateDispo(a.getDateDispo());
+        if (a.getBien() != null) {
+            dto.setBienId(a.getBien().getId());
+            dto.setBienType(a.getBien().getType());
+            dto.setBienRue(a.getBien().getRue());
+            dto.setBienVille(a.getBien().getVille());
+        }
         return dto;
     }
 }

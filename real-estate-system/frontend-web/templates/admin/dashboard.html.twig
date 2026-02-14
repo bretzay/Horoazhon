@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Dashboard{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Tableau de bord</h1>
+</div>
+
+<div class="stats">
+    <div class="stat-card"><div class="number">{{ bienCount }}</div><div class="label">Biens</div></div>
+    <div class="stat-card"><div class="number">{{ agenceCount }}</div><div class="label">Agences</div></div>
+    <div class="stat-card"><div class="number">{{ personneCount }}</div><div class="label">Personnes</div></div>
+    <div class="stat-card"><div class="number">{{ contratCount }}</div><div class="label">Contrats</div></div>
+</div>
+
+<div class="detail-grid">
+    <div class="card">
+        <h3>Gestion</h3>
+        <p><a href="{{ path('admin_biens') }}">Biens immobiliers</a></p>
+        <p><a href="{{ path('admin_agences') }}">Agences</a></p>
+        <p><a href="{{ path('admin_personnes') }}">Personnes</a></p>
+        <p><a href="{{ path('admin_contrats') }}">Contrats</a></p>
+    </div>
+    <div class="card">
+        <h3>Donnees de reference</h3>
+        <p><a href="{{ path('admin_references') }}">Caracteristiques & Lieux</a></p>
+    </div>
+</div>
+{% endblock %}

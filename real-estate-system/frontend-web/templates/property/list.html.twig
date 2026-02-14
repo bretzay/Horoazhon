@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Biens immobiliers{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Biens immobiliers</h1>
+</div>
+
+<form method="GET" class="filters">
+    <div class="form-group">
+        <label>Ville</label>
+        <input type="text" name="ville" value="{{ filters.ville ?? '' }}">
+    </div>
+    <div class="form-group">
+        <label>Type</label>
+        <select name="type">
+            <option value="">Tous</option>
+            <option value="APPARTEMENT" {{ (filters.type ?? '') == 'APPARTEMENT' ? 'selected' }}>Appartement</option>
+            <option value="MAISON" {{ (filters.type ?? '') == 'MAISON' ? 'selected' }}>Maison</option>
+            <option value="STUDIO" {{ (filters.type ?? '') == 'STUDIO' ? 'selected' }}>Studio</option>
+            <option value="TERRAIN" {{ (filters.type ?? '') == 'TERRAIN' ? 'selected' }}>Terrain</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Prix min</label>
+        <input type="number" name="prixMin" value="{{ filters.prixMin ?? '' }}">
+    </div>
+    <div class="form-group">
+        <label>Prix max</label>
+        <input type="number" name="prixMax" value="{{ filters.prixMax ?? '' }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrer</button>
+    <a href="{{ path('biens_list') }}" class="btn btn-secondary">Reset</a>
+</form>
+
+<div class="property-grid">
+    {% for bien in biens %}
+    <a href="{{ path('biens_detail', {id: bien.id}) }}" class="property-card" style="color: inherit; text-decoration: none;">
+        <div class="info">
+            <h3>{{ bien.type ?? 'Bien' }} - {{ bien.ville }}</h3>
+            <div class="meta">{{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}</div>
+            <div class="meta">{{ bien.superficie }} m² {% if bien.ecoScore %} | Eco: {{ bien.ecoScore }}/10{% endif %}</div>
+            {% if bien.availableForSale %}
+                <span class="badge badge-sale">Vente: {{ bien.salePrice|number_format(0, ',', ' ') }} €</span>
+            {% endif %}
+            {% if bien.availableForRent %}
+                <span class="badge badge-rent">Location: {{ bien.monthlyRent|number_format(0, ',', ' ') }} €/mois</span>
+            {% endif %}
+            {% if bien.agence %}
+                <div class="meta" style="margin-top: 0.5rem;">{{ bien.agence.nom }}</div>
+            {% endif %}
+        </div>
+    </a>
+    {% else %}
+    <p>Aucun bien ne correspond a vos criteres.</p>
+    {% endfor %}
+</div>
+
+{% if totalPages > 1 %}
+<div class="pagination">
+    {% for i in 0..totalPages-1 %}
+        {% if i == currentPage %}
+            <span class="current">{{ i + 1 }}</span>
+        {% else %}
+            <a href="{{ path('biens_list', filters|merge({page: i})) }}">{{ i + 1 }}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

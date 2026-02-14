@@ -1,0 +1,180 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - {{ bien ? 'Modifier' : 'Nouveau' }} Bien{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>{{ bien ? 'Modifier le Bien #' ~ bien.id : 'Nouveau Bien' }}</h1>
+    <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+{# ===== Property form ===== #}
+<div class="card">
+    <h3>Informations du bien</h3>
+    <form method="POST">
+        <input type="hidden" name="_action" value="{{ bien ? 'update_bien' : 'create_bien' }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Rue *</label>
+                <input type="text" name="rue" value="{{ bien ? bien.rue : '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Ville *</label>
+                <input type="text" name="ville" value="{{ bien ? bien.ville : '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Code Postal *</label>
+                <input type="text" name="codePostal" value="{{ bien ? bien.codePostal : '' }}" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Type</label>
+                <select name="type">
+                    <option value="">-</option>
+                    {% for t in ['APPARTEMENT', 'MAISON', 'STUDIO', 'TERRAIN'] %}
+                        <option value="{{ t }}" {{ (bien and bien.type == t) ? 'selected' }}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Superficie (m²)</label>
+                <input type="number" name="superficie" value="{{ bien ? bien.superficie : '' }}">
+            </div>
+            <div class="form-group">
+                <label>Eco Score</label>
+                <input type="number" name="ecoScore" min="0" max="10" value="{{ bien ? bien.ecoScore : '' }}">
+            </div>
+        </div>
+        {% if not bien %}
+        <div class="form-group">
+            <label>Agence</label>
+            <select name="agenceId">
+                <option value="">Aucune</option>
+                {% for a in agences %}
+                    <option value="{{ a.id }}">{{ a.nom }} ({{ a.ville }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description">{{ bien ? bien.description : '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ bien ? 'Enregistrer' : 'Creer' }}</button>
+    </form>
+</div>
+
+{# ===== The rest only shows when editing an existing property ===== #}
+{% if bien %}
+
+{# ===== Sale listing ===== #}
+<div class="section">
+    <h4>Annonce de vente</h4>
+    {% if bien.achat %}
+        <div class="section-item">
+            <span>{{ bien.achat.prix|number_format(0, ',', ' ') }} € — Dispo: {{ bien.achat.dateDispo }}</span>
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="_action" value="remove_achat">
+                <input type="hidden" name="achatId" value="{{ bien.achat.id }}">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer cette annonce de vente ?')">Supprimer</button>
+            </form>
+        </div>
+    {% else %}
+        <form method="POST" class="form-inline">
+            <input type="hidden" name="_action" value="add_achat">
+            <div class="form-group">
+                <label>Prix (€)</label>
+                <input type="number" name="prix" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Disponible le</label>
+                <input type="date" name="dateDispo" required>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Ajouter vente</button>
+        </form>
+    {% endif %}
+</div>
+
+{# ===== Rental listing ===== #}
+<div class="section">
+    <h4>Annonce de location</h4>
+    {% if bien.location %}
+        <div class="section-item">
+            <span>{{ bien.location.mensualite|number_format(0, ',', ' ') }} €/mois — Caution: {{ bien.location.caution|number_format(0, ',', ' ') }} € — Dispo: {{ bien.location.dateDispo }}</span>
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="_action" value="remove_location">
+                <input type="hidden" name="locationId" value="{{ bien.location.id }}">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer cette annonce de location ?')">Supprimer</button>
+            </form>
+        </div>
+    {% else %}
+        <form method="POST" class="form-inline" style="flex-wrap: wrap;">
+            <input type="hidden" name="_action" value="add_location">
+            <div class="form-group">
+                <label>Loyer (€/mois)</label>
+                <input type="number" name="mensualite" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Caution (€)</label>
+                <input type="number" name="caution" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Disponible le</label>
+                <input type="date" name="dateDispo" required>
+            </div>
+            <div class="form-group">
+                <label>Duree (mois)</label>
+                <input type="number" name="dureeMois">
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Ajouter location</button>
+        </form>
+    {% endif %}
+</div>
+
+{# ===== Characteristics ===== #}
+{% if caracteristiques is defined %}
+<div class="section">
+    <h4>Caracteristiques</h4>
+    {% if bien.caracteristiques is defined and bien.caracteristiques|length > 0 %}
+        {% for c in bien.caracteristiques %}
+            <div class="section-item">
+                <span>{{ c.lib }}: {{ c.valeur }}{% if c.unite %} {{ c.unite }}{% endif %}</span>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #94a3b8; font-size: 0.85rem;">Aucune caracteristique.</p>
+    {% endif %}
+</div>
+{% endif %}
+
+{# ===== Nearby places ===== #}
+{% if lieux is defined %}
+<div class="section">
+    <h4>Proximite</h4>
+    {% if bien.lieux is defined and bien.lieux|length > 0 %}
+        {% for l in bien.lieux %}
+            <div class="section-item">
+                <span>{{ l.lib }} — {{ l.minutes }} min {% if l.typeLocomotion %}({{ l.typeLocomotion }}){% endif %}</span>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #94a3b8; font-size: 0.85rem;">Aucun lieu a proximite.</p>
+    {% endif %}
+</div>
+{% endif %}
+
+{# ===== Owners ===== #}
+{% if bien.proprietaires is defined and bien.proprietaires|length > 0 %}
+<div class="section">
+    <h4>Proprietaires</h4>
+    {% for p in bien.proprietaires %}
+        <div class="section-item">
+            <span>{{ p.prenom }} {{ p.nom }} (depuis {{ p.dateDebut|slice(0, 10) }})</span>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endif %}{# end if bien #}
+{% endblock %}

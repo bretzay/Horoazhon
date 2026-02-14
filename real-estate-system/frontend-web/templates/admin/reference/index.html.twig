@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Donnees de reference{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Donnees de reference</h1>
+    <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="detail-grid">
+    {# ===== Characteristics ===== #}
+    <div class="card">
+        <h3>Caracteristiques</h3>
+        <form method="POST" action="{{ path('admin_ref_carac_add') }}" class="form-inline" style="margin-bottom: 1rem;">
+            <div class="form-group" style="flex: 1;">
+                <input type="text" name="lib" placeholder="Nouvelle caracteristique..." required>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Ajouter</button>
+        </form>
+        {% for c in caracteristiques %}
+            <div class="section-item">
+                <span>{{ c.lib }}</span>
+                <form method="POST" action="{{ path('admin_ref_carac_delete', {id: c.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?')">
+                    <button type="submit" class="btn btn-danger btn-sm">X</button>
+                </form>
+            </div>
+        {% else %}
+            <p style="color: #94a3b8;">Aucune.</p>
+        {% endfor %}
+    </div>
+
+    {# ===== Places ===== #}
+    <div class="card">
+        <h3>Lieux d'interet</h3>
+        <form method="POST" action="{{ path('admin_ref_lieu_add') }}" class="form-inline" style="margin-bottom: 1rem;">
+            <div class="form-group" style="flex: 1;">
+                <input type="text" name="lib" placeholder="Nouveau lieu..." required>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Ajouter</button>
+        </form>
+        {% for l in lieux %}
+            <div class="section-item">
+                <span>{{ l.lib }}</span>
+                <form method="POST" action="{{ path('admin_ref_lieu_delete', {id: l.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?')">
+                    <button type="submit" class="btn btn-danger btn-sm">X</button>
+                </form>
+            </div>
+        {% else %}
+            <p style="color: #94a3b8;">Aucun.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

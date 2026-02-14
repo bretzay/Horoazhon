@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Contrat #{{ contrat.id }}{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Contrat #{{ contrat.id }}</h1>
+    <a href="{{ path('admin_contrats') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="detail-grid">
+    <div class="card">
+        <h3>Informations</h3>
+        <div class="detail-item"><div class="label">Type</div><div class="value"><span class="badge {{ contrat.type == 'ACHAT' ? 'badge-sale' : 'badge-rent' }}">{{ contrat.type }}</span></div></div>
+        <div class="detail-item"><div class="label">Statut</div><div class="value"><span class="badge badge-{{ contrat.statut|lower }}">{{ contrat.statut }}</span></div></div>
+        <div class="detail-item"><div class="label">Date creation</div><div class="value">{{ contrat.dateCreation|slice(0, 10) }}</div></div>
+        {% if contrat.dateModification %}
+        <div class="detail-item"><div class="label">Derniere modification</div><div class="value">{{ contrat.dateModification|slice(0, 10) }}</div></div>
+        {% endif %}
+
+        <h3 style="margin-top: 1rem;">Changer le statut</h3>
+        <form method="POST" action="{{ path('admin_contrats_statut', {id: contrat.id}) }}" class="form-inline">
+            <div class="form-group">
+                <select name="statut">
+                    {% for s in ['EN_COURS', 'SIGNE', 'ANNULE', 'TERMINE'] %}
+                        <option value="{{ s }}" {{ contrat.statut == s ? 'selected' }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Mettre a jour</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Bien concerne</h3>
+        {% if contrat.bien %}
+            <div class="detail-item"><div class="label">Adresse</div><div class="value">{{ contrat.bien.rue }}, {{ contrat.bien.codePostal }} {{ contrat.bien.ville }}</div></div>
+            <div class="detail-item"><div class="label">Type</div><div class="value">{{ contrat.bien.type }}</div></div>
+        {% endif %}
+
+        {% if contrat.achat is defined and contrat.achat %}
+            <div class="detail-item"><div class="label">Prix de vente</div><div class="value" style="font-weight:bold;">{{ contrat.achat.prix|number_format(0, ',', ' ') }} €</div></div>
+        {% endif %}
+        {% if contrat.location is defined and contrat.location %}
+            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-weight:bold;">{{ contrat.location.mensualite|number_format(0, ',', ' ') }} €/mois</div></div>
+            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ contrat.location.caution|number_format(0, ',', ' ') }} €</div></div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <h3>Cosignataires</h3>
+    <table>
+        <thead><tr><th>Personne</th><th>Role</th><th>Date signature</th></tr></thead>
+        <tbody>
+            {% for cs in contrat.cosigners %}
+            <tr>
+                <td>{{ cs.prenom }} {{ cs.nom }}</td>
+                <td>{{ cs.typeSignataire }}</td>
+                <td>{{ cs.dateSignature|slice(0, 10) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
