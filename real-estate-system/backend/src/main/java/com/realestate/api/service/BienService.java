@@ -2,8 +2,7 @@ package com.realestate.api.service;
 
 import com.realestate.api.dto.*;
 import com.realestate.api.entity.*;
-import com.realestate.api.repository.AgenceRepository;
-import com.realestate.api.repository.BienRepository;
+import com.realestate.api.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +20,13 @@ public class BienService {
 
     private final BienRepository bienRepository;
     private final AgenceRepository agenceRepository;
+    private final CaracteristiquesRepository caracteristiquesRepository;
+    private final ContenirRepository contenirRepository;
+    private final LieuxRepository lieuxRepository;
+    private final DeplacerRepository deplacerRepository;
+    private final PersonneRepository personneRepository;
+    private final PossederRepository possederRepository;
+    private final PhotoRepository photoRepository;
 
     @Transactional(readOnly = true)
     public Page<BienDTO> findAll(
@@ -30,10 +36,17 @@ public class BienService {
             BigDecimal prixMax,
             Boolean forSale,
             Boolean forRent,
+            Long caracId,
+            Integer caracMin,
+            Long lieuId,
+            Integer maxMinutes,
+            String locomotion,
             Pageable pageable
     ) {
         return bienRepository.findByFilters(
-            ville, type, forSale, forRent, prixMin, prixMax, pageable
+            ville, type, forSale, forRent, prixMin, prixMax,
+            caracId, caracMin, lieuId, maxMinutes, locomotion,
+            pageable
         ).map(this::convertToDTO);
     }
 
@@ -87,6 +100,119 @@ public class BienService {
         bienRepository.deleteById(id);
     }
 
+    // ===== Caracteristiques associations =====
+
+    public void addCaracteristique(Long bienId, Long caracteristiqueId, String valeur, String unite) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        Caracteristiques carac = caracteristiquesRepository.findById(caracteristiqueId)
+            .orElseThrow(() -> new EntityNotFoundException("Caracteristique not found with id: " + caracteristiqueId));
+
+        Contenir.ContenirId id = new Contenir.ContenirId(bienId, caracteristiqueId);
+        if (contenirRepository.existsById(id)) {
+            throw new IllegalStateException("Cette caracteristique est deja associee a ce bien.");
+        }
+
+        Contenir contenir = new Contenir();
+        contenir.setId(id);
+        contenir.setBien(bien);
+        contenir.setCaracteristique(carac);
+        contenir.setValeur(valeur);
+        contenir.setUnite(unite);
+        contenirRepository.save(contenir);
+    }
+
+    public void removeCaracteristique(Long bienId, Long caracteristiqueId) {
+        Contenir.ContenirId id = new Contenir.ContenirId(bienId, caracteristiqueId);
+        if (!contenirRepository.existsById(id)) {
+            throw new EntityNotFoundException("Association not found.");
+        }
+        contenirRepository.deleteById(id);
+    }
+
+    // ===== Lieux associations =====
+
+    public void addLieu(Long bienId, Long lieuId, Integer minutes, String typeLocomotion) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        Lieux lieu = lieuxRepository.findById(lieuId)
+            .orElseThrow(() -> new EntityNotFoundException("Lieu not found with id: " + lieuId));
+
+        Deplacer.DeplacerId id = new Deplacer.DeplacerId(bienId, lieuId);
+        if (deplacerRepository.existsById(id)) {
+            throw new IllegalStateException("Ce lieu est deja associe a ce bien.");
+        }
+
+        Deplacer deplacer = new Deplacer();
+        deplacer.setId(id);
+        deplacer.setBien(bien);
+        deplacer.setLieu(lieu);
+        deplacer.setMinutes(minutes);
+        deplacer.setTypeLocomotion(typeLocomotion);
+        deplacerRepository.save(deplacer);
+    }
+
+    public void removeLieu(Long bienId, Long lieuId) {
+        Deplacer.DeplacerId id = new Deplacer.DeplacerId(bienId, lieuId);
+        if (!deplacerRepository.existsById(id)) {
+            throw new EntityNotFoundException("Association not found.");
+        }
+        deplacerRepository.deleteById(id);
+    }
+
+    // ===== Proprietaire (single owner per property) =====
+
+    public void setProprietaire(Long bienId, Long personneId) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        Personne personne = personneRepository.findById(personneId)
+            .orElseThrow(() -> new EntityNotFoundException("Personne not found with id: " + personneId));
+
+        // Remove existing owner(s) first
+        possederRepository.deleteByBienId(bienId);
+        possederRepository.flush();
+
+        Posseder posseder = new Posseder();
+        posseder.setId(new Posseder.PossederId(bienId, personneId));
+        posseder.setBien(bien);
+        posseder.setPersonne(personne);
+        possederRepository.save(posseder);
+    }
+
+    public void removeProprietaire(Long bienId) {
+        possederRepository.deleteByBienId(bienId);
+    }
+
+    // ===== Photos =====
+
+    public PhotoDTO addPhoto(Long bienId, String chemin, Integer ordre) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+
+        Photo photo = new Photo();
+        photo.setBien(bien);
+        photo.setChemin(chemin);
+        photo.setOrdre(ordre != null ? ordre : 1);
+
+        Photo saved = photoRepository.save(photo);
+        PhotoDTO dto = new PhotoDTO();
+        dto.setId(saved.getId());
+        dto.setChemin(saved.getChemin());
+        dto.setOrdre(saved.getOrdre());
+        dto.setUrl(saved.getChemin());
+        dto.setDateCreation(saved.getDateCreation());
+        return dto;
+    }
+
+    public void removePhoto(Long bienId, Long photoId) {
+        Photo photo = photoRepository.findById(photoId)
+            .orElseThrow(() -> new EntityNotFoundException("Photo not found with id: " + photoId));
+        if (!photo.getBien().getId().equals(bienId)) {
+            throw new IllegalArgumentException("Photo does not belong to this bien.");
+        }
+        photoRepository.deleteById(photoId);
+    }
+
     private BienDTO convertToDTO(Bien bien) {
         BienDTO dto = new BienDTO();
         dto.setId(bien.getId());
@@ -107,6 +233,12 @@ public class BienService {
             agenceDTO.setId(bien.getAgence().getId());
             agenceDTO.setNom(bien.getAgence().getNom());
             agenceDTO.setSiret(bien.getAgence().getSiret());
+            agenceDTO.setNumeroTva(bien.getAgence().getNumeroTva());
+            agenceDTO.setRue(bien.getAgence().getRue());
+            agenceDTO.setVille(bien.getAgence().getVille());
+            agenceDTO.setCodePostal(bien.getAgence().getCodePostal());
+            agenceDTO.setTelephone(bien.getAgence().getTelephone());
+            agenceDTO.setEmail(bien.getAgence().getEmail());
             dto.setAgence(agenceDTO);
         }
 
@@ -146,6 +278,12 @@ public class BienService {
             agenceDTO.setId(bien.getAgence().getId());
             agenceDTO.setNom(bien.getAgence().getNom());
             agenceDTO.setSiret(bien.getAgence().getSiret());
+            agenceDTO.setNumeroTva(bien.getAgence().getNumeroTva());
+            agenceDTO.setRue(bien.getAgence().getRue());
+            agenceDTO.setVille(bien.getAgence().getVille());
+            agenceDTO.setCodePostal(bien.getAgence().getCodePostal());
+            agenceDTO.setTelephone(bien.getAgence().getTelephone());
+            agenceDTO.setEmail(bien.getAgence().getEmail());
             dto.setAgence(agenceDTO);
         }
 

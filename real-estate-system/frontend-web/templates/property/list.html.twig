@@ -23,12 +23,56 @@
         </select>
     </div>
     <div class="form-group">
+        <label>Annonce</label>
+        <select name="annonce">
+            <option value="">Toutes</option>
+            <option value="vente" {{ (filters.annonce ?? '') == 'vente' ? 'selected' }}>En vente</option>
+            <option value="location" {{ (filters.annonce ?? '') == 'location' ? 'selected' }}>En location</option>
+        </select>
+    </div>
+    <div class="form-group">
         <label>Prix min</label>
         <input type="number" name="prixMin" value="{{ filters.prixMin ?? '' }}">
     </div>
     <div class="form-group">
         <label>Prix max</label>
         <input type="number" name="prixMax" value="{{ filters.prixMax ?? '' }}">
+    </div>
+    <div class="form-group">
+        <label>Caracteristique</label>
+        <select name="caracId">
+            <option value="">-</option>
+            {% for c in caracteristiques %}
+                <option value="{{ c.id }}" {{ (filters.caracId ?? '') == c.id ? 'selected' }}>{{ c.lib }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Valeur min</label>
+        <input type="number" name="caracMin" value="{{ filters.caracMin ?? '' }}" placeholder="Min">
+    </div>
+    <div class="form-group">
+        <label>Proximite</label>
+        <select name="lieuId">
+            <option value="">-</option>
+            {% for l in lieux %}
+                <option value="{{ l.id }}" {{ (filters.lieuId ?? '') == l.id ? 'selected' }}>{{ l.lib }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Max minutes</label>
+        <input type="number" name="maxMinutes" value="{{ filters.maxMinutes ?? '' }}" placeholder="Max">
+    </div>
+    <div class="form-group">
+        <label>Transport</label>
+        <select name="locomotion">
+            <option value="">Tous</option>
+            <option value="MARCHE" {{ (filters.locomotion ?? '') == 'MARCHE' ? 'selected' }}>Pied</option>
+            <option value="VELO" {{ (filters.locomotion ?? '') == 'VELO' ? 'selected' }}>Velo</option>
+            <option value="TRANSPORT_PUBLIC" {{ (filters.locomotion ?? '') == 'TRANSPORT_PUBLIC' ? 'selected' }}>Bus/Metro</option>
+            <option value="VOITURE" {{ (filters.locomotion ?? '') == 'VOITURE' ? 'selected' }}>Voiture</option>
+        </select>
     </div>
     <button type="submit" class="btn btn-primary">Filtrer</button>
     <a href="{{ path('biens_list') }}" class="btn btn-secondary">Reset</a>

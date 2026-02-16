@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Agents{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Agents</h1>
+    <a href="{{ path('admin_agents_new') }}" class="btn btn-primary">Nouvel Agent</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Statut</th>
+            <th>Date creation</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for agent in agents %}
+        <tr>
+            <td>{{ agent.prenom }} {{ agent.nom }}</td>
+            <td>{{ agent.email }}</td>
+            <td>
+                {% if agent.role == 'ADMIN_AGENCY' %}
+                    <span class="badge" style="background: #fef3c7; color: #92400e;">Admin</span>
+                {% elseif agent.role == 'SUPERVISOR' %}
+                    <span class="badge" style="background: #dbeafe; color: #1d4ed8;">Superviseur</span>
+                {% else %}
+                    <span class="badge" style="background: #e0e7ff; color: #3730a3;">Agent</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if agent.actif %}
+                    <span class="badge badge-signe">Actif</span>
+                {% else %}
+                    <span class="badge badge-annule">Inactif</span>
+                {% endif %}
+            </td>
+            <td>{{ agent.dateCreation|date('d/m/Y H:i') }}</td>
+            <td>
+                {% if agent.actif and agent.id != app.session.get('agent').agentId %}
+                    <form method="post" action="{{ path('admin_agents_deactivate', {id: agent.id}) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Desactiver cet agent?')">Desactiver</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" style="text-align: center; color: #64748b;">Aucun agent trouve</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

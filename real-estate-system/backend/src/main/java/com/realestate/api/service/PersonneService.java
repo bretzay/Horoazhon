@@ -1,9 +1,10 @@
 package com.realestate.api.service;
 
-import com.realestate.api.dto.CreatePersonneRequest;
-import com.realestate.api.dto.PersonneDTO;
-import com.realestate.api.entity.Personne;
+import com.realestate.api.dto.*;
+import com.realestate.api.entity.*;
+import com.realestate.api.repository.CosignerRepository;
 import com.realestate.api.repository.PersonneRepository;
+import com.realestate.api.repository.PossederRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ import java.util.stream.Collectors;
 public class PersonneService {
 
     private final PersonneRepository personneRepository;
+    private final PossederRepository possederRepository;
+    private final CosignerRepository cosignerRepository;
 
     @Transactional(readOnly = true)
     public List<PersonneDTO> findAll() {
@@ -74,6 +77,59 @@ public class PersonneService {
             throw new EntityNotFoundException("Personne not found with id: " + id);
         }
         personneRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BienDTO> findBiensByPersonne(Long personneId) {
+        if (!personneRepository.existsById(personneId)) {
+            throw new EntityNotFoundException("Personne not found with id: " + personneId);
+        }
+        return possederRepository.findByPersonneId(personneId).stream()
+                .map(posseder -> {
+                    Bien bien = posseder.getBien();
+                    BienDTO dto = new BienDTO();
+                    dto.setId(bien.getId());
+                    dto.setRue(bien.getRue());
+                    dto.setVille(bien.getVille());
+                    dto.setCodePostal(bien.getCodePostal());
+                    dto.setType(bien.getType());
+                    dto.setSuperficie(bien.getSuperficie());
+                    dto.setAvailableForSale(bien.isAvailableForSale());
+                    dto.setAvailableForRent(bien.isAvailableForRent());
+                    if (bien.getAchat() != null) dto.setSalePrice(bien.getAchat().getPrix());
+                    if (bien.getLocation() != null) dto.setMonthlyRent(bien.getLocation().getMensualite());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ContratDTO> findContratsByPersonne(Long personneId) {
+        if (!personneRepository.existsById(personneId)) {
+            throw new EntityNotFoundException("Personne not found with id: " + personneId);
+        }
+        return cosignerRepository.findByPersonneId(personneId).stream()
+                .map(cosigner -> {
+                    Contrat c = cosigner.getContrat();
+                    ContratDTO dto = new ContratDTO();
+                    dto.setId(c.getId());
+                    dto.setDateCreation(c.getDateCreation());
+                    dto.setStatut(c.getStatut().name());
+                    dto.setType(c.getType() != null ? c.getType().name() : null);
+                    Bien bien = null;
+                    if (c.getLocation() != null) bien = c.getLocation().getBien();
+                    else if (c.getAchat() != null) bien = c.getAchat().getBien();
+                    if (bien != null) {
+                        BienDTO bienDTO = new BienDTO();
+                        bienDTO.setId(bien.getId());
+                        bienDTO.setRue(bien.getRue());
+                        bienDTO.setVille(bien.getVille());
+                        bienDTO.setType(bien.getType());
+                        dto.setBien(bienDTO);
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     private PersonneDTO convertToDTO(Personne p) {

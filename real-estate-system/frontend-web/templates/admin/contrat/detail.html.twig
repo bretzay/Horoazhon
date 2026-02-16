@@ -5,7 +5,13 @@
 {% block body %}
 <div class="page-header">
     <h1>Contrat #{{ contrat.id }}</h1>
-    <a href="{{ path('admin_contrats') }}" class="btn btn-secondary">Retour</a>
+    <div>
+        <a href="{{ path('admin_contrats_pdf', {id: contrat.id}) }}" class="btn btn-primary">PDF genere</a>
+        {% if contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
+            <a href="{{ path('admin_contrats_signed_pdf', {id: contrat.id}) }}" class="btn btn-success">PDF signe</a>
+        {% endif %}
+        <a href="{{ path('admin_contrats') }}" class="btn btn-secondary">Retour</a>
+    </div>
 </div>
 
 <div class="detail-grid">
@@ -17,13 +23,39 @@
         {% if contrat.dateModification %}
         <div class="detail-item"><div class="label">Derniere modification</div><div class="value">{{ contrat.dateModification|slice(0, 10) }}</div></div>
         {% endif %}
+        <div class="detail-item">
+            <div class="label">Document signe</div>
+            <div class="value">
+                {% if contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
+                    <span class="badge" style="background:#d1fae5;color:#065f46;">Televerse</span>
+                {% else %}
+                    <span class="badge" style="background:#fee2e2;color:#991b1b;">Non televerse</span>
+                {% endif %}
+            </div>
+        </div>
 
+        <h3 style="margin-top: 1rem;">Document signe</h3>
+        <form method="POST" action="{{ path('admin_contrats_upload_signe', {id: contrat.id}) }}" enctype="multipart/form-data" class="form-inline" style="flex-wrap: wrap;">
+            <div class="form-group">
+                <input type="file" name="signed_pdf" accept="application/pdf" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Televerser</button>
+        </form>
+
+        {% set hasSigned = contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
         <h3 style="margin-top: 1rem;">Changer le statut</h3>
         <form method="POST" action="{{ path('admin_contrats_statut', {id: contrat.id}) }}" class="form-inline">
             <div class="form-group">
                 <select name="statut">
+                    {% set isSigned = contrat.statut == 'SIGNE' or contrat.statut == 'TERMINE' %}
                     {% for s in ['EN_COURS', 'SIGNE', 'ANNULE', 'TERMINE'] %}
-                        <option value="{{ s }}" {{ contrat.statut == s ? 'selected' }}>{{ s }}</option>
+                        <option value="{{ s }}" {{ contrat.statut == s ? 'selected' }}
+                            {% if not hasSigned and (s == 'SIGNE' or s == 'TERMINE') %}disabled{% endif %}
+                            {% if isSigned and s == 'EN_COURS' %}disabled{% endif %}>
+                            {{ s }}
+                            {%- if not hasSigned and (s == 'SIGNE' or s == 'TERMINE') %} (doc requis){% endif %}
+                            {%- if isSigned and s == 'EN_COURS' %} (irreversible){% endif %}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
@@ -36,28 +68,32 @@
         {% if contrat.bien %}
             <div class="detail-item"><div class="label">Adresse</div><div class="value">{{ contrat.bien.rue }}, {{ contrat.bien.codePostal }} {{ contrat.bien.ville }}</div></div>
             <div class="detail-item"><div class="label">Type</div><div class="value">{{ contrat.bien.type }}</div></div>
+            {% if contrat.bien.id is defined %}
+            <a href="{{ path('admin_biens_edit', {id: contrat.bien.id}) }}" class="btn btn-primary btn-sm" style="margin-top: 0.5rem;">Voir le bien</a>
+            {% endif %}
         {% endif %}
 
         {% if contrat.achat is defined and contrat.achat %}
-            <div class="detail-item"><div class="label">Prix de vente</div><div class="value" style="font-weight:bold;">{{ contrat.achat.prix|number_format(0, ',', ' ') }} €</div></div>
+            <div class="detail-item"><div class="label">Prix de vente</div><div class="value" style="font-weight:bold;">{{ contrat.achat.prix|number_format(0, ',', ' ') }} &euro;</div></div>
         {% endif %}
         {% if contrat.location is defined and contrat.location %}
-            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-weight:bold;">{{ contrat.location.mensualite|number_format(0, ',', ' ') }} €/mois</div></div>
-            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ contrat.location.caution|number_format(0, ',', ' ') }} €</div></div>
+            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-weight:bold;">{{ contrat.location.mensualite|number_format(0, ',', ' ') }} &euro;/mois</div></div>
+            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ contrat.location.caution|number_format(0, ',', ' ') }} &euro;</div></div>
         {% endif %}
     </div>
 </div>
 
 <div class="card">
-    <h3>Cosignataires</h3>
+    <h3>Signataires</h3>
     <table>
-        <thead><tr><th>Personne</th><th>Role</th><th>Date signature</th></tr></thead>
+        <thead><tr><th>Personne</th><th>Role</th><th>Date signature</th><th></th></tr></thead>
         <tbody>
             {% for cs in contrat.cosigners %}
             <tr>
                 <td>{{ cs.prenom }} {{ cs.nom }}</td>
                 <td>{{ cs.typeSignataire }}</td>
                 <td>{{ cs.dateSignature|slice(0, 10) }}</td>
+                <td><a href="{{ path('admin_personnes_edit', {id: cs.personneId}) }}" class="btn btn-primary btn-sm">Modifier</a></td>
             </tr>
             {% endfor %}
         </tbody>

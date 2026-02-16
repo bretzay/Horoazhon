@@ -56,6 +56,10 @@ public class Bien {
     @JoinColumn(name = "agence_id")
     private Agence agence;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_createur_id")
+    private Agent createdBy;
+
     @OneToMany(mappedBy = "bien", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photo> photos = new ArrayList<>();
 

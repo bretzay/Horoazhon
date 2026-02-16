@@ -86,9 +86,30 @@ public class ContratService {
     public ContratDTO updateStatut(Long id, String statut) {
         Contrat contrat = contratRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Contrat not found with id: " + id));
-        contrat.setStatut(Contrat.StatutContrat.valueOf(statut));
+
+        Contrat.StatutContrat currentStatut = contrat.getStatut();
+        Contrat.StatutContrat newStatut = Contrat.StatutContrat.valueOf(statut);
+
+        if ((newStatut == Contrat.StatutContrat.SIGNE || newStatut == Contrat.StatutContrat.TERMINE)
+                && (contrat.getDocumentSigne() == null || contrat.getDocumentSigne().isBlank())) {
+            throw new IllegalArgumentException("Impossible de passer en " + statut + " sans document signe.");
+        }
+
+        if (newStatut == Contrat.StatutContrat.EN_COURS
+                && (currentStatut == Contrat.StatutContrat.SIGNE || currentStatut == Contrat.StatutContrat.TERMINE)) {
+            throw new IllegalArgumentException("Impossible de revenir en EN_COURS depuis " + currentStatut.name() + ".");
+        }
+
+        contrat.setStatut(newStatut);
         Contrat saved = contratRepository.save(contrat);
         return convertToDTO(saved);
+    }
+
+    public void setDocumentSigne(Long id, String filePath) {
+        Contrat contrat = contratRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Contrat not found with id: " + id));
+        contrat.setDocumentSigne(filePath);
+        contratRepository.save(contrat);
     }
 
     private ContratDTO convertToDTO(Contrat c) {
@@ -98,6 +119,7 @@ public class ContratService {
         dto.setDateModification(c.getDateModification());
         dto.setStatut(c.getStatut().name());
         dto.setType(c.getType() != null ? c.getType().name() : null);
+        dto.setHasSignedDocument(c.getDocumentSigne() != null && !c.getDocumentSigne().isBlank());
 
         // Get the associated bien
         Bien bien = null;
@@ -143,6 +165,7 @@ public class ContratService {
         dto.setStatut(base.getStatut());
         dto.setType(base.getType());
         dto.setBien(base.getBien());
+        dto.setHasSignedDocument(base.isHasSignedDocument());
         dto.setCosigners(base.getCosigners());
 
         if (c.getLocation() != null) {

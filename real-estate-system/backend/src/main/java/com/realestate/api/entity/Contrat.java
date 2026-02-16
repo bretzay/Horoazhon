@@ -43,6 +43,13 @@ public class Contrat {
     @JoinColumn(name = "achat_id")
     private Achat achat;
 
+    @Column(length = 500)
+    private String documentSigne;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_createur_id")
+    private Agent createdBy;
+
     // Co-signers (minimum 2 required)
     @OneToMany(mappedBy = "contrat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cosigner> cosigners = new ArrayList<>();

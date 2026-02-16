@@ -21,55 +21,51 @@
 
         <div class="form-group" id="achatSelect" style="display:none;">
             <label>Annonce de vente *</label>
-            <select name="achatId">
+            <select name="achatId" id="achatId" onchange="updateOwner()">
                 <option value="">-- Choisir --</option>
-                {% for b in biensForSale %}
-                    <option value="{{ b.id }}">{{ b.type }} - {{ b.rue }}, {{ b.ville }} ({{ b.salePrice|number_format(0, ',', ' ') }} €)</option>
+                {% for a in achats %}
+                    <option value="{{ a.id }}" data-bien-id="{{ a.bienId }}">{{ a.bienType }} - {{ a.bienRue }}, {{ a.bienVille }} ({{ a.prix|number_format(0, ',', ' ') }} &euro;)</option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="form-group" id="locationSelect" style="display:none;">
             <label>Annonce de location *</label>
-            <select name="locationId">
+            <select name="locationId" id="locationId" onchange="updateOwner()">
                 <option value="">-- Choisir --</option>
-                {% for b in biensForRent %}
-                    <option value="{{ b.id }}">{{ b.type }} - {{ b.rue }}, {{ b.ville }} ({{ b.monthlyRent|number_format(0, ',', ' ') }} €/mois)</option>
+                {% for l in locations %}
+                    <option value="{{ l.id }}" data-bien-id="{{ l.bienId }}">{{ l.bienType }} - {{ l.bienRue }}, {{ l.bienVille }} ({{ l.mensualite|number_format(0, ',', ' ') }} &euro;/mois)</option>
                 {% endfor %}
             </select>
         </div>
 
-        <h3 style="margin: 1.5rem 0 0.75rem;">Cosignataires (minimum 2)</h3>
+        <div id="partiesSection" style="display:none;">
+            <h3 style="margin: 1.5rem 0 0.75rem;">Parties au contrat</h3>
 
-        <div id="cosigners">
-            {% for i in 0..1 %}
-            <div class="form-row" style="margin-bottom: 0.5rem;">
-                <div class="form-group">
-                    <label>Personne {{ i + 1 }} *</label>
-                    <select name="cosigner_personne[]" required>
-                        <option value="">-- Choisir --</option>
-                        {% for p in personnes %}
-                            <option value="{{ p.id }}">{{ p.prenom }} {{ p.nom }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Role *</label>
-                    <select name="cosigner_type[]" required>
-                        <option value="BUYER">Acheteur</option>
-                        <option value="SELLER">Vendeur</option>
-                        <option value="RENTER">Locataire</option>
-                        <option value="OWNER">Proprietaire</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label id="sellerLabel">Vendeur</label>
+                <input type="text" id="ownerDisplay" readonly style="background: #f1f5f9; cursor: not-allowed;" value="">
             </div>
-            {% endfor %}
-        </div>
 
-        <button type="button" class="btn btn-secondary btn-sm" onclick="addCosigner()" style="margin-bottom: 1rem;">+ Ajouter un cosignataire</button>
+            <div class="form-group">
+                <label id="buyerLabel"></label>
+                <select name="buyer_personne" id="buyerSelect" required>
+                    <option value="">-- Choisir --</option>
+                    {% for p in personnes %}
+                        <option value="{{ p.id }}">{{ p.prenom }} {{ p.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <div>
-            <button type="submit" class="btn btn-primary">Creer le contrat</button>
+            <h4 id="cosignerTitle" style="margin: 1rem 0 0.5rem;"></h4>
+
+            <div id="cosigners"></div>
+
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addCosigner()" style="margin-bottom: 1rem;">+ Ajouter</button>
+
+            <div>
+                <button type="submit" class="btn btn-primary">Creer le contrat</button>
+            </div>
         </div>
     </form>
 </div>
@@ -77,26 +73,104 @@
 
 {% block javascripts %}
 <script>
+var bienOwners = {{ bienOwners|json_encode|raw }};
+var currentType = '';
+var currentOwnerId = null;
+
 function toggleType() {
+    currentType = document.getElementById('contractType').value;
+    document.getElementById('achatSelect').style.display = currentType === 'ACHAT' ? 'block' : 'none';
+    document.getElementById('locationSelect').style.display = currentType === 'LOCATION' ? 'block' : 'none';
+    document.getElementById('partiesSection').style.display = currentType ? 'block' : 'none';
+    document.getElementById('sellerLabel').textContent = currentType === 'LOCATION' ? 'Proprietaire' : 'Vendeur';
+    document.getElementById('buyerLabel').textContent = currentType === 'LOCATION' ? 'Loueur *' : 'Acheteur *';
+    document.getElementById('cosignerTitle').textContent = currentType === 'LOCATION'
+        ? 'Loueurs supplementaires' : 'Acheteurs supplementaires';
+    updateOwner();
+    updateCosignerLabels();
+}
+
+function updateOwner() {
     var type = document.getElementById('contractType').value;
-    document.getElementById('achatSelect').style.display = type === 'ACHAT' ? 'block' : 'none';
-    document.getElementById('locationSelect').style.display = type === 'LOCATION' ? 'block' : 'none';
+    var select = type === 'ACHAT' ? document.getElementById('achatId') : document.getElementById('locationId');
+    var option = select.options[select.selectedIndex];
+    var bienId = option ? option.getAttribute('data-bien-id') : null;
+    var display = document.getElementById('ownerDisplay');
+
+    currentOwnerId = null;
+
+    if (bienId && bienOwners[bienId]) {
+        var owner = bienOwners[bienId];
+        display.value = owner.prenom + ' ' + owner.nom;
+        currentOwnerId = owner.personneId;
+    } else if (bienId) {
+        display.value = 'Aucun proprietaire defini';
+    } else {
+        display.value = '';
+    }
+
+    filterOwnerFromSelects();
+}
+
+function filterOwnerFromSelects() {
+    var selects = document.querySelectorAll('#buyerSelect, select[name="extra_cosigners[]"]');
+    selects.forEach(function(sel) {
+        Array.from(sel.options).forEach(function(opt) {
+            if (opt.value && currentOwnerId && parseInt(opt.value) === currentOwnerId) {
+                opt.disabled = true;
+                opt.style.color = '#94a3b8';
+                if (sel.value === opt.value) {
+                    sel.value = '';
+                }
+            } else {
+                opt.disabled = false;
+                opt.style.color = '';
+            }
+        });
+    });
+}
+
+function getRoleName() {
+    return currentType === 'LOCATION' ? 'Loueur' : 'Acheteur';
 }
 
 function addCosigner() {
     var container = document.getElementById('cosigners');
-    var count = container.querySelectorAll('.form-row').length + 1;
-    var html = '<div class="form-row" style="margin-bottom: 0.5rem;">' +
-        '<div class="form-group"><label>Personne ' + count + '</label>' +
-        '<select name="cosigner_personne[]"><option value="">-- Choisir --</option>' +
+    var count = container.querySelectorAll('.form-group').length + 2;
+    var role = getRoleName();
+    var html = '<div class="form-group" style="margin-bottom: 0.5rem;">' +
+        '<label>' + role + ' ' + count + '</label>' +
+        '<select name="extra_cosigners[]"><option value="">-- Choisir --</option>' +
         '{% for p in personnes %}<option value="{{ p.id }}">{{ p.prenom }} {{ p.nom }}</option>{% endfor %}' +
-        '</select></div>' +
-        '<div class="form-group"><label>Role</label>' +
-        '<select name="cosigner_type[]">' +
-        '<option value="BUYER">Acheteur</option><option value="SELLER">Vendeur</option>' +
-        '<option value="RENTER">Locataire</option><option value="OWNER">Proprietaire</option>' +
-        '</select></div></div>';
+        '</select></div>';
     container.insertAdjacentHTML('beforeend', html);
+    filterOwnerFromSelects();
 }
+
+function updateCosignerLabels() {
+    var container = document.getElementById('cosigners');
+    var labels = container.querySelectorAll('label');
+    var role = getRoleName();
+    labels.forEach(function(label, i) {
+        label.textContent = role + ' ' + (i + 2);
+    });
+}
+
+// Auto-select listing from query params
+(function() {
+    var preAchatId = '{{ preselectedAchatId ?? '' }}';
+    var preLocationId = '{{ preselectedLocationId ?? '' }}';
+    if (preAchatId) {
+        document.getElementById('contractType').value = 'ACHAT';
+        toggleType();
+        document.getElementById('achatId').value = preAchatId;
+        updateOwner();
+    } else if (preLocationId) {
+        document.getElementById('contractType').value = 'LOCATION';
+        toggleType();
+        document.getElementById('locationId').value = preLocationId;
+        updateOwner();
+    }
+})();
 </script>
 {% endblock %}

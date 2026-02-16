@@ -53,6 +53,17 @@ public class AchatService {
         return convertToDTO(saved);
     }
 
+    public AchatDTO update(Long id, CreateAchatRequest request) {
+        Achat achat = achatRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
+
+        if (request.getPrix() != null) achat.setPrix(request.getPrix());
+        if (request.getDateDispo() != null) achat.setDateDispo(request.getDateDispo());
+
+        Achat saved = achatRepository.save(achat);
+        return convertToDTO(saved);
+    }
+
     public void delete(Long id) {
         if (!achatRepository.existsById(id)) {
             throw new EntityNotFoundException("Achat not found with id: " + id);

@@ -77,9 +77,22 @@
     <nav>
         <a href="{{ path('home') }}" class="brand">Horoazhon</a>
         <div class="links">
-            <a href="{{ path('home') }}">Accueil</a>
-            <a href="{{ path('biens_list') }}">Biens</a>
-            <a href="{{ path('admin_dashboard') }}">Admin</a>
+            {% if app.request.get('_route') != 'login' %}
+                <a href="{{ path('home') }}">Accueil</a>
+                <a href="{{ path('biens_list') }}">Biens</a>
+            {% endif %}
+            {% if app.session.get('jwt_token') %}
+                <a href="{{ path('admin_dashboard') }}">Admin</a>
+                <span style="color: #94a3b8; margin-left: 1rem;">
+                    {{ app.session.get('agent').prenom }} {{ app.session.get('agent').nom }}
+                    {% if app.session.get('agent').agenceNom %}
+                        <small>({{ app.session.get('agent').agenceNom }})</small>
+                    {% endif %}
+                </span>
+                <a href="{{ path('logout') }}" style="color: #ef4444;">Deconnexion</a>
+            {% else %}
+                <a href="{{ path('login') }}">Connexion</a>
+            {% endif %}
         </div>
     </nav>
     <div class="container">

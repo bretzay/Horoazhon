@@ -34,6 +34,18 @@ class AdminReferenceController extends AbstractController
         return $this->redirectToRoute('admin_references');
     }
 
+    #[Route('/caracteristiques/{id}/edit', name: 'admin_ref_carac_edit', methods: ['POST'])]
+    public function editCaracteristique(int $id, Request $request): Response
+    {
+        try {
+            $this->api->updateCaracteristique($id, ['lib' => $request->request->get('lib')]);
+            $this->addFlash('success', 'Caracteristique modifiee.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_references');
+    }
+
     #[Route('/caracteristiques/{id}/delete', name: 'admin_ref_carac_delete', methods: ['POST'])]
     public function deleteCaracteristique(int $id): Response
     {
@@ -52,6 +64,18 @@ class AdminReferenceController extends AbstractController
         try {
             $this->api->createLieu(['lib' => $request->request->get('lib')]);
             $this->addFlash('success', 'Lieu ajoute.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_references');
+    }
+
+    #[Route('/lieux/{id}/edit', name: 'admin_ref_lieu_edit', methods: ['POST'])]
+    public function editLieu(int $id, Request $request): Response
+    {
+        try {
+            $this->api->updateLieu($id, ['lib' => $request->request->get('lib')]);
+            $this->addFlash('success', 'Lieu modifie.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur: ' . $e->getMessage());
         }

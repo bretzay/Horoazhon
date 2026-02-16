@@ -1,7 +1,6 @@
 package com.realestate.api.controller;
 
-import com.realestate.api.dto.CreatePersonneRequest;
-import com.realestate.api.dto.PersonneDTO;
+import com.realestate.api.dto.*;
 import com.realestate.api.service.PersonneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,5 +47,15 @@ public class PersonneController {
     public ResponseEntity<Void> deletePersonne(@PathVariable Long id) {
         personneService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/biens")
+    public ResponseEntity<List<BienDTO>> getPersonneBiens(@PathVariable Long id) {
+        return ResponseEntity.ok(personneService.findBiensByPersonne(id));
+    }
+
+    @GetMapping("/{id}/contrats")
+    public ResponseEntity<List<ContratDTO>> getPersonneContrats(@PathVariable Long id) {
+        return ResponseEntity.ok(personneService.findContratsByPersonne(id));
     }
 }

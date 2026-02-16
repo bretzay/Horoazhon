@@ -55,6 +55,19 @@ public class LocationService {
         return convertToDTO(saved);
     }
 
+    public LocationDTO update(Long id, CreateLocationRequest request) {
+        Location loc = locationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
+
+        if (request.getCaution() != null) loc.setCaution(request.getCaution());
+        if (request.getMensualite() != null) loc.setMensualite(request.getMensualite());
+        if (request.getDateDispo() != null) loc.setDateDispo(request.getDateDispo());
+        if (request.getDureeMois() != null) loc.setDureeMois(request.getDureeMois());
+
+        Location saved = locationRepository.save(loc);
+        return convertToDTO(saved);
+    }
+
     public void delete(Long id) {
         if (!locationRepository.existsById(id)) {
             throw new EntityNotFoundException("Location not found with id: " + id);

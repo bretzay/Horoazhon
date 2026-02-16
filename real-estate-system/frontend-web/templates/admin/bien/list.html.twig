@@ -23,6 +23,14 @@
             <option value="TERRAIN" {{ (filters.type ?? '') == 'TERRAIN' ? 'selected' }}>Terrain</option>
         </select>
     </div>
+    <div class="form-group">
+        <label>Annonce</label>
+        <select name="annonce">
+            <option value="">Toutes</option>
+            <option value="vente" {{ (filters.annonce ?? '') == 'vente' ? 'selected' }}>En vente</option>
+            <option value="location" {{ (filters.annonce ?? '') == 'location' ? 'selected' }}>En location</option>
+        </select>
+    </div>
     <button type="submit" class="btn btn-primary">Filtrer</button>
     <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Reset</a>
 </form>

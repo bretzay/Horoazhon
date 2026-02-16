@@ -2,18 +2,117 @@
 
 {% block title %}{{ bien.type ?? 'Bien' }} - {{ bien.ville }}{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
+    .photo-grid img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: opacity 0.2s; }
+    .photo-grid img:hover { opacity: 0.85; }
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+    .lightbox-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); color: #fff; border: none; font-size: 2.5rem; padding: 0.5rem 1rem; cursor: pointer; border-radius: 8px; user-select: none; }
+    .lightbox-arrow:hover { background: rgba(255,255,255,0.3); }
+    .lightbox-prev { left: 1rem; }
+    .lightbox-next { right: 1rem; }
+    .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+    .lightbox-counter { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: #1e293b; border-radius: 12px; padding: 2rem; max-width: 420px; width: 90%; position: relative; color: #e2e8f0; }
+    .modal-content h3 { margin: 0 0 1.25rem 0; color: #f8fafc; font-size: 1.25rem; }
+    .modal-close { position: absolute; top: 0.75rem; right: 1rem; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; }
+    .modal-close:hover { color: #f8fafc; }
+    .modal-item { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid #334155; }
+    .modal-item:last-child { border-bottom: none; }
+    .modal-label { color: #94a3b8; }
+    .modal-value { color: #f8fafc; font-weight: 500; }
+    .modal-value a { color: #60a5fa; text-decoration: none; }
+    .modal-value a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="page-header">
     <h1>{{ bien.type ?? 'Bien' }} - {{ bien.rue }}, {{ bien.ville }}</h1>
-    <a href="{{ path('biens_list') }}" class="btn btn-secondary">Retour</a>
+    <div>
+        {% set hasAchat = bien.availableForSale is defined and bien.availableForSale and bien.achat is defined and bien.achat %}
+        {% set hasLocation = bien.availableForRent is defined and bien.availableForRent and bien.location is defined and bien.location %}
+        {% if app.session.get('jwt_token') %}
+            {% if bien.id is defined %}
+                <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary">Modifier</a>
+            {% endif %}
+            {% if hasAchat and hasLocation %}
+                <a href="{{ path('admin_contrats_new', {achatId: bien.achat.id}) }}" class="btn btn-success">Contrat vente</a>
+                <a href="{{ path('admin_contrats_new', {locationId: bien.location.id}) }}" class="btn btn-success">Contrat location</a>
+            {% elseif hasAchat %}
+                <a href="{{ path('admin_contrats_new', {achatId: bien.achat.id}) }}" class="btn btn-success">Nouveau contrat</a>
+            {% elseif hasLocation %}
+                <a href="{{ path('admin_contrats_new', {locationId: bien.location.id}) }}" class="btn btn-success">Nouveau contrat</a>
+            {% endif %}
+        {% else %}
+            {% if hasAchat %}
+                <button class="btn btn-success" onclick="openContactModal()">Acheter</button>
+            {% endif %}
+            {% if hasLocation %}
+                <button class="btn btn-success" onclick="openContactModal()">Louer</button>
+            {% endif %}
+        {% endif %}
+        <a href="{{ path('biens_list') }}" class="btn btn-secondary">Retour</a>
+    </div>
 </div>
+
+{% if bien.photos is defined and bien.photos|length > 0 %}
+<div class="card">
+    <h3>Photos</h3>
+    <div class="photo-grid">
+        {% for photo in bien.photos %}
+            <img src="{{ photo.chemin }}" alt="Photo {{ loop.index }}" onclick="openLightbox({{ loop.index0 }})">
+        {% endfor %}
+    </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-arrow lightbox-prev" onclick="navigateLightbox(-1)">&lsaquo;</button>
+    <img id="lightbox-img" src="" alt="">
+    <button class="lightbox-arrow lightbox-next" onclick="navigateLightbox(1)">&rsaquo;</button>
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>
+<script>
+    const lbPhotos = [{% for photo in bien.photos %}"{{ photo.chemin }}"{{ not loop.last ? ',' }}{% endfor %}];
+    let lbIndex = 0;
+    function openLightbox(i) {
+        lbIndex = i;
+        updateLightbox();
+        document.getElementById('lightbox').classList.add('active');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+    }
+    function navigateLightbox(dir) {
+        lbIndex = (lbIndex + dir + lbPhotos.length) % lbPhotos.length;
+        updateLightbox();
+    }
+    function updateLightbox() {
+        document.getElementById('lightbox-img').src = lbPhotos[lbIndex];
+        document.getElementById('lightbox-counter').textContent = (lbIndex + 1) + ' / ' + lbPhotos.length;
+    }
+    document.addEventListener('keydown', function(e) {
+        if (!document.getElementById('lightbox').classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+    });
+</script>
+{% endif %}
 
 <div class="detail-grid">
     <div class="card">
         <h3>Informations</h3>
         <div class="detail-item"><div class="label">Adresse</div><div class="value">{{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}</div></div>
         <div class="detail-item"><div class="label">Type</div><div class="value">{{ bien.type }}</div></div>
-        <div class="detail-item"><div class="label">Superficie</div><div class="value">{{ bien.superficie }} m²</div></div>
+        <div class="detail-item"><div class="label">Superficie</div><div class="value">{{ bien.superficie }} m&sup2;</div></div>
         {% if bien.ecoScore %}<div class="detail-item"><div class="label">Eco Score</div><div class="value">{{ bien.ecoScore }}/10</div></div>{% endif %}
         {% if bien.description %}<div class="detail-item"><div class="label">Description</div><div class="value">{{ bien.description }}</div></div>{% endif %}
     </div>
@@ -22,17 +121,35 @@
         {% if bien.availableForSale and bien.achat %}
         <div class="card">
             <h3>Vente</h3>
-            <div class="detail-item"><div class="label">Prix</div><div class="value" style="font-size:1.3rem; font-weight:bold; color:#2563eb;">{{ bien.achat.prix|number_format(0, ',', ' ') }} €</div></div>
-            <div class="detail-item"><div class="label">Disponible</div><div class="value">{{ bien.achat.dateDispo }}</div></div>
+            <div class="detail-item"><div class="label">Prix</div><div class="value" style="font-size:1.3rem; font-weight:bold; color:#2563eb;">{{ bien.achat.prix|number_format(0, ',', ' ') }} &euro;</div></div>
+            <div class="detail-item">
+                <div class="label">Disponibilite</div>
+                <div class="value">
+                    {% if bien.achat.dateDispo|date('Y-m-d') <= "now"|date('Y-m-d') %}
+                        <span class="badge badge-signe">Disponible</span>
+                    {% else %}
+                        <span class="badge" style="background:#fef3c7; color:#92400e;">Disponible le {{ bien.achat.dateDispo|date('d/m/Y') }}</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         {% endif %}
 
         {% if bien.availableForRent and bien.location %}
         <div class="card">
             <h3>Location</h3>
-            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-size:1.3rem; font-weight:bold; color:#16a34a;">{{ bien.location.mensualite|number_format(0, ',', ' ') }} €/mois</div></div>
-            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ bien.location.caution|number_format(0, ',', ' ') }} €</div></div>
-            <div class="detail-item"><div class="label">Disponible</div><div class="value">{{ bien.location.dateDispo }}</div></div>
+            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-size:1.3rem; font-weight:bold; color:#16a34a;">{{ bien.location.mensualite|number_format(0, ',', ' ') }} &euro;/mois</div></div>
+            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ bien.location.caution|number_format(0, ',', ' ') }} &euro;</div></div>
+            <div class="detail-item">
+                <div class="label">Disponibilite</div>
+                <div class="value">
+                    {% if bien.location.dateDispo|date('Y-m-d') <= "now"|date('Y-m-d') %}
+                        <span class="badge badge-signe">Disponible</span>
+                    {% else %}
+                        <span class="badge" style="background:#fef3c7; color:#92400e;">Disponible le {{ bien.location.dateDispo|date('d/m/Y') }}</span>
+                    {% endif %}
+                </div>
+            </div>
             {% if bien.location.dureeMois %}<div class="detail-item"><div class="label">Duree</div><div class="value">{{ bien.location.dureeMois }} mois</div></div>{% endif %}
         </div>
         {% endif %}
@@ -65,5 +182,48 @@
         {% endfor %}
     </table>
 </div>
+{% endif %}
+
+{% if not app.session.get('jwt_token') and bien.agence is defined and bien.agence %}
+<div class="modal-overlay" id="contactModal" onclick="if(event.target===this)closeContactModal()">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeContactModal()">&times;</button>
+        <h3>Contacter l'agence</h3>
+        <div class="modal-item">
+            <span class="modal-label">Agence</span>
+            <span class="modal-value">{{ bien.agence.nom }}</span>
+        </div>
+        {% if bien.agence.telephone %}
+        <div class="modal-item">
+            <span class="modal-label">Telephone</span>
+            {% set tel = bien.agence.telephone|replace({' ': '', '.': '', '-': ''}) %}
+            <span class="modal-value"><a href="tel:{{ tel }}">{{ tel|length == 10 ? tel[:2] ~ ' ' ~ tel[2:2] ~ ' ' ~ tel[4:2] ~ ' ' ~ tel[6:2] ~ ' ' ~ tel[8:2] : bien.agence.telephone }}</a></span>
+        </div>
+        {% endif %}
+        {% if bien.agence.email %}
+        <div class="modal-item">
+            <span class="modal-label">Email</span>
+            <span class="modal-value"><a href="mailto:{{ bien.agence.email }}">{{ bien.agence.email }}</a></span>
+        </div>
+        {% endif %}
+        {% if bien.agence.rue or bien.agence.ville %}
+        <div class="modal-item">
+            <span class="modal-label">Adresse</span>
+            <span class="modal-value">{{ bien.agence.rue }}{% if bien.agence.codePostal %}, {{ bien.agence.codePostal }}{% endif %} {{ bien.agence.ville }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    function openContactModal() {
+        document.getElementById('contactModal').classList.add('active');
+    }
+    function closeContactModal() {
+        document.getElementById('contactModal').classList.remove('active');
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeContactModal();
+    });
+</script>
 {% endif %}
 {% endblock %}

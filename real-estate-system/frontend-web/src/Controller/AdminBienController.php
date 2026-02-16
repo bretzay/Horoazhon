@@ -16,9 +16,12 @@ class AdminBienController extends AbstractController
     #[Route('', name: 'admin_biens')]
     public function list(Request $request): Response
     {
+        $annonce = $request->query->get('annonce');
         $filters = array_filter([
             'ville' => $request->query->get('ville'),
             'type' => $request->query->get('type'),
+            'forSale' => $annonce === 'vente' ? 'true' : null,
+            'forRent' => $annonce === 'location' ? 'true' : null,
             'page' => $request->query->get('page', 0),
             'size' => 20,
         ], fn($v) => $v !== null && $v !== '');
@@ -73,6 +76,7 @@ class AdminBienController extends AbstractController
         $agences = $this->api->getAgences();
         $caracteristiques = $this->api->getCaracteristiques();
         $lieux = $this->api->getLieux();
+        $personnes = $this->api->getPersonnes();
 
         if ($request->isMethod('POST')) {
             $action = $request->request->get('_action');
@@ -97,6 +101,12 @@ class AdminBienController extends AbstractController
                         'dateDispo' => $request->request->get('dateDispo'),
                     ]);
                     $this->addFlash('success', 'Annonce de vente ajoutee.');
+                } elseif ($action === 'update_achat') {
+                    $this->api->updateAchat((int) $request->request->get('achatId'), [
+                        'prix' => (float) $request->request->get('prix'),
+                        'dateDispo' => $request->request->get('dateDispo'),
+                    ]);
+                    $this->addFlash('success', 'Annonce de vente modifiee.');
                 } elseif ($action === 'remove_achat') {
                     $this->api->deleteAchat((int) $request->request->get('achatId'));
                     $this->addFlash('success', 'Annonce de vente supprimee.');
@@ -109,9 +119,74 @@ class AdminBienController extends AbstractController
                         'dureeMois' => $request->request->get('dureeMois') ? (int) $request->request->get('dureeMois') : null,
                     ]);
                     $this->addFlash('success', 'Annonce de location ajoutee.');
+                } elseif ($action === 'update_location') {
+                    $this->api->updateLocation((int) $request->request->get('locationId'), [
+                        'caution' => (float) $request->request->get('caution'),
+                        'mensualite' => (float) $request->request->get('mensualite'),
+                        'dateDispo' => $request->request->get('dateDispo'),
+                        'dureeMois' => $request->request->get('dureeMois') ? (int) $request->request->get('dureeMois') : null,
+                    ]);
+                    $this->addFlash('success', 'Annonce de location modifiee.');
                 } elseif ($action === 'remove_location') {
                     $this->api->deleteLocation((int) $request->request->get('locationId'));
                     $this->addFlash('success', 'Annonce de location supprimee.');
+                } elseif ($action === 'add_caracteristique') {
+                    $this->api->addBienCaracteristique(
+                        $id,
+                        (int) $request->request->get('caracteristiqueId'),
+                        $request->request->get('valeur'),
+                        $request->request->get('unite') ?: null
+                    );
+                    $this->addFlash('success', 'Caracteristique ajoutee.');
+                } elseif ($action === 'remove_caracteristique') {
+                    $this->api->removeBienCaracteristique($id, (int) $request->request->get('caracteristiqueId'));
+                    $this->addFlash('success', 'Caracteristique supprimee.');
+                } elseif ($action === 'add_lieu') {
+                    $this->api->addBienLieu(
+                        $id,
+                        (int) $request->request->get('lieuId'),
+                        (int) $request->request->get('minutes'),
+                        $request->request->get('typeLocomotion') ?: null
+                    );
+                    $this->addFlash('success', 'Lieu de proximite ajoute.');
+                } elseif ($action === 'remove_lieu') {
+                    $this->api->removeBienLieu($id, (int) $request->request->get('lieuId'));
+                    $this->addFlash('success', 'Lieu de proximite supprime.');
+                } elseif ($action === 'set_proprietaire') {
+                    $this->api->setBienProprietaire($id, (int) $request->request->get('personneId'));
+                    $this->addFlash('success', 'Proprietaire mis a jour.');
+                } elseif ($action === 'remove_proprietaire') {
+                    $this->api->removeBienProprietaire($id);
+                    $this->addFlash('success', 'Proprietaire retire.');
+                } elseif ($action === 'add_photo') {
+                    /** @var \Symfony\Component\HttpFoundation\File\UploadedFile|null $photoFile */
+                    $photoFile = $request->files->get('photo_file');
+                    $chemin = $request->request->get('chemin');
+
+                    if ($photoFile && $photoFile->isValid()) {
+                        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0755, true);
+                        }
+                        $ext = $photoFile->getClientOriginalExtension() ?: 'jpg';
+                        $filename = 'bien-' . $id . '-' . uniqid() . '.' . $ext;
+                        $photoFile->move($uploadDir, $filename);
+                        $chemin = '/uploads/photos/' . $filename;
+                    }
+
+                    if (!$chemin) {
+                        throw new \Exception('Veuillez fournir une URL ou un fichier.');
+                    }
+
+                    $this->api->addBienPhoto(
+                        $id,
+                        $chemin,
+                        $request->request->get('ordre') ? (int) $request->request->get('ordre') : null
+                    );
+                    $this->addFlash('success', 'Photo ajoutee.');
+                } elseif ($action === 'remove_photo') {
+                    $this->api->removeBienPhoto($id, (int) $request->request->get('photoId'));
+                    $this->addFlash('success', 'Photo supprimee.');
                 }
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Erreur: ' . $e->getMessage());
@@ -125,6 +200,7 @@ class AdminBienController extends AbstractController
             'agences' => $agences,
             'caracteristiques' => $caracteristiques,
             'lieux' => $lieux,
+            'personnes' => $personnes,
         ]);
     }
 

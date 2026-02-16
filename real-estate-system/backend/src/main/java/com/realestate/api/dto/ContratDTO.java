@@ -16,5 +16,6 @@ public class ContratDTO {
     private String statut;
     private String type; // LOCATION or ACHAT
     private BienDTO bien;
+    private boolean hasSignedDocument;
     private List<CosignerDTO> cosigners;
 }

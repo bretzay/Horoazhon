@@ -2,6 +2,18 @@
 
 {% block title %}Admin - {{ personne ? 'Modifier' : 'Nouvelle' }} Personne{% endblock %}
 
+{% block stylesheets %}
+{% if personne %}
+<style>
+    .person-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    .person-panels .card { margin-bottom: 0; }
+    .scroll-list { max-height: 50vh; overflow-y: auto; }
+    .scroll-list table { margin: 0; }
+    @media (max-width: 768px) { .person-panels { grid-template-columns: 1fr; } }
+</style>
+{% endif %}
+{% endblock %}
+
 {% block body %}
 <div class="page-header">
     <h1>{{ personne ? 'Modifier Personne #' ~ personne.id : 'Nouvelle Personne' }}</h1>
@@ -24,4 +36,68 @@
         <button type="submit" class="btn btn-primary">{{ personne ? 'Enregistrer' : 'Creer' }}</button>
     </form>
 </div>
+
+{% if personne %}
+<div class="person-panels">
+    <div class="card">
+        <h3>Biens possedes ({{ biens|length }})</h3>
+        <div class="scroll-list">
+            {% if biens|length > 0 %}
+            <table>
+                <thead>
+                    <tr><th>Type</th><th>Adresse</th><th>Statut</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for b in biens %}
+                    <tr>
+                        <td>{{ b.type ?? '-' }}</td>
+                        <td>{{ b.rue }}, {{ b.ville }}</td>
+                        <td>
+                            {% if b.availableForSale %}<span class="badge badge-sale">Vente</span>{% endif %}
+                            {% if b.availableForRent %}<span class="badge badge-rent">Location</span>{% endif %}
+                            {% if not b.availableForSale and not b.availableForRent %}<span class="badge" style="background:#f1f5f9;color:#94a3b8;">-</span>{% endif %}
+                        </td>
+                        <td><a href="{{ path('admin_biens_edit', {id: b.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #94a3b8;">Aucun bien.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Contrats ({{ contrats|length }})</h3>
+        <div class="scroll-list">
+            {% if contrats|length > 0 %}
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Type</th><th>Bien</th><th>Statut</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for c in contrats %}
+                    <tr>
+                        <td>#{{ c.id }}</td>
+                        <td>{{ c.type == 'LOCATION' ? 'Location' : 'Achat' }}</td>
+                        <td>{% if c.bien %}{{ c.bien.type ?? '' }} - {{ c.bien.rue ?? '' }}, {{ c.bien.ville ?? '' }}{% else %}-{% endif %}</td>
+                        <td>
+                            {% if c.statut == 'EN_COURS' %}<span class="badge" style="background:#fef3c7;color:#92400e;">En cours</span>
+                            {% elseif c.statut == 'SIGNE' %}<span class="badge" style="background:#d1fae5;color:#065f46;">Signe</span>
+                            {% elseif c.statut == 'ANNULE' %}<span class="badge" style="background:#fee2e2;color:#991b1b;">Annule</span>
+                            {% else %}<span class="badge" style="background:#f1f5f9;color:#94a3b8;">{{ c.statut }}</span>{% endif %}
+                        </td>
+                        <td><a href="{{ path('admin_contrats_detail', {id: c.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #94a3b8;">Aucun contrat.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

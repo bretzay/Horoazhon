@@ -31,19 +31,6 @@ CREATE TABLE Agence (
     dateModification DATETIME2
 );
 
--- Table: Utilisateur (User/Account)
-CREATE TABLE Utilisateur (
-    id BIGINT IDENTITY(1,1) PRIMARY KEY,
-    login NVARCHAR(50) NOT NULL UNIQUE,
-    mdp NVARCHAR(255) NOT NULL,
-    email NVARCHAR(255) NOT NULL UNIQUE,
-    codePin NVARCHAR(10),
-    derniereCo DATETIME2,
-    niveauAcces NVARCHAR(20) NOT NULL,
-    dateCreation DATETIME2 DEFAULT GETDATE(),
-    dateModification DATETIME2,
-    CONSTRAINT CK_NiveauAcces CHECK (niveauAcces IN ('ADMIN', 'AGENT', 'USER'))
-);
 
 -- Table: Personne (Person - buyer, seller, renter, owner)
 CREATE TABLE Personne (
@@ -61,13 +48,6 @@ CREATE TABLE Personne (
     dateModification DATETIME2
 );
 
--- Table: Ouvrir (Relation Personne - Utilisateur)
-CREATE TABLE Ouvrir (
-    personne_id BIGINT NOT NULL,
-    utilisateur_id BIGINT NOT NULL,
-    dateOuverture DATETIME2 DEFAULT GETDATE(),
-    PRIMARY KEY (personne_id, utilisateur_id)
-);
 
 -- Table: Bien (Property) - includes agence_id
 CREATE TABLE Bien (
@@ -147,6 +127,7 @@ CREATE TABLE Contrat (
     dateCreation DATETIME2 DEFAULT GETDATE(),
     dateModification DATETIME2,
     statut NVARCHAR(50) DEFAULT 'EN_COURS',
+    documentSigne NVARCHAR(500) NULL,
     location_id BIGINT NULL,
     achat_id BIGINT NULL,
     CONSTRAINT CK_Contrat_Statut CHECK (statut IN ('EN_COURS', 'SIGNE', 'ANNULE', 'TERMINE')),
@@ -169,11 +150,6 @@ CREATE TABLE Cosigner (
 -- ============================================================
 -- FOREIGN KEY CONSTRAINTS (all tables exist at this point)
 -- ============================================================
-
-ALTER TABLE Ouvrir ADD CONSTRAINT FK_Ouvrir_Personne
-    FOREIGN KEY (personne_id) REFERENCES Personne(id) ON DELETE CASCADE;
-ALTER TABLE Ouvrir ADD CONSTRAINT FK_Ouvrir_Utilisateur
-    FOREIGN KEY (utilisateur_id) REFERENCES Utilisateur(id) ON DELETE CASCADE;
 
 ALTER TABLE Bien ADD CONSTRAINT FK_Bien_Agence
     FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE SET NULL;
@@ -226,9 +202,52 @@ CREATE INDEX IDX_Bien_Agence ON Bien(agence_id);
 CREATE INDEX IDX_Contrat_Location ON Contrat(location_id);
 CREATE INDEX IDX_Contrat_Achat ON Contrat(achat_id);
 CREATE INDEX IDX_Cosigner_Personne ON Cosigner(personne_id);
-CREATE INDEX IDX_Utilisateur_Email ON Utilisateur(email);
 CREATE INDEX IDX_Personne_Nom ON Personne(nom, prenom);
 
 -- ============================================================
 -- End of Migration V1
 -- ============================================================
+
+-- V3: Add Authentication System
+-- Creates Agent table, AgencePersonne linking table, and adds creator tracking to Bien and Contrat
+
+-- Create Agent table
+CREATE TABLE Agent (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    password NVARCHAR(255) NOT NULL,
+    nom NVARCHAR(100) NOT NULL,
+    prenom NVARCHAR(100) NOT NULL,
+    agence_id BIGINT NOT NULL,
+    role NVARCHAR(50) NOT NULL DEFAULT 'AGENT',
+    actif BIT NOT NULL DEFAULT 1,
+    date_creation DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Agent_Agence FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE NO ACTION,
+    CONSTRAINT CHK_Agent_Role CHECK (role IN ('AGENT', 'SUPERVISOR', 'ADMIN_AGENCY'))
+);
+
+CREATE INDEX IDX_Agent_Email ON Agent(email);
+CREATE INDEX IDX_Agent_Agence ON Agent(agence_id);
+
+-- Create AgencePersonne linking table (many-to-many)
+CREATE TABLE AgencePersonne (
+    agence_id BIGINT NOT NULL,
+    personne_id BIGINT NOT NULL,
+    date_ajout DATETIME2 NOT NULL DEFAULT GETDATE(),
+    PRIMARY KEY (agence_id, personne_id),
+    CONSTRAINT FK_AgencePersonne_Agence FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE CASCADE,
+    CONSTRAINT FK_AgencePerssonne_Personne FOREIGN KEY (personne_id) REFERENCES Personne(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IDX_AgencePersonne_Agence ON AgencePersonne(agence_id);
+CREATE INDEX IDX_AgencePersonne_Personne ON AgencePersonne(personne_id);
+
+-- Add agent_createur_id to Bien table
+ALTER TABLE Bien ADD agent_createur_id BIGINT NULL;
+ALTER TABLE Bien ADD CONSTRAINT FK_Bien_Agent_Createur FOREIGN KEY (agent_createur_id) REFERENCES Agent(id) ON DELETE SET NULL;
+CREATE INDEX IDX_Bien_Agent_Createur ON Bien(agent_createur_id);
+
+-- Add agent_createur_id to Contrat table
+ALTER TABLE Contrat ADD agent_createur_id BIGINT NULL;
+ALTER TABLE Contrat ADD CONSTRAINT FK_Contrat_Agent_Createur FOREIGN KEY (agent_createur_id) REFERENCES Agent(id) ON DELETE SET NULL;
+CREATE INDEX IDX_Contrat_Agent_Createur ON Contrat(agent_createur_id);

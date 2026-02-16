@@ -20,8 +20,11 @@
         </form>
         {% for c in caracteristiques %}
             <div class="section-item">
-                <span>{{ c.lib }}</span>
-                <form method="POST" action="{{ path('admin_ref_carac_delete', {id: c.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?')">
+                <form method="POST" action="{{ path('admin_ref_carac_edit', {id: c.id}) }}" class="form-inline" style="flex: 1; gap: 0.25rem;">
+                    <input type="text" name="lib" value="{{ c.lib }}" required style="flex: 1; padding: 0.25rem 0.5rem; font-size: 0.85rem;">
+                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
+                </form>
+                <form method="POST" action="{{ path('admin_ref_carac_delete', {id: c.id}) }}" style="display:inline; margin-left: 0.25rem;" onsubmit="return confirm('Supprimer ?')">
                     <button type="submit" class="btn btn-danger btn-sm">X</button>
                 </form>
             </div>
@@ -41,8 +44,11 @@
         </form>
         {% for l in lieux %}
             <div class="section-item">
-                <span>{{ l.lib }}</span>
-                <form method="POST" action="{{ path('admin_ref_lieu_delete', {id: l.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?')">
+                <form method="POST" action="{{ path('admin_ref_lieu_edit', {id: l.id}) }}" class="form-inline" style="flex: 1; gap: 0.25rem;">
+                    <input type="text" name="lib" value="{{ l.lib }}" required style="flex: 1; padding: 0.25rem 0.5rem; font-size: 0.85rem;">
+                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
+                </form>
+                <form method="POST" action="{{ path('admin_ref_lieu_delete', {id: l.id}) }}" style="display:inline; margin-left: 0.25rem;" onsubmit="return confirm('Supprimer ?')">
                     <button type="submit" class="btn btn-danger btn-sm">X</button>
                 </form>
             </div>

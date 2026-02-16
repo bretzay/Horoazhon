@@ -34,6 +34,11 @@ public class AchatController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<AchatDTO> update(@PathVariable Long id, @Valid @RequestBody CreateAchatRequest request) {
+        return ResponseEntity.ok(achatService.update(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         achatService.delete(id);

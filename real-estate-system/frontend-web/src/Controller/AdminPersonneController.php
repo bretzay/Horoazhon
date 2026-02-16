@@ -55,8 +55,13 @@ class AdminPersonneController extends AbstractController
             }
         }
 
+        $biens = $id ? $this->api->getPersonneBiens($id) : [];
+        $contrats = $id ? $this->api->getPersonneContrats($id) : [];
+
         return $this->render('admin/personne/form.html.twig', [
             'personne' => $personne,
+            'biens' => $biens,
+            'contrats' => $contrats,
         ]);
     }
 

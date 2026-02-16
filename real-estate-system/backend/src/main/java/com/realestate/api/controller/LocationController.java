@@ -34,6 +34,11 @@ public class LocationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<LocationDTO> update(@PathVariable Long id, @Valid @RequestBody CreateLocationRequest request) {
+        return ResponseEntity.ok(locationService.update(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         locationService.delete(id);
