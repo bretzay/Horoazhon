@@ -2,6 +2,17 @@
 
 {% block title %}Admin - Nouveau Contrat{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .autocomplete-wrapper { position: relative; }
+    .autocomplete-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .autocomplete-results.active { display: block; }
+    .autocomplete-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.85rem; }
+    .autocomplete-item:hover { background: #f1f5f9; }
+    .autocomplete-item .sub { font-size: 0.75rem; color: #94a3b8; }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="page-header">
     <h1>Nouveau Contrat</h1>
@@ -47,23 +58,14 @@
                 <input type="text" id="ownerDisplay" readonly style="background: #f1f5f9; cursor: not-allowed;" value="">
             </div>
 
-            <div class="form-group">
+            <div class="form-group autocomplete-wrapper">
                 <label id="buyerLabel"></label>
-                <select name="buyer_personne" id="buyerSelect" required>
-                    <option value="">-- Choisir --</option>
-                    {% for p in personnes %}
-                        <option value="{{ p.id }}">{{ p.prenom }} {{ p.nom }}</option>
-                    {% endfor %}
-                </select>
+                <input type="hidden" name="buyer_personne" id="buyerHidden" required>
+                <input type="text" id="buyerSearch" autocomplete="off" placeholder="Rechercher par nom ou prenom...">
+                <div class="autocomplete-results" id="buyerResults"></div>
             </div>
 
-            <h4 id="cosignerTitle" style="margin: 1rem 0 0.5rem;"></h4>
-
-            <div id="cosigners"></div>
-
-            <button type="button" class="btn btn-secondary btn-sm" onclick="addCosigner()" style="margin-bottom: 1rem;">+ Ajouter</button>
-
-            <div>
+            <div style="margin-top: 1rem;">
                 <button type="submit" class="btn btn-primary">Creer le contrat</button>
             </div>
         </div>
@@ -74,8 +76,57 @@
 {% block javascripts %}
 <script>
 var bienOwners = {{ bienOwners|json_encode|raw }};
+var searchUrl = '{{ path("admin_personnes_search_json") }}';
 var currentType = '';
 var currentOwnerId = null;
+
+function setupAutocomplete(inputEl, hiddenEl, resultsEl) {
+    var timer = null;
+    inputEl.addEventListener('input', function() {
+        hiddenEl.value = '';
+        var q = this.value.trim();
+        clearTimeout(timer);
+        if (q.length < 1) { resultsEl.classList.remove('active'); return; }
+        timer = setTimeout(function() {
+            fetch(searchUrl + '?q=' + encodeURIComponent(q))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    resultsEl.innerHTML = '';
+                    var filtered = data.filter(function(p) { return p.id !== currentOwnerId; });
+                    if (filtered.length === 0) {
+                        resultsEl.innerHTML = '<div class="autocomplete-item" style="color:#94a3b8;">Aucun resultat</div>';
+                    } else {
+                        filtered.forEach(function(p) {
+                            var div = document.createElement('div');
+                            div.className = 'autocomplete-item';
+                            div.innerHTML = '<strong>' + p.prenom + ' ' + p.nom + '</strong>' +
+                                (p.ville ? '<div class="sub">' + p.ville + '</div>' : '');
+                            div.addEventListener('click', function() {
+                                inputEl.value = p.prenom + ' ' + p.nom;
+                                hiddenEl.value = p.id;
+                                resultsEl.classList.remove('active');
+                            });
+                            resultsEl.appendChild(div);
+                        });
+                    }
+                    resultsEl.classList.add('active');
+                });
+        }, 250);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!inputEl.contains(e.target) && !resultsEl.contains(e.target)) {
+            resultsEl.classList.remove('active');
+        }
+    });
+}
+
+// Setup buyer autocomplete
+setupAutocomplete(
+    document.getElementById('buyerSearch'),
+    document.getElementById('buyerHidden'),
+    document.getElementById('buyerResults')
+);
 
 function toggleType() {
     currentType = document.getElementById('contractType').value;
@@ -83,11 +134,8 @@ function toggleType() {
     document.getElementById('locationSelect').style.display = currentType === 'LOCATION' ? 'block' : 'none';
     document.getElementById('partiesSection').style.display = currentType ? 'block' : 'none';
     document.getElementById('sellerLabel').textContent = currentType === 'LOCATION' ? 'Proprietaire' : 'Vendeur';
-    document.getElementById('buyerLabel').textContent = currentType === 'LOCATION' ? 'Loueur *' : 'Acheteur *';
-    document.getElementById('cosignerTitle').textContent = currentType === 'LOCATION'
-        ? 'Loueurs supplementaires' : 'Acheteurs supplementaires';
+    document.getElementById('buyerLabel').textContent = currentType === 'LOCATION' ? 'Locataire *' : 'Acheteur *';
     updateOwner();
-    updateCosignerLabels();
 }
 
 function updateOwner() {
@@ -108,52 +156,6 @@ function updateOwner() {
     } else {
         display.value = '';
     }
-
-    filterOwnerFromSelects();
-}
-
-function filterOwnerFromSelects() {
-    var selects = document.querySelectorAll('#buyerSelect, select[name="extra_cosigners[]"]');
-    selects.forEach(function(sel) {
-        Array.from(sel.options).forEach(function(opt) {
-            if (opt.value && currentOwnerId && parseInt(opt.value) === currentOwnerId) {
-                opt.disabled = true;
-                opt.style.color = '#94a3b8';
-                if (sel.value === opt.value) {
-                    sel.value = '';
-                }
-            } else {
-                opt.disabled = false;
-                opt.style.color = '';
-            }
-        });
-    });
-}
-
-function getRoleName() {
-    return currentType === 'LOCATION' ? 'Loueur' : 'Acheteur';
-}
-
-function addCosigner() {
-    var container = document.getElementById('cosigners');
-    var count = container.querySelectorAll('.form-group').length + 2;
-    var role = getRoleName();
-    var html = '<div class="form-group" style="margin-bottom: 0.5rem;">' +
-        '<label>' + role + ' ' + count + '</label>' +
-        '<select name="extra_cosigners[]"><option value="">-- Choisir --</option>' +
-        '{% for p in personnes %}<option value="{{ p.id }}">{{ p.prenom }} {{ p.nom }}</option>{% endfor %}' +
-        '</select></div>';
-    container.insertAdjacentHTML('beforeend', html);
-    filterOwnerFromSelects();
-}
-
-function updateCosignerLabels() {
-    var container = document.getElementById('cosigners');
-    var labels = container.querySelectorAll('label');
-    var role = getRoleName();
-    labels.forEach(function(label, i) {
-        label.textContent = role + ' ' + (i + 2);
-    });
 }
 
 // Auto-select listing from query params
@@ -172,5 +174,14 @@ function updateCosignerLabels() {
         updateOwner();
     }
 })();
+
+// Validate signers before submit
+document.querySelector('form').addEventListener('submit', function(e) {
+    var buyerHidden = document.getElementById('buyerHidden');
+    if (!buyerHidden.value) {
+        e.preventDefault();
+        alert('Veuillez selectionner un signataire valide depuis la liste.');
+    }
+});
 </script>
 {% endblock %}

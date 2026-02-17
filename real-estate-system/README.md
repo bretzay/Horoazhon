@@ -47,7 +47,42 @@ composer install
 symfony server:start
 ```
 
-Web app will be available at: http://localhost:8000
+Web app will be available at: https://127.0.0.1:8000
+
+## LAN Access
+
+To make the website accessible from other computers on the same local network:
+
+### 1. Start the frontend with LAN access enabled
+
+```bash
+cd frontend-web
+symfony server:start --allow-all-ip --port=8000
+```
+
+This binds the server to all network interfaces (`0.0.0.0`) instead of `127.0.0.1` only.
+
+### 2. Open the firewall (Windows - run as Administrator)
+
+```powershell
+netsh advfirewall firewall add rule name="Symfony Dev Server" dir=in action=allow protocol=TCP localport=8000
+```
+
+### 3. Access from another computer
+
+Find your LAN IP with `ipconfig`, then from the other computer navigate to:
+
+```
+https://<YOUR_LAN_IP>:8000
+```
+
+### 4. Close access when done (run as Administrator)
+
+```powershell
+netsh advfirewall firewall delete rule name="Symfony Dev Server"
+```
+
+> **Note:** The backend (port 8080) does not need to be exposed. The Symfony frontend calls the backend internally via `localhost`.
 
 ### 4. Frontend Mobile Setup
 

@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Utilisateurs{% endblock %}
+
+{% block body %}
+{% set current_role = app.session.get('user_role') %}
+<div class="page-header">
+    <h1>Utilisateurs</h1>
+    {% if current_role in ['SUPER_ADMIN', 'ADMIN_AGENCY', 'AGENT'] %}
+        <a href="{{ path('admin_utilisateurs_new') }}" class="btn btn-primary">Nouvel utilisateur</a>
+    {% endif %}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Statut</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.prenom }} {{ u.nom }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+                {% if u.role == 'SUPER_ADMIN' %}<span class="badge" style="background:#fef3c7;color:#92400e;">Super Admin</span>
+                {% elseif u.role == 'ADMIN_AGENCY' %}<span class="badge badge-signe">Admin</span>
+                {% elseif u.role == 'AGENT' %}<span class="badge badge-sale">Agent</span>
+                {% else %}<span class="badge badge-rent">Client</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if not u.actif %}<span class="badge badge-annule">Inactif</span>
+                {% elseif not u.activated %}<span class="badge badge-en_cours">En attente</span>
+                {% else %}<span class="badge badge-signe">Actif</span>
+                {% endif %}
+            </td>
+            <td>
+                {% set current_role = app.session.get('user_role') %}
+                {% set can_manage = (current_role == 'SUPER_ADMIN' and u.role != 'SUPER_ADMIN') or
+                    (current_role == 'ADMIN_AGENCY' and u.role not in ['ADMIN_AGENCY', 'SUPER_ADMIN']) or
+                    (current_role == 'AGENT' and u.role == 'CLIENT') %}
+                {% if can_manage and u.actif %}
+                <form method="POST" action="{{ path('admin_utilisateurs_deactivate', {id: u.id}) }}" style="display:inline;" onsubmit="return confirm('Desactiver cet utilisateur ?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Desactiver</button>
+                </form>
+                {% elseif can_manage and not u.actif %}
+                <form method="POST" action="{{ path('admin_utilisateurs_reactivate', {id: u.id}) }}" style="display:inline;" onsubmit="return confirm('Reactiver cet utilisateur ?');">
+                    <button type="submit" class="btn btn-primary btn-sm">Reactiver</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="color: #94a3b8; text-align: center;">Aucun utilisateur.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

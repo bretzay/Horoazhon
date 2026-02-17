@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 @RestController
@@ -28,17 +29,20 @@ public class AgenceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<AgenceDTO> createAgence(@Valid @RequestBody AgenceDTO request) {
         AgenceDTO created = agenceService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<AgenceDTO> updateAgence(@PathVariable Long id, @Valid @RequestBody AgenceDTO request) {
         return ResponseEntity.ok(agenceService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<Void> deleteAgence(@PathVariable Long id) {
         agenceService.delete(id);
         return ResponseEntity.noContent().build();

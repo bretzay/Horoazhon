@@ -1,7 +1,7 @@
 package com.realestate.api.security;
 
-import com.realestate.api.entity.Agent;
-import com.realestate.api.repository.AgentRepository;
+import com.realestate.api.entity.Compte;
+import com.realestate.api.repository.CompteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,28 +13,32 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SecurityUtils {
 
-    private final AgentRepository agentRepository;
+    private final CompteRepository compteRepository;
 
-    public Optional<Agent> getCurrentAgent() {
+    public Optional<Compte> getCurrentCompte() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             return Optional.empty();
         }
 
         String email = authentication.getName();
-        return agentRepository.findByEmail(email);
+        return compteRepository.findByEmail(email);
     }
 
-    public Agent getCurrentAgentOrThrow() {
-        return getCurrentAgent()
-                .orElseThrow(() -> new SecurityException("No authenticated agent found"));
+    public Compte getCurrentCompteOrThrow() {
+        return getCurrentCompte()
+                .orElseThrow(() -> new SecurityException("No authenticated user found"));
     }
 
+    /**
+     * Returns the current user's agenceId, or null if SUPER_ADMIN (no agency).
+     */
     public Long getCurrentAgenceId() {
-        return getCurrentAgentOrThrow().getAgence().getId();
+        Compte compte = getCurrentCompteOrThrow();
+        return compte.getAgence() != null ? compte.getAgence().getId() : null;
     }
 
     public boolean isAuthenticated() {
-        return getCurrentAgent().isPresent();
+        return getCurrentCompte().isPresent();
     }
 }

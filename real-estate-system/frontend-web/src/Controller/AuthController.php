@@ -15,8 +15,12 @@ class AuthController extends AbstractController
     #[Route('/login', name: 'login')]
     public function login(Request $request): Response
     {
-        // If already logged in, redirect to dashboard
-        if ($request->getSession()->get('jwt_token')) {
+        $session = $request->getSession();
+        if ($session->get('jwt_token')) {
+            $role = $session->get('user_role');
+            if ($role === 'CLIENT') {
+                return $this->redirectToRoute('client_dashboard');
+            }
             return $this->redirectToRoute('admin_dashboard');
         }
 
@@ -28,13 +32,23 @@ class AuthController extends AbstractController
 
             try {
                 $response = $this->api->login($email, $password);
-                
-                // Store JWT token and agent info in session
-                $session = $request->getSession();
+
                 $session->set('jwt_token', $response['token']);
-                $session->set('agent', $response['agent']);
+                $session->set('user_role', $response['role']);
+                $session->set('user', [
+                    'nom' => $response['nom'],
+                    'prenom' => $response['prenom'],
+                    'role' => $response['role'],
+                    'agenceId' => $response['agenceId'] ?? null,
+                    'agenceNom' => $response['agenceNom'] ?? null,
+                    'personneId' => $response['personneId'] ?? null,
+                ]);
 
                 $this->addFlash('success', 'Connexion reussie!');
+
+                if ($response['role'] === 'CLIENT') {
+                    return $this->redirectToRoute('client_dashboard');
+                }
                 return $this->redirectToRoute('admin_dashboard');
 
             } catch (\Exception $e) {
@@ -47,19 +61,68 @@ class AuthController extends AbstractController
         ]);
     }
 
+    #[Route('/activate', name: 'activate_account')]
+    public function activate(Request $request): Response
+    {
+        $token = $request->query->get('token', $request->request->get('token', ''));
+        $error = null;
+        $activated = false;
+        $valid = false;
+
+        if (empty($token)) {
+            return $this->render('auth/activate.html.twig', [
+                'valid' => false,
+                'activated' => false,
+                'error' => null,
+                'token' => '',
+            ]);
+        }
+
+        try {
+            $result = $this->api->checkActivationToken($token);
+            $valid = $result['valid'] ?? false;
+        } catch (\Exception $e) {
+            $valid = false;
+        }
+
+        if ($valid && $request->isMethod('POST')) {
+            $password = $request->request->get('password', '');
+            $passwordConfirm = $request->request->get('password_confirm', '');
+
+            if (strlen($password) < 6) {
+                $error = 'Le mot de passe doit contenir au moins 6 caracteres.';
+            } elseif ($password !== $passwordConfirm) {
+                $error = 'Les mots de passe ne correspondent pas.';
+            } else {
+                try {
+                    $this->api->activateAccount($token, $password);
+                    $activated = true;
+                    $valid = true;
+                } catch (\Exception $e) {
+                    $error = 'Erreur lors de l\'activation. Veuillez reessayer.';
+                }
+            }
+        }
+
+        return $this->render('auth/activate.html.twig', [
+            'valid' => $valid,
+            'activated' => $activated,
+            'error' => $error,
+            'token' => $token,
+        ]);
+    }
+
     #[Route('/logout', name: 'logout')]
     public function logout(Request $request): Response
     {
         $session = $request->getSession();
 
-        // Explicitly remove authentication data before invalidating
         $session->remove('jwt_token');
-        $session->remove('agent');
+        $session->remove('user');
+        $session->remove('user_role');
 
-        // Invalidate the entire session and clear the session cookie
         $session->invalidate(true);
 
-        // Start a new session for the flash message
         $request->getSession();
         $this->addFlash('success', 'Deconnexion reussie.');
 

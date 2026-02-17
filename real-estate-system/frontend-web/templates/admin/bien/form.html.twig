@@ -17,6 +17,12 @@
     .field-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; margin-bottom: 0.35rem; }
     .field-row .form-group { margin-bottom: 0; flex: 0 0 auto; }
     .full-width { grid-column: 1 / -1; }
+    .autocomplete-wrapper { position: relative; }
+    .autocomplete-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .autocomplete-results.active { display: block; }
+    .autocomplete-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.85rem; }
+    .autocomplete-item:hover { background: #f1f5f9; }
+    .autocomplete-item .sub { font-size: 0.75rem; color: #94a3b8; }
     @media (max-width: 768px) {
         .compact-grid { grid-template-columns: 1fr; }
     }
@@ -26,7 +32,12 @@
 {% block body %}
 <div class="page-header">
     <h1>{{ bien ? 'Modifier le Bien #' ~ bien.id : 'Nouveau Bien' }}</h1>
-    <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Retour</a>
+    <div>
+        {% if bien %}
+            <a href="{{ path('biens_detail', {id: bien.id}) }}" class="btn btn-primary">Voir le bien</a>
+        {% endif %}
+        <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Retour</a>
+    </div>
 </div>
 
 {# ===== Property form ===== #}
@@ -67,7 +78,7 @@
                 <input type="number" name="ecoScore" min="0" max="10" value="{{ bien ? bien.ecoScore : '' }}">
             </div>
         </div>
-        {% if not bien %}
+        {% if not bien and app.session.get('user').role == 'SUPER_ADMIN' %}
         <div class="form-group">
             <label>Agence</label>
             <select name="agenceId">
@@ -82,6 +93,17 @@
             <label>Description</label>
             <textarea name="description" style="min-height: 50px;">{{ bien ? bien.description : '' }}</textarea>
         </div>
+        {% if not bien %}
+        <div class="form-group">
+            <label>Proprietaire *</label>
+            <input type="hidden" name="personneId" id="createProprietaireId" value="" required>
+            <div class="autocomplete-wrapper">
+                <input type="text" id="createProprietaireSearch" autocomplete="off"
+                       placeholder="Rechercher par nom ou prenom..." required>
+                <div class="autocomplete-results" id="createProprietaireResults"></div>
+            </div>
+        </div>
+        {% endif %}
         <button type="submit" class="btn btn-primary">{{ bien ? 'Enregistrer' : 'Creer' }}</button>
     </form>
 </div>
@@ -125,7 +147,7 @@
                 </div>
                 <div class="form-group">
                     <label>Dispo</label>
-                    <input type="date" name="dateDispo" required>
+                    <input type="date" name="dateDispo" value="{{ 'now'|date('Y-m-d') }}" required>
                 </div>
                 <button type="submit" class="btn btn-success btn-sm">Ajouter</button>
             </div>
@@ -154,7 +176,7 @@
                     <input type="date" name="dateDispo" value="{{ bien.location.dateDispo }}" required>
                 </div>
                 <div class="form-group">
-                    <label>Mois</label>
+                    <label>Duree (mois)</label>
                     <input type="number" name="dureeMois" value="{{ bien.location.dureeMois }}" style="width: 55px;">
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">OK</button>
@@ -179,10 +201,10 @@
                 </div>
                 <div class="form-group">
                     <label>Dispo</label>
-                    <input type="date" name="dateDispo" required>
+                    <input type="date" name="dateDispo" value="{{ 'now'|date('Y-m-d') }}" required>
                 </div>
                 <div class="form-group">
-                    <label>Mois</label>
+                    <label>Duree (mois)</label>
                     <input type="number" name="dureeMois" style="width: 55px;">
                 </div>
                 <button type="submit" class="btn btn-success btn-sm">Ajouter</button>
@@ -191,7 +213,8 @@
     {% endif %}
 </div>
 
-{# ===== Owner (single) ===== #}
+{# ===== Owner (single) — hidden for CLIENTs ===== #}
+{% if app.session.get('user_role') != 'CLIENT' %}
 <div class="section">
     <h4>Proprietaire</h4>
     {% set currentOwner = (bien.proprietaires is defined and bien.proprietaires|length > 0) ? bien.proprietaires[0] : null %}
@@ -204,23 +227,21 @@
             </form>
         </div>
     {% endif %}
-    {% if personnes is defined %}
     <form method="POST">
         <input type="hidden" name="_action" value="set_proprietaire">
+        <input type="hidden" name="personneId" id="proprietaireId" value="{{ currentOwner ? currentOwner.personneId : '' }}" required>
         <div class="field-row">
-            <div class="form-group" style="flex: 1; min-width: 120px;">
-                <select name="personneId" required>
-                    <option value="">-- {{ currentOwner ? 'Changer' : 'Choisir' }} --</option>
-                    {% for p in personnes %}
-                        <option value="{{ p.id }}" {{ currentOwner and currentOwner.personneId == p.id ? 'selected' }}>{{ p.prenom }} {{ p.nom }}</option>
-                    {% endfor %}
-                </select>
+            <div class="form-group autocomplete-wrapper" style="flex: 1; min-width: 120px;">
+                <input type="text" id="proprietaireSearch" autocomplete="off"
+                       placeholder="Rechercher par nom ou prenom..."
+                       value="{{ currentOwner ? currentOwner.prenom ~ ' ' ~ currentOwner.nom : '' }}">
+                <div class="autocomplete-results" id="proprietaireResults"></div>
             </div>
             <button type="submit" class="btn btn-primary btn-sm">{{ currentOwner ? 'Modifier' : 'Definir' }}</button>
         </div>
     </form>
-    {% endif %}
 </div>
+{% endif %}
 
 {# ===== Photos ===== #}
 <div class="section">
@@ -355,4 +376,69 @@
 </div>{# end compact-grid #}
 
 {% endif %}{# end if bien #}
+
+<script>
+(function() {
+    var searchUrl = '{{ path("admin_personnes_search_json") }}';
+    var timer = null;
+
+    function setupAutocomplete(inputId, hiddenId, resultsId) {
+        var input = document.getElementById(inputId);
+        var hidden = document.getElementById(hiddenId);
+        var results = document.getElementById(resultsId);
+        if (!input) return;
+
+        input.addEventListener('input', function() {
+            hidden.value = '';
+            var q = this.value.trim();
+            clearTimeout(timer);
+            if (q.length < 1) { results.classList.remove('active'); return; }
+            timer = setTimeout(function() {
+                fetch(searchUrl + '?q=' + encodeURIComponent(q))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        results.innerHTML = '';
+                        if (data.length === 0) {
+                            results.innerHTML = '<div class="autocomplete-item" style="color:#94a3b8;">Aucun resultat</div>';
+                        } else {
+                            data.forEach(function(p) {
+                                var div = document.createElement('div');
+                                div.className = 'autocomplete-item';
+                                div.innerHTML = '<strong>' + p.prenom + ' ' + p.nom + '</strong>' +
+                                    (p.ville ? '<div class="sub">' + p.ville + '</div>' : '');
+                                div.addEventListener('click', function() {
+                                    input.value = p.prenom + ' ' + p.nom;
+                                    hidden.value = p.id;
+                                    results.classList.remove('active');
+                                });
+                                results.appendChild(div);
+                            });
+                        }
+                        results.classList.add('active');
+                    });
+            }, 250);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !results.contains(e.target)) {
+                results.classList.remove('active');
+            }
+        });
+    }
+
+    setupAutocomplete('proprietaireSearch', 'proprietaireId', 'proprietaireResults');
+    setupAutocomplete('createProprietaireSearch', 'createProprietaireId', 'createProprietaireResults');
+
+    // Validate owner selection on creation form
+    var createHidden = document.getElementById('createProprietaireId');
+    if (createHidden) {
+        createHidden.closest('form').addEventListener('submit', function(e) {
+            if (!createHidden.value) {
+                e.preventDefault();
+                alert('Veuillez selectionner un proprietaire.');
+            }
+        });
+    }
+})();
+</script>
 {% endblock %}

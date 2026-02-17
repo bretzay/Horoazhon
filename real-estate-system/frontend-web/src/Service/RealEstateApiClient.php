@@ -37,24 +37,9 @@ class RealEstateApiClient
         return $response->toArray();
     }
 
-    public function getCurrentAgent(): array
+    public function getCurrentUser(): array
     {
         return $this->get('/api/auth/me');
-    }
-
-    public function getAgents(int $page = 0, int $size = 20): array
-    {
-        return $this->get('/api/agents', ['page' => $page, 'size' => $size]);
-    }
-
-    public function createAgent(array $data): array
-    {
-        return $this->post('/api/agents', $data);
-    }
-
-    public function deactivateAgent(int $id): void
-    {
-        $this->doDelete('/api/agents/' . $id);
     }
 
     private function get(string $path, array $query = []): array
@@ -259,6 +244,11 @@ class RealEstateApiClient
         $this->doDelete('/api/personnes/' . $id);
     }
 
+    public function getPersonneAccountStatus(int $id): array
+    {
+        return $this->get('/api/personnes/' . $id . '/account-status');
+    }
+
     public function getPersonneBiens(int $id): array
     {
         return $this->get('/api/personnes/' . $id . '/biens');
@@ -379,6 +369,16 @@ class RealEstateApiClient
         return $this->patch('/api/contrats/' . $id . '/statut', ['statut' => $statut]);
     }
 
+    public function confirmContrat(int $id): array
+    {
+        return $this->post('/api/contrats/' . $id . '/confirm', []);
+    }
+
+    public function cancelContrat(int $id): array
+    {
+        return $this->post('/api/contrats/' . $id . '/cancel', []);
+    }
+
     public function getContratPdf(int $id): string
     {
         $response = $this->client->request('GET', $this->apiBaseUrl . '/api/contrats/' . $id . '/pdf', [
@@ -403,11 +403,82 @@ class RealEstateApiClient
         ]);
     }
 
+    public function deleteContratSignedPdf(int $id): void
+    {
+        $this->client->request('DELETE', $this->apiBaseUrl . '/api/contrats/' . $id . '/document-signe', [
+            'headers' => $this->getHeaders(),
+        ]);
+    }
+
     public function getContratSignedPdf(int $id): string
     {
         $response = $this->client->request('GET', $this->apiBaseUrl . '/api/contrats/' . $id . '/document-signe', [
             'headers' => $this->getHeaders(),
         ]);
         return $response->getContent();
+    }
+
+    // ========== Client Dashboard ==========
+
+    public function getClientDashboard(): array
+    {
+        return $this->get('/api/client/dashboard');
+    }
+
+    public function getClientContrats(int $page = 0, int $size = 10): array
+    {
+        return $this->get('/api/client/contrats', ['page' => $page, 'size' => $size]);
+    }
+
+    public function getClientBiens(int $page = 0, int $size = 10): array
+    {
+        return $this->get('/api/client/biens', ['page' => $page, 'size' => $size]);
+    }
+
+    // ========== Account Activation ==========
+
+    public function checkActivationToken(string $token): array
+    {
+        return $this->get('/api/auth/activation-status', ['token' => $token]);
+    }
+
+    public function activateAccount(string $token, string $password): array
+    {
+        return $this->post('/api/auth/activate', [
+            'token' => $token,
+            'password' => $password,
+        ]);
+    }
+
+    // ========== Client Account Management ==========
+
+    public function inviteClient(int $personneId, string $email): array
+    {
+        return $this->post('/api/auth/invite-client', [
+            'personneId' => $personneId,
+            'email' => $email,
+        ]);
+    }
+
+    // ========== User Management ==========
+
+    public function getUsers(int $page = 0, int $size = 20): array
+    {
+        return $this->get('/api/users', ['page' => $page, 'size' => $size]);
+    }
+
+    public function createUser(array $data): array
+    {
+        return $this->post('/api/users', $data);
+    }
+
+    public function deactivateUser(int $id): void
+    {
+        $this->doDelete('/api/users/' . $id);
+    }
+
+    public function reactivateUser(int $id): void
+    {
+        $this->put('/api/users/' . $id . '/reactivate', []);
     }
 }

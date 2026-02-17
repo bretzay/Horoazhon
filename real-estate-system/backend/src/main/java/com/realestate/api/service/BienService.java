@@ -3,6 +3,7 @@ package com.realestate.api.service;
 import com.realestate.api.dto.*;
 import com.realestate.api.entity.*;
 import com.realestate.api.repository.*;
+import com.realestate.api.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ public class BienService {
 
     private final BienRepository bienRepository;
     private final AgenceRepository agenceRepository;
+    private final SecurityUtils securityUtils;
     private final CaracteristiquesRepository caracteristiquesRepository;
     private final ContenirRepository contenirRepository;
     private final LieuxRepository lieuxRepository;
@@ -43,6 +45,14 @@ public class BienService {
             String locomotion,
             Pageable pageable
     ) {
+        Long agenceId = securityUtils.getCurrentAgenceId();
+        if (agenceId != null) {
+            return bienRepository.findByFiltersAndAgence(
+                agenceId, ville, type, forSale, forRent, prixMin, prixMax,
+                caracId, caracMin, lieuId, maxMinutes, locomotion,
+                pageable
+            ).map(this::convertToDTO);
+        }
         return bienRepository.findByFilters(
             ville, type, forSale, forRent, prixMin, prixMax,
             caracId, caracMin, lieuId, maxMinutes, locomotion,
@@ -67,7 +77,13 @@ public class BienService {
         bien.setDescription(request.getDescription());
         bien.setEcoScore(request.getEcoScore());
 
-        if (request.getAgenceId() != null) {
+        // SUPER_ADMIN must provide agenceId; others auto-link to their own agency
+        Long agenceId = securityUtils.getCurrentAgenceId();
+        if (agenceId != null) {
+            Agence agence = agenceRepository.findById(agenceId)
+                .orElseThrow(() -> new EntityNotFoundException("Agence not found"));
+            bien.setAgence(agence);
+        } else if (request.getAgenceId() != null) {
             Agence agence = agenceRepository.findById(request.getAgenceId())
                 .orElseThrow(() -> new EntityNotFoundException("Agence not found with id: " + request.getAgenceId()));
             bien.setAgence(agence);

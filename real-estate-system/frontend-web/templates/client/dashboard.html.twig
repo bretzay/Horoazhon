@@ -1,0 +1,236 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Espace - Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Bienvenue, {{ dashboard.prenom ?? '' }} {{ dashboard.nom ?? '' }}</h1>
+</div>
+
+{% if dashboard %}
+<div class="stats">
+    <div class="stat-card">
+        <div class="number">{{ dashboard.totalProperties ?? 0 }}</div>
+        <div class="label">Biens possedes</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">{{ dashboard.activeContracts ?? 0 }}</div>
+        <div class="label">Contrats actifs</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">{{ dashboard.totalContracts ?? 0 }}</div>
+        <div class="label">Total contrats</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" style="color: #16a34a;">{{ dashboard.monthlyRevenue is defined ? dashboard.monthlyRevenue|number_format(0, ',', ' ') : '0' }} &euro;</div>
+        <div class="label">Revenu mensuel</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" style="color: #2563eb;">{{ dashboard.totalRevenue is defined ? dashboard.totalRevenue|number_format(0, ',', ' ') : '0' }} &euro;</div>
+        <div class="label">Revenu total</div>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <div>
+        <div class="card">
+            <h3>Contrats recents</h3>
+            {% if dashboard.recentContracts is defined and dashboard.recentContracts|length > 0 %}
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Bien</th>
+                        <th>Statut</th>
+                        <th>Derniere modification</th>
+                    </tr>
+                    {% for contrat in dashboard.recentContracts %}
+                    <tr>
+                        <td>#{{ contrat.id }}</td>
+                        <td>
+                            {% if contrat.type == 'LOCATION' %}
+                                <span class="badge badge-rent">Location</span>
+                            {% elseif contrat.type == 'ACHAT' %}
+                                <span class="badge badge-sale">Achat</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if contrat.bien %}
+                                {{ contrat.bien.type ?? '' }} - {{ contrat.bien.ville ?? '' }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ contrat.statut|lower }}">{{ contrat.statut }}</span>
+                        </td>
+                        <td>{{ contrat.dateModification ? contrat.dateModification|date('d/m/Y') : (contrat.dateCreation ? contrat.dateCreation|date('d/m/Y') : '-') }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <div style="margin-top: 0.75rem;">
+                    <a href="{{ path('client_contrats') }}" class="btn btn-secondary btn-sm">Voir tous les contrats</a>
+                </div>
+            {% else %}
+                <p style="color: #64748b;">Aucun contrat pour le moment.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div>
+        <div class="card">
+            <h3>Mes biens</h3>
+            {% if dashboard.properties is defined and dashboard.properties|length > 0 %}
+                {% for bien in dashboard.properties %}
+                <div class="section-item" style="padding: 0.5rem 0;">
+                    <div>
+                        <strong>{{ bien.type ?? 'Bien' }}</strong> - {{ bien.rue ?? '' }}, {{ bien.ville ?? '' }}
+                        <br>
+                        <small style="color: #64748b;">
+                            {{ bien.superficie ?? '?' }} m&sup2;
+                            {% if bien.availableForSale %} | Vente: {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;{% endif %}
+                            {% if bien.availableForRent %} | Location: {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois{% endif %}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                        <a href="{{ path('biens_detail', {id: bien.id}) }}" class="btn btn-secondary btn-sm">Voir</a>
+                    </div>
+                </div>
+                {% endfor %}
+                <div style="margin-top: 0.75rem;">
+                    <a href="{{ path('client_biens') }}" class="btn btn-secondary btn-sm">Voir tous mes biens</a>
+                </div>
+            {% else %}
+                <p style="color: #64748b;">Aucun bien pour le moment.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if dashboard.revenueByMonth is defined and dashboard.revenueByMonth|length > 0 %}
+<div class="card" style="margin-top: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+        <h3 style="margin: 0;">Revenus par mois</h3>
+        <div style="display: flex; gap: 0.25rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('6m')" id="tf-6m">6 mois</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('1y')" id="tf-1y" style="background: #3b82f6; color: white;">1 an</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('2y')" id="tf-2y">2 ans</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('all')" id="tf-all">Tout</button>
+        </div>
+    </div>
+    <canvas id="revenueChart" height="100"></canvas>
+</div>
+{% endif %}
+{% else %}
+    <div class="card">
+        <p style="color: #64748b;">Impossible de charger les donnees du tableau de bord.</p>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+{% if dashboard is defined and dashboard.revenueByMonth is defined and dashboard.revenueByMonth|length > 0 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+(function() {
+    var revenueData = {{ dashboard.revenueByMonth|json_encode|raw }};
+    var sortedMonths = Object.keys(revenueData).sort();
+    var values = sortedMonths.map(function(m) { return revenueData[m] || 0; });
+
+    var monthNames = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var labels = sortedMonths.map(function(m) {
+        var parts = m.split('-');
+        return monthNames[parseInt(parts[1]) - 1] + ' ' + parts[0];
+    });
+
+    var ctx = document.getElementById('revenueChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenus',
+                data: values,
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true } },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return ctx.dataset.label + ': ' + new Intl.NumberFormat('fr-FR').format(ctx.parsed.y) + ' \u20ac';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                y: {
+                    ticks: {
+                        color: '#94a3b8',
+                        callback: function(v) { return new Intl.NumberFormat('fr-FR').format(v) + ' \u20ac'; }
+                    },
+                    grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Timeframe filtering
+    window.setTimeframe = function(tf) {
+        var now = new Date();
+        var cutoff = null;
+        if (tf === '6m') {
+            cutoff = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        } else if (tf === '1y') {
+            cutoff = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+        } else if (tf === '2y') {
+            cutoff = new Date(now.getFullYear(), now.getMonth() - 23, 1);
+        }
+
+        var filteredLabels = [];
+        var filteredValues = [];
+        for (var i = 0; i < sortedMonths.length; i++) {
+            if (cutoff) {
+                var parts = sortedMonths[i].split('-');
+                var monthDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+                if (monthDate < cutoff) continue;
+            }
+            filteredLabels.push(labels[i]);
+            filteredValues.push(values[i]);
+        }
+
+        chart.data.labels = filteredLabels;
+        chart.data.datasets[0].data = filteredValues;
+        chart.update();
+
+        ['6m', '1y', '2y', 'all'].forEach(function(id) {
+            var btn = document.getElementById('tf-' + id);
+            if (id === tf) {
+                btn.style.background = '#3b82f6';
+                btn.style.color = 'white';
+            } else {
+                btn.style.background = '';
+                btn.style.color = '';
+            }
+        });
+    };
+
+    // Apply default timeframe on load
+    setTimeframe('1y');
+})();
+</script>
+{% endif %}
+{% endblock %}

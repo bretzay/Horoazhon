@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.realestate.api.service.ContratExpirationScheduler;
+
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,6 +35,7 @@ public class ContratController {
 
     private final ContratService contratService;
     private final ContratPdfService contratPdfService;
+    private final ContratExpirationScheduler contratExpirationScheduler;
 
     @Value("${file.upload-dir-contrats:./uploads/contrats}")
     private String uploadDir;
@@ -60,6 +63,16 @@ public class ContratController {
     @PatchMapping("/{id}/statut")
     public ResponseEntity<ContratDTO> updateStatut(@PathVariable Long id, @RequestParam String statut) {
         return ResponseEntity.ok(contratService.updateStatut(id, statut));
+    }
+
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<ContratDTO> confirmContrat(@PathVariable Long id) {
+        return ResponseEntity.ok(contratService.confirmContrat(id));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<ContratDTO> cancelContrat(@PathVariable Long id) {
+        return ResponseEntity.ok(contratService.cancelContrat(id));
     }
 
     @GetMapping("/{id}/pdf")
@@ -91,6 +104,27 @@ public class ContratController {
 
         contratService.setDocumentSigne(id, filename);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/document-signe")
+    public ResponseEntity<Void> deleteSignedDocument(@PathVariable Long id) throws IOException {
+        ContratDetailDTO contrat = contratService.findById(id);
+        if (!contrat.isHasSignedDocument()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Path filePath = Paths.get(uploadDir).resolve("contrat-" + id + "-signe.pdf");
+        Files.deleteIfExists(filePath);
+
+        contratService.setDocumentSigne(id, null);
+        return ResponseEntity.ok().build();
+    }
+
+    // TODO: TEMPORARY endpoint — remove after testing
+    @PostMapping("/expire-check")
+    public ResponseEntity<String> triggerExpirationCheck() {
+        contratExpirationScheduler.expireContracts();
+        return ResponseEntity.ok("Expiration check executed.");
     }
 
     @GetMapping("/{id}/document-signe")

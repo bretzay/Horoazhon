@@ -30,7 +30,6 @@ class AdminContratController extends AbstractController
     #[Route('/new', name: 'admin_contrats_new')]
     public function create(Request $request): Response
     {
-        $personnes = $this->api->getPersonnes();
         $achats = $this->api->getAchats();
         $locations = $this->api->getLocations();
 
@@ -53,6 +52,11 @@ class AdminContratController extends AbstractController
 
         if ($request->isMethod('POST')) {
             try {
+                $buyerPersonne = $request->request->get('buyer_personne');
+                if (empty($buyerPersonne) || !is_numeric($buyerPersonne)) {
+                    throw new \Exception('Veuillez selectionner un signataire valide depuis la liste.');
+                }
+
                 $contractType = $request->request->get('contractType');
                 $sellerRole = $contractType === 'LOCATION' ? 'OWNER' : 'SELLER';
                 $buyerRole = $contractType === 'LOCATION' ? 'RENTER' : 'BUYER';
@@ -87,15 +91,6 @@ class AdminContratController extends AbstractController
                     ],
                 ];
 
-                foreach ($request->request->all('extra_cosigners') as $personneId) {
-                    if (!empty($personneId)) {
-                        $cosigners[] = [
-                            'personneId' => (int) $personneId,
-                            'typeSignataire' => $buyerRole,
-                        ];
-                    }
-                }
-
                 $data = ['cosigners' => $cosigners];
                 if ($contractType === 'LOCATION') {
                     $data['locationId'] = $listingId;
@@ -112,7 +107,6 @@ class AdminContratController extends AbstractController
         }
 
         return $this->render('admin/contrat/form.html.twig', [
-            'personnes' => $personnes,
             'achats' => $achats,
             'locations' => $locations,
             'bienOwners' => $bienOwners,
@@ -146,6 +140,57 @@ class AdminContratController extends AbstractController
         try {
             $this->api->updateContratStatut($id, $request->request->get('statut'));
             $this->addFlash('success', 'Statut mis a jour.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_contrats_detail', ['id' => $id]);
+    }
+
+    #[Route('/{id}/confirm', name: 'admin_contrats_confirm', methods: ['POST'])]
+    public function confirm(int $id, Request $request): Response
+    {
+        $role = $request->getSession()->get('user_role');
+        if ($role === 'CLIENT') {
+            $this->addFlash('error', 'Vous n\'avez pas les droits pour effectuer cette action.');
+            return $this->redirectToRoute('admin_contrats_detail', ['id' => $id]);
+        }
+        try {
+            $this->api->confirmContrat($id);
+            $this->addFlash('success', 'Contrat confirme avec succes.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_contrats_detail', ['id' => $id]);
+    }
+
+    #[Route('/{id}/cancel', name: 'admin_contrats_cancel', methods: ['POST'])]
+    public function cancel(int $id, Request $request): Response
+    {
+        $role = $request->getSession()->get('user_role');
+        if ($role === 'CLIENT') {
+            $this->addFlash('error', 'Vous n\'avez pas les droits pour effectuer cette action.');
+            return $this->redirectToRoute('admin_contrats_detail', ['id' => $id]);
+        }
+        try {
+            $this->api->cancelContrat($id);
+            $this->addFlash('success', 'Contrat annule.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_contrats_detail', ['id' => $id]);
+    }
+
+    #[Route('/{id}/delete-signe', name: 'admin_contrats_delete_signe', methods: ['POST'])]
+    public function deleteSigned(int $id, Request $request): Response
+    {
+        $role = $request->getSession()->get('user_role');
+        if ($role === 'CLIENT') {
+            $this->addFlash('error', 'Vous n\'avez pas les droits pour effectuer cette action.');
+            return $this->redirectToRoute('admin_contrats_detail', ['id' => $id]);
+        }
+        try {
+            $this->api->deleteContratSignedPdf($id);
+            $this->addFlash('success', 'Document signe supprime.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur: ' . $e->getMessage());
         }

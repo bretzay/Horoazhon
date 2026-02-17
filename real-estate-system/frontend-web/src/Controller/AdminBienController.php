@@ -41,25 +41,35 @@ class AdminBienController extends AbstractController
     #[Route('/new', name: 'admin_biens_new')]
     public function create(Request $request): Response
     {
-        $agences = $this->api->getAgences();
+        $user = $request->getSession()->get('user');
+        $isSuperAdmin = ($user['role'] ?? '') === 'SUPER_ADMIN';
+        $agences = $isSuperAdmin ? $this->api->getAgences() : [];
 
         if ($request->isMethod('POST')) {
-            try {
-                $data = [
-                    'rue' => $request->request->get('rue'),
-                    'ville' => $request->request->get('ville'),
-                    'codePostal' => $request->request->get('codePostal'),
-                    'type' => $request->request->get('type'),
-                    'superficie' => (int) $request->request->get('superficie'),
-                    'ecoScore' => $request->request->get('ecoScore') ? (int) $request->request->get('ecoScore') : null,
-                    'description' => $request->request->get('description'),
-                    'agenceId' => $request->request->get('agenceId') ? (int) $request->request->get('agenceId') : null,
-                ];
-                $bien = $this->api->createBien($data);
-                $this->addFlash('success', 'Bien cree avec succes.');
-                return $this->redirectToRoute('admin_biens_edit', ['id' => $bien['id']]);
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+            $proprietaireId = $request->request->get('personneId');
+            if (empty($proprietaireId)) {
+                $this->addFlash('error', 'Veuillez selectionner un proprietaire.');
+            } else {
+                try {
+                    $data = [
+                        'rue' => $request->request->get('rue'),
+                        'ville' => $request->request->get('ville'),
+                        'codePostal' => $request->request->get('codePostal'),
+                        'type' => $request->request->get('type'),
+                        'superficie' => (int) $request->request->get('superficie'),
+                        'ecoScore' => $request->request->get('ecoScore') ? (int) $request->request->get('ecoScore') : null,
+                        'description' => $request->request->get('description'),
+                    ];
+                    if ($isSuperAdmin && $request->request->get('agenceId')) {
+                        $data['agenceId'] = (int) $request->request->get('agenceId');
+                    }
+                    $bien = $this->api->createBien($data);
+                    $this->api->setBienProprietaire($bien['id'], (int) $proprietaireId);
+                    $this->addFlash('success', 'Bien cree avec succes.');
+                    return $this->redirectToRoute('admin_biens_edit', ['id' => $bien['id']]);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+                }
             }
         }
 
@@ -73,10 +83,29 @@ class AdminBienController extends AbstractController
     public function edit(int $id, Request $request): Response
     {
         $bien = $this->api->getBienById($id);
+        $user = $request->getSession()->get('user');
+        $role = $user['role'] ?? '';
+
+        // CLIENTs can only edit properties they own
+        if ($role === 'CLIENT') {
+            $personneId = $user['personneId'] ?? null;
+            $owners = $bien['proprietaires'] ?? [];
+            $isOwner = false;
+            foreach ($owners as $owner) {
+                if (($owner['personneId'] ?? null) == $personneId) {
+                    $isOwner = true;
+                    break;
+                }
+            }
+            if (!$isOwner) {
+                $this->addFlash('error', 'Vous n\'etes pas proprietaire de ce bien.');
+                return $this->redirectToRoute('client_dashboard');
+            }
+        }
+
         $agences = $this->api->getAgences();
         $caracteristiques = $this->api->getCaracteristiques();
         $lieux = $this->api->getLieux();
-        $personnes = $this->api->getPersonnes();
 
         if ($request->isMethod('POST')) {
             $action = $request->request->get('_action');
@@ -200,7 +229,6 @@ class AdminBienController extends AbstractController
             'agences' => $agences,
             'caracteristiques' => $caracteristiques,
             'lieux' => $lieux,
-            'personnes' => $personnes,
         ]);
     }
 

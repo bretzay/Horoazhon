@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Nouvel utilisateur{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Nouvel utilisateur</h1>
+    <a href="{{ path('admin_utilisateurs') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+{% if activationUrl is defined and activationUrl %}
+<div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid #22c55e;">
+    <h3>Lien d'activation</h3>
+    <p style="color: #94a3b8; margin-bottom: 0.75rem;">Transmettez ce lien a l'utilisateur pour qu'il active son compte et choisisse son mot de passe. Ce lien expire dans 7 jours.</p>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <input type="text" id="activationLink" value="{{ activationUrl }}" readonly style="flex: 1; font-size: 0.85rem;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('activationLink').value); this.textContent='Copie!'; setTimeout(() => this.textContent='Copier', 2000);">Copier</button>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group"><label>Prenom *</label><input type="text" name="prenom" required></div>
+            <div class="form-group"><label>Nom *</label><input type="text" name="nom" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Date de naissance *</label><input type="date" name="dateNais" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
+        </div>
+        <div class="form-group">
+            <label>Role *</label>
+            {% set current_role = app.session.get('user_role') %}
+            <select name="role" required>
+                <option value="CLIENT">Client</option>
+                <option value="AGENT">Agent</option>
+                {% if current_role == 'SUPER_ADMIN' %}
+                    <option value="ADMIN_AGENCY">Administrateur agence</option>
+                {% endif %}
+            </select>
+        </div>
+        {% if agences is defined and agences|length > 0 %}
+        <div class="form-group">
+            <label>Agence *</label>
+            <select name="agenceId" required>
+                <option value="">-- Choisir une agence --</option>
+                {% for a in agences %}
+                    <option value="{{ a.id }}">{{ a.nom }} ({{ a.ville }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Creer</button>
+    </form>
+</div>
+{% endblock %}

@@ -13,9 +13,18 @@ class AdminReferenceController extends AbstractController
 {
     public function __construct(private RealEstateApiClient $api) {}
 
-    #[Route('', name: 'admin_references')]
-    public function index(): Response
+    private function requireSuperAdmin(Request $request): void
     {
+        $user = $request->getSession()->get('user');
+        if (($user['role'] ?? '') !== 'SUPER_ADMIN') {
+            throw $this->createAccessDeniedException('Acces reserve au Super Admin.');
+        }
+    }
+
+    #[Route('', name: 'admin_references')]
+    public function index(Request $request): Response
+    {
+        $this->requireSuperAdmin($request);
         return $this->render('admin/reference/index.html.twig', [
             'caracteristiques' => $this->api->getCaracteristiques(),
             'lieux' => $this->api->getLieux(),

@@ -17,18 +17,6 @@
     .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
     .lightbox-counter { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 0.9rem; }
 
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: center; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background: #1e293b; border-radius: 12px; padding: 2rem; max-width: 420px; width: 90%; position: relative; color: #e2e8f0; }
-    .modal-content h3 { margin: 0 0 1.25rem 0; color: #f8fafc; font-size: 1.25rem; }
-    .modal-close { position: absolute; top: 0.75rem; right: 1rem; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; }
-    .modal-close:hover { color: #f8fafc; }
-    .modal-item { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid #334155; }
-    .modal-item:last-child { border-bottom: none; }
-    .modal-label { color: #94a3b8; }
-    .modal-value { color: #f8fafc; font-weight: 500; }
-    .modal-value a { color: #60a5fa; text-decoration: none; }
-    .modal-value a:hover { text-decoration: underline; }
 </style>
 {% endblock %}
 
@@ -38,10 +26,16 @@
     <div>
         {% set hasAchat = bien.availableForSale is defined and bien.availableForSale and bien.achat is defined and bien.achat %}
         {% set hasLocation = bien.availableForRent is defined and bien.availableForRent and bien.location is defined and bien.location %}
-        {% if app.session.get('jwt_token') %}
-            {% if bien.id is defined %}
-                <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary">Modifier</a>
-            {% endif %}
+        {% set userPersonneId = app.session.get('user').personneId ?? null %}
+        {% set isOwner = false %}
+        {% if bien.proprietaires is defined %}
+            {% for p in bien.proprietaires %}
+                {% if p.personneId == userPersonneId %}
+                    {% set isOwner = true %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if app.session.get('user_role') != 'CLIENT' %}
             {% if hasAchat and hasLocation %}
                 <a href="{{ path('admin_contrats_new', {achatId: bien.achat.id}) }}" class="btn btn-success">Contrat vente</a>
                 <a href="{{ path('admin_contrats_new', {locationId: bien.location.id}) }}" class="btn btn-success">Contrat location</a>
@@ -50,13 +44,11 @@
             {% elseif hasLocation %}
                 <a href="{{ path('admin_contrats_new', {locationId: bien.location.id}) }}" class="btn btn-success">Nouveau contrat</a>
             {% endif %}
-        {% else %}
-            {% if hasAchat %}
-                <button class="btn btn-success" onclick="openContactModal()">Acheter</button>
+            {% if bien.id is defined %}
+                <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary">Modifier</a>
             {% endif %}
-            {% if hasLocation %}
-                <button class="btn btn-success" onclick="openContactModal()">Louer</button>
-            {% endif %}
+        {% elseif isOwner and bien.id is defined %}
+            <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary">Modifier</a>
         {% endif %}
         <a href="{{ path('biens_list') }}" class="btn btn-secondary">Retour</a>
     </div>
@@ -184,46 +176,4 @@
 </div>
 {% endif %}
 
-{% if not app.session.get('jwt_token') and bien.agence is defined and bien.agence %}
-<div class="modal-overlay" id="contactModal" onclick="if(event.target===this)closeContactModal()">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeContactModal()">&times;</button>
-        <h3>Contacter l'agence</h3>
-        <div class="modal-item">
-            <span class="modal-label">Agence</span>
-            <span class="modal-value">{{ bien.agence.nom }}</span>
-        </div>
-        {% if bien.agence.telephone %}
-        <div class="modal-item">
-            <span class="modal-label">Telephone</span>
-            {% set tel = bien.agence.telephone|replace({' ': '', '.': '', '-': ''}) %}
-            <span class="modal-value"><a href="tel:{{ tel }}">{{ tel|length == 10 ? tel[:2] ~ ' ' ~ tel[2:2] ~ ' ' ~ tel[4:2] ~ ' ' ~ tel[6:2] ~ ' ' ~ tel[8:2] : bien.agence.telephone }}</a></span>
-        </div>
-        {% endif %}
-        {% if bien.agence.email %}
-        <div class="modal-item">
-            <span class="modal-label">Email</span>
-            <span class="modal-value"><a href="mailto:{{ bien.agence.email }}">{{ bien.agence.email }}</a></span>
-        </div>
-        {% endif %}
-        {% if bien.agence.rue or bien.agence.ville %}
-        <div class="modal-item">
-            <span class="modal-label">Adresse</span>
-            <span class="modal-value">{{ bien.agence.rue }}{% if bien.agence.codePostal %}, {{ bien.agence.codePostal }}{% endif %} {{ bien.agence.ville }}</span>
-        </div>
-        {% endif %}
-    </div>
-</div>
-<script>
-    function openContactModal() {
-        document.getElementById('contactModal').classList.add('active');
-    }
-    function closeContactModal() {
-        document.getElementById('contactModal').classList.remove('active');
-    }
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeContactModal();
-    });
-</script>
-{% endif %}
 {% endblock %}

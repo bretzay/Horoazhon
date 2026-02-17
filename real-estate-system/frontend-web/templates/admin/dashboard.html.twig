@@ -18,14 +18,18 @@
     <div class="card">
         <h3>Gestion</h3>
         <p><a href="{{ path('admin_biens') }}">Biens immobiliers</a></p>
+        {% if app.session.get('user').role == 'SUPER_ADMIN' %}
         <p><a href="{{ path('admin_agences') }}">Agences</a></p>
+        {% endif %}
         <p><a href="{{ path('admin_personnes') }}">Personnes</a></p>
         <p><a href="{{ path('admin_contrats') }}">Contrats</a></p>
-        <p><a href="{{ path('admin_agents') }}">Agents</a></p>
+        <p><a href="{{ path('admin_utilisateurs') }}">Utilisateurs</a></p>
     </div>
+    {% if app.session.get('user').role == 'SUPER_ADMIN' %}
     <div class="card">
         <h3>Donnees de reference</h3>
         <p><a href="{{ path('admin_references') }}">Caracteristiques & Lieux</a></p>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -19,7 +19,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final AgentUserDetailsService userDetailsService;
+    private final CompteUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(

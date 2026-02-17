@@ -1,6 +1,8 @@
 package com.realestate.api.controller;
 
 import com.realestate.api.dto.*;
+import com.realestate.api.entity.Compte;
+import com.realestate.api.repository.CompteRepository;
 import com.realestate.api.service.PersonneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/personnes")
@@ -16,6 +19,7 @@ import java.util.List;
 public class PersonneController {
 
     private final PersonneService personneService;
+    private final CompteRepository compteRepository;
 
     @GetMapping
     public ResponseEntity<List<PersonneDTO>> getAllPersonnes() {
@@ -47,6 +51,27 @@ public class PersonneController {
     public ResponseEntity<Void> deletePersonne(@PathVariable Long id) {
         personneService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/account-status")
+    public ResponseEntity<Map<String, Object>> getAccountStatus(@PathVariable Long id) {
+        return compteRepository.findByPersonneId(id)
+                .map(compte -> {
+                    String status;
+                    if (compte.isActivated()) {
+                        status = "ACTIVE";
+                    } else if (compte.isTokenValid()) {
+                        status = "PENDING";
+                    } else {
+                        status = "EXPIRED";
+                    }
+                    return ResponseEntity.ok(Map.<String, Object>of(
+                            "hasAccount", true,
+                            "status", status,
+                            "email", compte.getEmail()
+                    ));
+                })
+                .orElse(ResponseEntity.ok(Map.of("hasAccount", false)));
     }
 
     @GetMapping("/{id}/biens")

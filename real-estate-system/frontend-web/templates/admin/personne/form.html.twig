@@ -38,6 +38,35 @@
 </div>
 
 {% if personne %}
+<div class="card">
+    <h3>Compte client</h3>
+    {% if accountStatus is defined and accountStatus and accountStatus.hasAccount %}
+        {% if accountStatus.status == 'ACTIVE' %}
+            <span class="badge badge-signe">Compte actif</span>
+            <span style="color: #64748b; margin-left: 0.5rem;">{{ accountStatus.email }}</span>
+        {% elseif accountStatus.status == 'PENDING' %}
+            <span class="badge badge-en_cours">En attente d'activation</span>
+            <span style="color: #64748b; margin-left: 0.5rem;">{{ accountStatus.email }}</span>
+        {% elseif accountStatus.status == 'EXPIRED' %}
+            <span class="badge badge-annule">Lien expire</span>
+            <span style="color: #64748b; margin-left: 0.5rem;">{{ accountStatus.email }}</span>
+            <form method="POST" action="{{ path('admin_personnes_invite', {id: personne.id}) }}" style="display: inline; margin-left: 1rem;">
+                <input type="hidden" name="invite_email" value="{{ accountStatus.email }}">
+                <button type="submit" class="btn btn-primary btn-sm">Renvoyer l'invitation</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p style="color: #64748b; margin-bottom: 0.75rem;">Cette personne n'a pas encore de compte sur le site.</p>
+        <form method="POST" action="{{ path('admin_personnes_invite', {id: personne.id}) }}" class="form-inline">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="invite_email" placeholder="email@example.com" required>
+            </div>
+            <button type="submit" class="btn btn-success">Envoyer l'invitation</button>
+        </form>
+    {% endif %}
+</div>
+
 <div class="person-panels">
     <div class="card">
         <h3>Biens possedes ({{ biens|length }})</h3>

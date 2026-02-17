@@ -5,7 +5,7 @@
 ### What's Been Implemented:
 
 1. **Database Schema**
-   - Agent table with roles (AGENT, SUPERVISOR, ADMIN_AGENCY)
+   - Compte table with roles (CLIENT, AGENT, ADMIN_AGENCY, SUPER_ADMIN)
    - AgencePersonne linking table (many-to-many: agencies ↔ customers)
    - agent_createur_id tracking in Bien and Contrat tables
 

@@ -38,7 +38,7 @@ public class PersonneService {
 
     @Transactional(readOnly = true)
     public List<PersonneDTO> search(String query) {
-        return personneRepository.findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(query, query)
+        return personneRepository.searchByNameIgnoreAccents(query)
                 .stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 

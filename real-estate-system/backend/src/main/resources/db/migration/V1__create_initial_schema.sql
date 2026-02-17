@@ -208,46 +208,40 @@ CREATE INDEX IDX_Personne_Nom ON Personne(nom, prenom);
 -- End of Migration V1
 -- ============================================================
 
--- V3: Add Authentication System
--- Creates Agent table, AgencePersonne linking table, and adds creator tracking to Bien and Contrat
+-- ============================================
+-- V2: Authentication System 
+-- ============================================
 
--- Create Agent table
-CREATE TABLE Agent (
+-- Compte is the single auth table with role-based access and agency link
+
+-- Create Compte table (unified authentication for all users)
+CREATE TABLE Compte (
     id BIGINT IDENTITY(1,1) PRIMARY KEY,
-    email NVARCHAR(100) NOT NULL UNIQUE,
-    password NVARCHAR(255) NOT NULL,
-    nom NVARCHAR(100) NOT NULL,
-    prenom NVARCHAR(100) NOT NULL,
-    agence_id BIGINT NOT NULL,
-    role NVARCHAR(50) NOT NULL DEFAULT 'AGENT',
+    email NVARCHAR(255) NOT NULL UNIQUE,
+    password NVARCHAR(255) NULL,
+    role NVARCHAR(50) NOT NULL DEFAULT 'CLIENT',
+    agence_id BIGINT NULL,
+    personne_id BIGINT NOT NULL,
+    token_activation NVARCHAR(255) NULL,
+    token_expiration DATETIME2 NULL,
     actif BIT NOT NULL DEFAULT 1,
     date_creation DATETIME2 NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_Agent_Agence FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE NO ACTION,
-    CONSTRAINT CHK_Agent_Role CHECK (role IN ('AGENT', 'SUPERVISOR', 'ADMIN_AGENCY'))
+    CONSTRAINT FK_Compte_Agence FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE NO ACTION,
+    CONSTRAINT FK_Compte_Personne FOREIGN KEY (personne_id) REFERENCES Personne(id) ON DELETE NO ACTION,
+    CONSTRAINT CHK_Compte_Role CHECK (role IN ('CLIENT', 'AGENT', 'ADMIN_AGENCY', 'SUPER_ADMIN'))
 );
 
-CREATE INDEX IDX_Agent_Email ON Agent(email);
-CREATE INDEX IDX_Agent_Agence ON Agent(agence_id);
+CREATE INDEX IDX_Compte_Email ON Compte(email);
+CREATE INDEX IDX_Compte_Agence ON Compte(agence_id);
+CREATE INDEX IDX_Compte_Personne ON Compte(personne_id);
+CREATE INDEX IDX_Compte_Token ON Compte(token_activation);
 
--- Create AgencePersonne linking table (many-to-many)
-CREATE TABLE AgencePersonne (
-    agence_id BIGINT NOT NULL,
-    personne_id BIGINT NOT NULL,
-    date_ajout DATETIME2 NOT NULL DEFAULT GETDATE(),
-    PRIMARY KEY (agence_id, personne_id),
-    CONSTRAINT FK_AgencePersonne_Agence FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE CASCADE,
-    CONSTRAINT FK_AgencePerssonne_Personne FOREIGN KEY (personne_id) REFERENCES Personne(id) ON DELETE CASCADE
-);
+-- Add compte_createur_id to Bien table (tracks which user created the listing)
+ALTER TABLE Bien ADD compte_createur_id BIGINT NULL;
+ALTER TABLE Bien ADD CONSTRAINT FK_Bien_Compte_Createur FOREIGN KEY (compte_createur_id) REFERENCES Compte(id) ON DELETE SET NULL;
+CREATE INDEX IDX_Bien_Compte_Createur ON Bien(compte_createur_id);
 
-CREATE INDEX IDX_AgencePersonne_Agence ON AgencePersonne(agence_id);
-CREATE INDEX IDX_AgencePersonne_Personne ON AgencePersonne(personne_id);
-
--- Add agent_createur_id to Bien table
-ALTER TABLE Bien ADD agent_createur_id BIGINT NULL;
-ALTER TABLE Bien ADD CONSTRAINT FK_Bien_Agent_Createur FOREIGN KEY (agent_createur_id) REFERENCES Agent(id) ON DELETE SET NULL;
-CREATE INDEX IDX_Bien_Agent_Createur ON Bien(agent_createur_id);
-
--- Add agent_createur_id to Contrat table
-ALTER TABLE Contrat ADD agent_createur_id BIGINT NULL;
-ALTER TABLE Contrat ADD CONSTRAINT FK_Contrat_Agent_Createur FOREIGN KEY (agent_createur_id) REFERENCES Agent(id) ON DELETE SET NULL;
-CREATE INDEX IDX_Contrat_Agent_Createur ON Contrat(agent_createur_id);
+-- Add compte_createur_id to Contrat table (tracks which user created the contract)
+ALTER TABLE Contrat ADD compte_createur_id BIGINT NULL;
+ALTER TABLE Contrat ADD CONSTRAINT FK_Contrat_Compte_Createur FOREIGN KEY (compte_createur_id) REFERENCES Compte(id) ON DELETE SET NULL;
+CREATE INDEX IDX_Contrat_Compte_Createur ON Contrat(compte_createur_id);

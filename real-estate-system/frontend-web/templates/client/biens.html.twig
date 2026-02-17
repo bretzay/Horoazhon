@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes biens{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Mes biens</h1>
+    <a href="{{ path('client_dashboard') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+{% if biens|length > 0 %}
+<div class="property-grid">
+    {% for bien in biens %}
+    <div class="property-card">
+        {% if bien.principalPhotoUrl %}
+            <img src="{{ bien.principalPhotoUrl }}" alt="Photo" style="width: 100%; height: 180px; object-fit: cover;">
+        {% else %}
+            <div style="height: 180px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                Pas de photo
+            </div>
+        {% endif %}
+        <div class="info">
+            <h3>{{ bien.type ?? 'Bien' }}</h3>
+            <div class="meta">{{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}</div>
+            <div class="meta">{{ bien.superficie ?? '?' }} m&sup2;{% if bien.ecoScore %} | Eco: {{ bien.ecoScore }}/10{% endif %}</div>
+            <div style="margin-top: 0.5rem;">
+                {% if bien.availableForSale %}
+                    <span class="badge badge-sale">Vente: {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;</span>
+                {% endif %}
+                {% if bien.availableForRent %}
+                    <span class="badge badge-rent">Location: {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois</span>
+                {% endif %}
+            </div>
+            <div style="margin-top: 0.75rem;">
+                <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                <a href="{{ path('biens_detail', {id: bien.id}) }}" class="btn btn-secondary btn-sm">Voir details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if totalPages > 1 %}
+<div class="pagination">
+    {% if currentPage > 0 %}
+        <a href="{{ path('client_biens', {page: currentPage - 1}) }}">&laquo; Precedent</a>
+    {% endif %}
+    {% for i in 0..totalPages - 1 %}
+        {% if i == currentPage %}
+            <span class="current">{{ i + 1 }}</span>
+        {% else %}
+            <a href="{{ path('client_biens', {page: i}) }}">{{ i + 1 }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if currentPage < totalPages - 1 %}
+        <a href="{{ path('client_biens', {page: currentPage + 1}) }}">Suivant &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <p style="color: #64748b;">Aucun bien trouve.</p>
+</div>
+{% endif %}
+{% endblock %}

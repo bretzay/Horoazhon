@@ -57,8 +57,8 @@ public class Bien {
     private Agence agence;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agent_createur_id")
-    private Agent createdBy;
+    @JoinColumn(name = "compte_createur_id")
+    private Compte createdBy;
 
     @OneToMany(mappedBy = "bien", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photo> photos = new ArrayList<>();

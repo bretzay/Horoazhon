@@ -29,10 +29,19 @@ public interface ContratRepository extends JpaRepository<Contrat, Long> {
     // Find contracts for a specific person (as co-signer)
     @Query("SELECT c FROM Contrat c JOIN c.cosigners cs WHERE cs.personne.id = :personneId")
     Page<Contrat> findByPersonneId(@Param("personneId") Long personneId, Pageable pageable);
+
+    // Find all contracts for a specific person (no pagination, for stats)
+    @Query("SELECT c FROM Contrat c JOIN c.cosigners cs WHERE cs.personne.id = :personneId")
+    List<Contrat> findAllByPersonneId(@Param("personneId") Long personneId);
     
     // Find rental contracts
     @Query("SELECT c FROM Contrat c WHERE c.location IS NOT NULL")
     Page<Contrat> findRentalContracts(Pageable pageable);
+
+    // Find SIGNE rental contracts with cosigners (for expiration scheduler)
+    @Query("SELECT DISTINCT c FROM Contrat c JOIN FETCH c.cosigners JOIN FETCH c.location " +
+           "WHERE c.statut = 'SIGNE' AND c.location IS NOT NULL")
+    List<Contrat> findSignedRentalContracts();
     
     // Find purchase contracts
     @Query("SELECT c FROM Contrat c WHERE c.achat IS NOT NULL")
@@ -40,15 +49,15 @@ public interface ContratRepository extends JpaRepository<Contrat, Long> {
 
     // Agency-filtered queries
     @Query("SELECT c FROM Contrat c " +
-           "LEFT JOIN c.location l " +
-           "LEFT JOIN c.achat a " +
-           "WHERE (l.bien.agence.id = :agenceId OR a.bien.agence.id = :agenceId)")
+           "LEFT JOIN c.location l LEFT JOIN l.bien lb " +
+           "LEFT JOIN c.achat a LEFT JOIN a.bien ab " +
+           "WHERE (lb.agence.id = :agenceId OR ab.agence.id = :agenceId)")
     Page<Contrat> findByAgence(@Param("agenceId") Long agenceId, Pageable pageable);
 
     @Query("SELECT c FROM Contrat c " +
-           "LEFT JOIN c.location l " +
-           "LEFT JOIN c.achat a " +
-           "WHERE (l.bien.agence.id = :agenceId OR a.bien.agence.id = :agenceId) " +
+           "LEFT JOIN c.location l LEFT JOIN l.bien lb " +
+           "LEFT JOIN c.achat a LEFT JOIN a.bien ab " +
+           "WHERE (lb.agence.id = :agenceId OR ab.agence.id = :agenceId) " +
            "AND c.statut = :statut")
     Page<Contrat> findByAgenceAndStatut(@Param("agenceId") Long agenceId,
                                          @Param("statut") Contrat.StatutContrat statut,
@@ -56,10 +65,10 @@ public interface ContratRepository extends JpaRepository<Contrat, Long> {
 
     @Query("SELECT c FROM Contrat c " +
            "JOIN c.cosigners cs " +
-           "LEFT JOIN c.location l " +
-           "LEFT JOIN c.achat a " +
+           "LEFT JOIN c.location l LEFT JOIN l.bien lb " +
+           "LEFT JOIN c.achat a LEFT JOIN a.bien ab " +
            "WHERE cs.personne.id = :personneId " +
-           "AND (l.bien.agence.id = :agenceId OR a.bien.agence.id = :agenceId)")
+           "AND (lb.agence.id = :agenceId OR ab.agence.id = :agenceId)")
     Page<Contrat> findByPersonneIdAndAgence(@Param("personneId") Long personneId,
                                              @Param("agenceId") Long agenceId,
                                              Pageable pageable);

@@ -4,17 +4,23 @@ import com.realestate.api.entity.*;
 import com.realestate.api.repository.ContratRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +32,9 @@ public class ContratPdfService {
     private final ContratRepository contratRepository;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATETIME_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    @Value("${file.upload-dir-contrats:./uploads/contrats}")
+    private String uploadDir;
 
     @Transactional(readOnly = true)
     public byte[] generateContratPdf(Long contratId) throws IOException {
@@ -193,6 +202,157 @@ public class ContratPdfService {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             document.save(out);
             return out.toByteArray();
+        }
+    }
+
+    /**
+     * Generates a reconduction PDF: loads the old contract's signed document
+     * and appends a reconduction note page explaining the ownership transfer.
+     */
+    public byte[] generateReconductionPdf(Contrat oldRentalContrat,
+                                           Contrat purchaseContrat,
+                                           Personne newOwner) throws IOException {
+        PDDocument document;
+
+        // Try to load the old contract's signed PDF as base
+        String oldDocPath = oldRentalContrat.getDocumentSigne();
+        if (oldDocPath != null && !oldDocPath.isBlank()) {
+            Path filePath = Paths.get(uploadDir).resolve(oldDocPath);
+            if (Files.exists(filePath)) {
+                document = Loader.loadPDF(filePath.toFile());
+            } else {
+                document = new PDDocument();
+            }
+        } else {
+            document = new PDDocument();
+        }
+
+        try {
+            // Add reconduction note page
+            PDPage notePage = new PDPage(PDRectangle.A4);
+            document.addPage(notePage);
+
+            PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            PDType1Font fontRegular = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+            PDType1Font fontItalic = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
+
+            float margin = 50;
+            float pageWidth = notePage.getMediaBox().getWidth();
+            float contentWidth = pageWidth - 2 * margin;
+            float yPosition = notePage.getMediaBox().getHeight() - margin;
+
+            PDPageContentStream content = new PDPageContentStream(document, notePage);
+
+            // Header
+            yPosition = drawCenteredText(content, "AVENANT - RECONDUCTION DE BAIL", fontBold, 16, pageWidth, yPosition);
+            yPosition -= 5;
+            yPosition = drawCenteredText(content, "Suite a un transfert de propriete", fontItalic, 11, pageWidth, yPosition);
+            yPosition -= 10;
+
+            // Horizontal line
+            content.setLineWidth(1f);
+            content.moveTo(margin, yPosition);
+            content.lineTo(pageWidth - margin, yPosition);
+            content.stroke();
+            yPosition -= 25;
+
+            // Reference to original contract
+            yPosition = drawText(content, "REFERENCES", fontBold, 12, margin, yPosition);
+            yPosition -= 5;
+            yPosition = drawText(content, "Contrat de location d'origine N: " + oldRentalContrat.getId(),
+                    fontRegular, 10, margin + 15, yPosition);
+            yPosition = drawText(content, "Contrat de vente associe N: " + purchaseContrat.getId(),
+                    fontRegular, 10, margin + 15, yPosition);
+            yPosition = drawText(content, "Date de l'acte de vente: " +
+                    LocalDateTime.now().format(DATE_FMT), fontRegular, 10, margin + 15, yPosition);
+            yPosition -= 15;
+
+            // Property info
+            Bien bien = oldRentalContrat.getLocation().getBien();
+            yPosition = drawText(content, "BIEN CONCERNE", fontBold, 12, margin, yPosition);
+            yPosition -= 5;
+            yPosition = drawText(content, "Type: " + (bien.getType() != null ? bien.getType() : "Non specifie"),
+                    fontRegular, 10, margin + 15, yPosition);
+            yPosition = drawText(content, "Adresse: " + bien.getRue() + ", " + bien.getCodePostal() + " " + bien.getVille(),
+                    fontRegular, 10, margin + 15, yPosition);
+            yPosition -= 15;
+
+            // New owner info
+            yPosition = drawText(content, "NOUVEAU PROPRIETAIRE", fontBold, 12, margin, yPosition);
+            yPosition -= 5;
+            yPosition = drawText(content, newOwner.getPrenom() + " " + newOwner.getNom(),
+                    fontRegular, 10, margin + 15, yPosition);
+            if (newOwner.getRue() != null) {
+                yPosition = drawText(content, "Adresse: " + newOwner.getRue() +
+                        (newOwner.getCodePostal() != null ? ", " + newOwner.getCodePostal() : "") +
+                        (newOwner.getVille() != null ? " " + newOwner.getVille() : ""),
+                        fontRegular, 10, margin + 15, yPosition);
+            }
+            yPosition -= 15;
+
+            // Renter info
+            Personne renter = null;
+            for (Cosigner cs : oldRentalContrat.getCosigners()) {
+                if (cs.getTypeSignataire() == Cosigner.TypeSignataire.RENTER) {
+                    renter = cs.getPersonne();
+                    break;
+                }
+            }
+            if (renter != null) {
+                yPosition = drawText(content, "LOCATAIRE", fontBold, 12, margin, yPosition);
+                yPosition -= 5;
+                yPosition = drawText(content, renter.getPrenom() + " " + renter.getNom(),
+                        fontRegular, 10, margin + 15, yPosition);
+                yPosition -= 15;
+            }
+
+            // Reconduction clauses
+            yPosition = drawText(content, "CLAUSES DE RECONDUCTION", fontBold, 12, margin, yPosition);
+            yPosition -= 5;
+
+            List<String> clauses = new ArrayList<>();
+            clauses.add("Le present avenant atteste de la reconduction du contrat de location N" +
+                    oldRentalContrat.getId() + " suite au transfert de propriete du bien par acte de vente.");
+            clauses.add("Le nouveau proprietaire, " + newOwner.getPrenom() + " " + newOwner.getNom() +
+                    ", se substitue a l'ancien proprietaire dans tous les droits et obligations issus du contrat de location initial.");
+            clauses.add("Les conditions du bail (loyer, caution, obligations des parties) restent inchangees, " +
+                    "conformement a l'article 3 de la loi n89-462 du 6 juillet 1989.");
+
+            Location loc = oldRentalContrat.getLocation();
+            if (loc.getDureeMois() != null) {
+                clauses.add("La duree restante du bail est maintenue a son terme initial. " +
+                        "Duree d'origine: " + loc.getDureeMois() + " mois.");
+            } else {
+                clauses.add("Le bail a duree indeterminee est maintenu sans modification de duree.");
+            }
+
+            clauses.add("La reconduction du bail a ete validee par la signature de l'acte de vente " +
+                    "du bien immobilier (contrat de vente N" + purchaseContrat.getId() + ").");
+
+            int clauseNum = 1;
+            for (String clause : clauses) {
+                List<String> lines = wrapText(clauseNum + ". " + clause, fontRegular, 9, contentWidth - 15);
+                for (String line : lines) {
+                    yPosition = drawText(content, line, fontRegular, 9, margin + 15, yPosition);
+                }
+                yPosition -= 5;
+                clauseNum++;
+            }
+
+            // Footer
+            content.beginText();
+            content.setFont(fontItalic, 8);
+            content.newLineAtOffset(margin, 30);
+            content.showText("Avenant genere le " + LocalDateTime.now().format(DATETIME_FMT) + " - Horoazhon Immobilier");
+            content.endText();
+
+            content.close();
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            document.save(out);
+            return out.toByteArray();
+        } finally {
+            document.close();
         }
     }
 

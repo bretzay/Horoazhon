@@ -25,7 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AgentUserDetailsService userDetailsService;
+    private final CompteUserDetailsService userDetailsService;
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
@@ -35,9 +35,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/biens/**").permitAll() // Public property listing
-                        .requestMatchers("/api/caracteristiques/**").permitAll()
-                        .requestMatchers("/api/lieux/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

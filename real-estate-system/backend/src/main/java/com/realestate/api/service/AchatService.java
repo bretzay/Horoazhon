@@ -6,6 +6,7 @@ import com.realestate.api.entity.Achat;
 import com.realestate.api.entity.Bien;
 import com.realestate.api.repository.AchatRepository;
 import com.realestate.api.repository.BienRepository;
+import com.realestate.api.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,15 @@ public class AchatService {
 
     private final AchatRepository achatRepository;
     private final BienRepository bienRepository;
+    private final SecurityUtils securityUtils;
 
     @Transactional(readOnly = true)
     public List<AchatDTO> findAll() {
-        return achatRepository.findAll().stream()
+        Long agenceId = securityUtils.getCurrentAgenceId();
+        List<Achat> achats = agenceId != null
+                ? achatRepository.findByBienAgenceId(agenceId)
+                : achatRepository.findAll();
+        return achats.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

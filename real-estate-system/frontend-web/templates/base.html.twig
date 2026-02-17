@@ -75,19 +75,29 @@
 </head>
 <body>
     <nav>
-        <a href="{{ path('home') }}" class="brand">Horoazhon</a>
+        <a href="{{ path('biens_list') }}" class="brand">Horoazhon</a>
         <div class="links">
             {% if app.request.get('_route') != 'login' %}
-                <a href="{{ path('home') }}">Accueil</a>
                 <a href="{{ path('biens_list') }}">Biens</a>
             {% endif %}
-            {% if app.session.get('jwt_token') %}
-                <a href="{{ path('admin_dashboard') }}">Admin</a>
-                <span style="color: #94a3b8; margin-left: 1rem;">
-                    {{ app.session.get('agent').prenom }} {{ app.session.get('agent').nom }}
-                    {% if app.session.get('agent').agenceNom %}
-                        <small>({{ app.session.get('agent').agenceNom }})</small>
+            {% if app.session.get('jwt_token') and app.session.get('user') %}
+                {% set user = app.session.get('user') %}
+                {% if user.role != 'CLIENT' %}
+                    <a href="{{ path('admin_dashboard') }}">Admin</a>
+                {% else %}
+                    <a href="{{ path('client_dashboard') }}">Mon Espace</a>
+                {% endif %}
+                <span style="color: #94a3b8; margin-left: 1rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    {% if user.role == 'SUPER_ADMIN' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#f59e0b"/><path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#fff"/></svg>
+                    {% elseif user.role == 'ADMIN_AGENCY' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#22c55e"/><path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#fff"/></svg>
+                    {% elseif user.role == 'AGENT' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#3b82f6"/><path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#fff"/></svg>
+                    {% else %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#94a3b8"/></svg>
                     {% endif %}
+                    {{ user.prenom }} {{ user.nom }}
                 </span>
                 <a href="{{ path('logout') }}" style="color: #ef4444;">Deconnexion</a>
             {% else %}

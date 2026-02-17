@@ -1,0 +1,10 @@
+# Database
+spring.datasource.password=YOUR_DB_PASSWORD
+
+# Gmail (for sending activation emails)
+# 1. Create or use a Gmail account
+# 2. Enable 2-Step Verification
+# 3. Google Account > Security > App passwords > generate one
+# 4. Paste the 16-character code below
+spring.mail.username=your-app-email@gmail.com
+spring.mail.password=abcd efgh ijkl mnop

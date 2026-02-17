@@ -1,9 +1,7 @@
 package com.realestate.api.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,6 +32,8 @@ public class Achat {
     private Bien bien;
 
     @OneToMany(mappedBy = "achat")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Contrat> contrats = new ArrayList<>();
 
     @PrePersist

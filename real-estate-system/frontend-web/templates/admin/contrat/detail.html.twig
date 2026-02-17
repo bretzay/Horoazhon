@@ -3,14 +3,86 @@
 {% block title %}Admin - Contrat #{{ contrat.id }}{% endblock %}
 
 {% block body %}
+{% set role = app.session.get('user_role') %}
+{% set isAgent = role != 'CLIENT' %}
+{% set hasSigned = contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
+{% set isEnCours = contrat.statut == 'EN_COURS' %}
+{% set isSigne = contrat.statut == 'SIGNE' %}
+{% set isAnnule = contrat.statut == 'ANNULE' %}
+{% set isTermine = contrat.statut == 'TERMINE' %}
+{% set siblingCount = contrat.siblingContratCount is defined ? contrat.siblingContratCount : 0 %}
+
 <div class="page-header">
     <h1>Contrat #{{ contrat.id }}</h1>
-    <div>
-        <a href="{{ path('admin_contrats_pdf', {id: contrat.id}) }}" class="btn btn-primary">PDF genere</a>
-        {% if contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
-            <a href="{{ path('admin_contrats_signed_pdf', {id: contrat.id}) }}" class="btn btn-success">PDF signe</a>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        {% if isAgent %}
+            {% if isEnCours %}
+                <form method="POST" action="{{ path('admin_contrats_confirm', {id: contrat.id}) }}" id="confirmForm" style="display:inline;">
+                    <button type="button" class="btn btn-success" onclick="handleConfirm()">Confirmer</button>
+                </form>
+                <form method="POST" action="{{ path('admin_contrats_cancel', {id: contrat.id}) }}" style="display:inline;" onsubmit="return confirm('Etes-vous sur de vouloir annuler ce contrat ?');">
+                    <button type="submit" class="btn btn-danger">Annuler</button>
+                </form>
+            {% endif %}
+            {% if isSigne %}
+                <form method="POST" action="{{ path('admin_contrats_statut', {id: contrat.id}) }}" style="display:inline;" onsubmit="return confirm('Marquer ce contrat comme termine ?');">
+                    <input type="hidden" name="statut" value="TERMINE">
+                    <button type="submit" class="btn btn-success">Terminer le contrat</button>
+                </form>
+            {% endif %}
         {% endif %}
+        <div style="position: relative; display: inline-block;">
+            <button type="button" class="btn btn-primary" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Telecharger &#9662;</button>
+            <div style="display: none; position: absolute; top: 100%; right: 0; background: #1e293b; border: 1px solid #334155; border-radius: 6px; min-width: 180px; z-index: 10; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                <a href="{{ path('admin_contrats_pdf', {id: contrat.id}) }}" style="display: block; padding: 0.5rem 1rem; color: #e2e8f0; text-decoration: none; font-size: 0.9rem;">Document vierge</a>
+                {% if hasSigned %}
+                <a href="{{ path('admin_contrats_signed_pdf', {id: contrat.id}) }}" style="display: block; padding: 0.5rem 1rem; color: #e2e8f0; text-decoration: none; font-size: 0.9rem; border-top: 1px solid #334155;">Document signe</a>
+                {% endif %}
+            </div>
+        </div>
         <a href="{{ path('admin_contrats') }}" class="btn btn-secondary">Retour</a>
+    </div>
+</div>
+
+{# Stage indicator #}
+<div class="card" style="margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 0;">
+        {% set stages = [
+            {key: 'EN_COURS', label: 'En cours'},
+            {key: 'SIGNE', label: 'Signe'},
+            {key: 'TERMINE', label: 'Termine'}
+        ] %}
+        {% set currentIndex = isEnCours ? 0 : (isSigne ? 1 : (isTermine ? 2 : -1)) %}
+        {% for stage in stages %}
+            {% set isActive = stage.key == contrat.statut %}
+            {% set isPast = loop.index0 < currentIndex %}
+            <div style="display: flex; align-items: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; min-width: 100px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+                        {% if isActive %}background: #3b82f6; color: white;
+                        {% elseif isPast %}background: #22c55e; color: white;
+                        {% else %}background: #e2e8f0; color: #94a3b8;{% endif %}">
+                        {% if isPast %}&#10003;{% else %}{{ loop.index }}{% endif %}
+                    </div>
+                    <span style="margin-top: 0.25rem; font-size: 0.85rem; font-weight: {% if isActive %}bold{% else %}normal{% endif %}; color: {% if isActive %}#3b82f6{% elseif isPast %}#22c55e{% else %}#94a3b8{% endif %};">
+                        {{ stage.label }}
+                    </span>
+                </div>
+                {% if not loop.last %}
+                    <div style="width: 60px; height: 2px; margin: 0 0.25rem; margin-bottom: 1.2rem;
+                        {% if isPast %}background: #22c55e;{% else %}background: #e2e8f0;{% endif %}"></div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% if isAnnule %}
+            <div style="display: flex; align-items: center;">
+                <div style="width: 60px; height: 2px; margin: 0 0.25rem; margin-bottom: 1.2rem; background: #ef4444;"></div>
+                <div style="display: flex; flex-direction: column; align-items: center; min-width: 100px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; background: #ef4444; color: white;">&#10007;</div>
+                    <span style="margin-top: 0.25rem; font-size: 0.85rem; font-weight: bold; color: #ef4444;">Annule</span>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 
@@ -18,49 +90,35 @@
     <div class="card">
         <h3>Informations</h3>
         <div class="detail-item"><div class="label">Type</div><div class="value"><span class="badge {{ contrat.type == 'ACHAT' ? 'badge-sale' : 'badge-rent' }}">{{ contrat.type }}</span></div></div>
-        <div class="detail-item"><div class="label">Statut</div><div class="value"><span class="badge badge-{{ contrat.statut|lower }}">{{ contrat.statut }}</span></div></div>
         <div class="detail-item"><div class="label">Date creation</div><div class="value">{{ contrat.dateCreation|slice(0, 10) }}</div></div>
         {% if contrat.dateModification %}
         <div class="detail-item"><div class="label">Derniere modification</div><div class="value">{{ contrat.dateModification|slice(0, 10) }}</div></div>
         {% endif %}
         <div class="detail-item">
             <div class="label">Document signe</div>
-            <div class="value">
-                {% if contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
+            <div class="value" style="display: flex; align-items: center; gap: 0.5rem;">
+                {% if hasSigned %}
                     <span class="badge" style="background:#d1fae5;color:#065f46;">Televerse</span>
+                    {% if isAgent and isEnCours %}
+                        <form method="POST" action="{{ path('admin_contrats_delete_signe', {id: contrat.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer le document signe ?');">
+                            <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">Supprimer</button>
+                        </form>
+                    {% endif %}
                 {% else %}
                     <span class="badge" style="background:#fee2e2;color:#991b1b;">Non televerse</span>
                 {% endif %}
             </div>
         </div>
 
-        <h3 style="margin-top: 1rem;">Document signe</h3>
+        {% if isAgent and isEnCours %}
+        <h3 style="margin-top: 1rem;">Televerser le document signe</h3>
         <form method="POST" action="{{ path('admin_contrats_upload_signe', {id: contrat.id}) }}" enctype="multipart/form-data" class="form-inline" style="flex-wrap: wrap;">
             <div class="form-group">
                 <input type="file" name="signed_pdf" accept="application/pdf" required>
             </div>
             <button type="submit" class="btn btn-primary btn-sm">Televerser</button>
         </form>
-
-        {% set hasSigned = contrat.hasSignedDocument is defined and contrat.hasSignedDocument %}
-        <h3 style="margin-top: 1rem;">Changer le statut</h3>
-        <form method="POST" action="{{ path('admin_contrats_statut', {id: contrat.id}) }}" class="form-inline">
-            <div class="form-group">
-                <select name="statut">
-                    {% set isSigned = contrat.statut == 'SIGNE' or contrat.statut == 'TERMINE' %}
-                    {% for s in ['EN_COURS', 'SIGNE', 'ANNULE', 'TERMINE'] %}
-                        <option value="{{ s }}" {{ contrat.statut == s ? 'selected' }}
-                            {% if not hasSigned and (s == 'SIGNE' or s == 'TERMINE') %}disabled{% endif %}
-                            {% if isSigned and s == 'EN_COURS' %}disabled{% endif %}>
-                            {{ s }}
-                            {%- if not hasSigned and (s == 'SIGNE' or s == 'TERMINE') %} (doc requis){% endif %}
-                            {%- if isSigned and s == 'EN_COURS' %} (irreversible){% endif %}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm">Mettre a jour</button>
-        </form>
+        {% endif %}
     </div>
 
     <div class="card">
@@ -69,7 +127,7 @@
             <div class="detail-item"><div class="label">Adresse</div><div class="value">{{ contrat.bien.rue }}, {{ contrat.bien.codePostal }} {{ contrat.bien.ville }}</div></div>
             <div class="detail-item"><div class="label">Type</div><div class="value">{{ contrat.bien.type }}</div></div>
             {% if contrat.bien.id is defined %}
-            <a href="{{ path('admin_biens_edit', {id: contrat.bien.id}) }}" class="btn btn-primary btn-sm" style="margin-top: 0.5rem;">Voir le bien</a>
+            <a href="{{ path('biens_detail', {id: contrat.bien.id}) }}" class="btn btn-primary btn-sm" style="margin-top: 0.5rem;">Voir le bien</a>
             {% endif %}
         {% endif %}
 
@@ -92,11 +150,44 @@
             <tr>
                 <td>{{ cs.prenom }} {{ cs.nom }}</td>
                 <td>{{ cs.typeSignataire }}</td>
-                <td>{{ cs.dateSignature|slice(0, 10) }}</td>
-                <td><a href="{{ path('admin_personnes_edit', {id: cs.personneId}) }}" class="btn btn-primary btn-sm">Modifier</a></td>
+                <td>{{ cs.dateSignature ? cs.dateSignature|slice(0, 10) : '—' }}</td>
+                <td>
+                    {% if isAgent %}
+                    <a href="{{ path('admin_personnes_edit', {id: cs.personneId}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+function handleConfirm() {
+    {% if not hasSigned %}
+        alert('Un document signe doit etre televerse avant de pouvoir confirmer le contrat.');
+        return;
+    {% endif %}
+
+    {% if siblingCount > 0 %}
+        if (!confirm('Confirmer ce contrat annulera {{ siblingCount }} autre(s) contrat(s) en cours lies a cette offre. Voulez-vous continuer ?')) {
+            return;
+        }
+    {% else %}
+        if (!confirm('Etes-vous sur de vouloir confirmer ce contrat ?')) {
+            return;
+        }
+    {% endif %}
+
+    document.getElementById('confirmForm').submit();
+}
+
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.page-header [style*="position: relative"] > div').forEach(function(dropdown) {
+        if (!dropdown.previousElementSibling.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}

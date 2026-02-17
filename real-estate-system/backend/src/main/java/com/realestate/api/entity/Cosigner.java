@@ -1,9 +1,7 @@
 package com.realestate.api.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -26,6 +24,8 @@ public class Cosigner {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("contratId")
     @JoinColumn(name = "contrat_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Contrat contrat;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,17 +37,8 @@ public class Cosigner {
     @Column(nullable = false, length = 50)
     private TypeSignataire typeSignataire;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime dateSignature;
-
-    // Lifecycle callbacks
-
-    @PrePersist
-    protected void onCreate() {
-        if (dateSignature == null) {
-            dateSignature = LocalDateTime.now();
-        }
-    }
 
     // Constructors
 

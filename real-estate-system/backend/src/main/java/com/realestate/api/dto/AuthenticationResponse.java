@@ -11,10 +11,10 @@ public class AuthenticationResponse {
 
     private String token;
     private String type = "Bearer";
-    private AgentDTO agent;
-
-    public AuthenticationResponse(String token, AgentDTO agent) {
-        this.token = token;
-        this.agent = agent;
-    }
+    private String role;
+    private String nom;
+    private String prenom;
+    private Long agenceId;
+    private String agenceNom;
+    private Long personneId; // nullable — only set for CLIENT accounts
 }

@@ -54,9 +54,6 @@ public class Personne {
     private LocalDateTime dateModification;
 
     @OneToMany(mappedBy = "personne")
-    private List<Ouvrir> utilisateurs = new ArrayList<>();
-
-    @OneToMany(mappedBy = "personne")
     private List<Posseder> biens = new ArrayList<>();
 
     @OneToMany(mappedBy = "personne")

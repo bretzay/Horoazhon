@@ -3,6 +3,7 @@ package com.realestate.api.repository;
 import com.realestate.api.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -22,4 +23,8 @@ public interface AchatRepository extends JpaRepository<Achat, Long> {
     @Query("SELECT a FROM Achat a WHERE a.dateDispo <= CURRENT_DATE " +
            "AND NOT EXISTS (SELECT 1 FROM Contrat c WHERE c.achat = a AND c.statut = 'SIGNE')")
     List<Achat> findAvailableAchats();
+
+    // Agency-filtered
+    @Query("SELECT a FROM Achat a WHERE a.bien.agence.id = :agenceId")
+    List<Achat> findByBienAgenceId(@Param("agenceId") Long agenceId);
 }

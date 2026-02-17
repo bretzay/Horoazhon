@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes contrats{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Mes contrats</h1>
+    <a href="{{ path('client_dashboard') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+{% if contrats|length > 0 %}
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Bien</th>
+        <th>Statut</th>
+        <th>Date creation</th>
+        <th>Signataires</th>
+    </tr>
+    {% for contrat in contrats %}
+    <tr>
+        <td>#{{ contrat.id }}</td>
+        <td>
+            {% if contrat.type == 'LOCATION' %}
+                <span class="badge badge-rent">Location</span>
+            {% elseif contrat.type == 'ACHAT' %}
+                <span class="badge badge-sale">Achat</span>
+            {% endif %}
+        </td>
+        <td>
+            {% if contrat.bien %}
+                <a href="{{ path('biens_detail', {id: contrat.bien.id}) }}">
+                    {{ contrat.bien.type ?? '' }} - {{ contrat.bien.rue ?? '' }}, {{ contrat.bien.ville ?? '' }}
+                </a>
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            <span class="badge badge-{{ contrat.statut|lower }}">{{ contrat.statut }}</span>
+        </td>
+        <td>{{ contrat.dateCreation ? contrat.dateCreation|date('d/m/Y') : '-' }}</td>
+        <td>
+            {% if contrat.cosigners is defined %}
+                {% for cs in contrat.cosigners %}
+                    <span class="badge" style="background:#f1f5f9; color:#475569; margin: 0.1rem;">
+                        {{ cs.prenom }} {{ cs.nom }} ({{ cs.typeSignataire }})
+                    </span>
+                {% endfor %}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if totalPages > 1 %}
+<div class="pagination">
+    {% if currentPage > 0 %}
+        <a href="{{ path('client_contrats', {page: currentPage - 1}) }}">&laquo; Precedent</a>
+    {% endif %}
+    {% for i in 0..totalPages - 1 %}
+        {% if i == currentPage %}
+            <span class="current">{{ i + 1 }}</span>
+        {% else %}
+            <a href="{{ path('client_contrats', {page: i}) }}">{{ i + 1 }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if currentPage < totalPages - 1 %}
+        <a href="{{ path('client_contrats', {page: currentPage + 1}) }}">Suivant &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <p style="color: #64748b;">Aucun contrat trouve.</p>
+</div>
+{% endif %}
+{% endblock %}

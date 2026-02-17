@@ -49,7 +49,7 @@ uploads/
 *.pem
 *.p12
 .env.local
-application-prod.properties
+application-local.properties
 
 .vs/
 bin/

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 @RestController
@@ -28,17 +29,20 @@ public class CaracteristiquesController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<CaracteristiqueDTO> create(@Valid @RequestBody CaracteristiqueDTO request) {
         CaracteristiqueDTO created = caracteristiquesService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<CaracteristiqueDTO> update(@PathVariable Long id, @Valid @RequestBody CaracteristiqueDTO request) {
         return ResponseEntity.ok(caracteristiquesService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         caracteristiquesService.delete(id);
         return ResponseEntity.noContent().build();
