@@ -1,89 +1,456 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin - Biens{% endblock %}
+{% block title %}Admin - Biens immobiliers{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* === SUMMARY STAT CARDS === */
+    .bl-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .bl-stat {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+    }
+    .bl-stat-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #94a3b8;
+    }
+    .bl-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 0.25rem;
+        letter-spacing: -0.5px;
+    }
+    .bl-stat-value.text-blue { color: #2563eb; }
+    .bl-stat-value.text-green { color: #059669; }
+
+    /* === FILTER BAR (V0: search icon in ville, selects, button) === */
+    .bl-filters {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 0.75rem;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .bl-filters .bl-fg {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+    .bl-filters .bl-fg.bl-fg-grow { flex: 1; min-width: 180px; }
+    .bl-filters .bl-fg label {
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .bl-filters .bl-fg input,
+    .bl-filters .bl-fg select {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-family: inherit;
+        color: #0f172a;
+        background: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .bl-filters .bl-fg input:focus,
+    .bl-filters .bl-fg select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .bl-filters .bl-fg input::placeholder { color: #94a3b8; }
+    /* Search icon wrapper */
+    .bl-search-wrap {
+        position: relative;
+    }
+    .bl-search-wrap input {
+        padding-left: 2.25rem !important;
+    }
+    .bl-search-wrap .bl-search-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+        display: flex;
+    }
+
+    /* === TABLE (V0: rounded card, type badge + subtype, monospace ID, icon actions) === */
+    .bl-table-wrap {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .bl-table-wrap table {
+        border: none;
+        border-radius: 0;
+        margin: 0;
+    }
+    .bl-table-wrap th {
+        background: #f8fafc;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .bl-table-wrap td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    .bl-table-wrap tr:last-child td { border-bottom: none; }
+    .bl-table-wrap tbody tr { transition: background 0.15s; }
+    .bl-table-wrap tbody tr:nth-child(even) { background: #fafbfc; }
+    .bl-table-wrap tbody tr:hover { background: #f1f5f9; }
+
+    /* Monospace ID */
+    .bl-id {
+        font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* Type column: badge + subtype */
+    .bl-type-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .bl-type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        width: fit-content;
+    }
+    .bl-type-badge.badge-vente {
+        background: rgba(37,99,235,0.1);
+        color: #2563eb;
+    }
+    .bl-type-badge.badge-location {
+        background: rgba(5,150,105,0.1);
+        color: #059669;
+    }
+    .bl-type-subtype {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    /* Address bold */
+    .bl-address { font-weight: 500; color: #0f172a; }
+
+    /* Price bold */
+    .bl-price { font-weight: 600; color: #0f172a; }
+
+    /* Agency muted */
+    .bl-agency { color: #64748b; }
+
+    /* Action icon buttons */
+    .bl-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.25rem;
+    }
+    .bl-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: none;
+        transition: all 0.15s;
+        text-decoration: none;
+    }
+    .bl-action-btn.edit-btn { color: #2563eb; }
+    .bl-action-btn.edit-btn:hover { background: rgba(37,99,235,0.1); }
+    .bl-action-btn.delete-btn { color: #dc2626; }
+    .bl-action-btn.delete-btn:hover { background: rgba(220,38,38,0.1); }
+
+    /* === PAGINATION (V0: "Affichage de X-Y sur Z" + prev/next + page buttons) === */
+    .bl-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .bl-pagination-info {
+        font-size: 0.875rem;
+        color: #94a3b8;
+    }
+    .bl-pagination-info strong {
+        color: #0f172a;
+        font-weight: 600;
+    }
+    .bl-pagination-pages {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .bl-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        font-family: inherit;
+        background: #fff;
+        color: #0f172a;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+    .bl-page-btn:hover {
+        background: #f1f5f9;
+        text-decoration: none;
+        color: #0f172a;
+    }
+    .bl-page-btn.active {
+        background: #2563eb;
+        color: #fff;
+        border-color: #2563eb;
+    }
+    .bl-page-btn:disabled,
+    .bl-page-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    /* No-annonce badge */
+    .bl-no-annonce {
+        display: inline-flex;
+        padding: 0.2rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1024px) {
+        .bl-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+        .bl-stats { grid-template-columns: 1fr; }
+        .bl-filters { flex-direction: column; }
+        .bl-filters .bl-fg.bl-fg-grow { min-width: 100%; }
+        .bl-table-wrap { overflow-x: auto; }
+        .bl-pagination { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
+{# === HEADER === #}
 <div class="page-header">
-    <h1>Gestion des Biens</h1>
-    <a href="{{ path('admin_biens_new') }}" class="btn btn-primary">+ Nouveau Bien</a>
+    <h1>Biens immobiliers</h1>
+    <a href="{{ path('admin_biens_new') }}" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouveau bien
+    </a>
 </div>
 
-<form method="GET" class="filters">
-    <div class="form-group">
-        <label>Ville</label>
-        <input type="text" name="ville" value="{{ filters.ville ?? '' }}">
+{# === SUMMARY STATS === #}
+{% set totalBiens = biens|length %}
+{% set venteCount = 0 %}
+{% set locationCount = 0 %}
+{% for bien in biens %}
+    {% if bien.availableForSale %}{% set venteCount = venteCount + 1 %}{% endif %}
+    {% if bien.availableForRent %}{% set locationCount = locationCount + 1 %}{% endif %}
+{% endfor %}
+<div class="bl-stats">
+    <div class="bl-stat">
+        <div class="bl-stat-label">Total biens</div>
+        <div class="bl-stat-value">{{ totalBiens }}</div>
     </div>
-    <div class="form-group">
-        <label>Type</label>
-        <select name="type">
-            <option value="">Tous</option>
+    <div class="bl-stat">
+        <div class="bl-stat-label">En vente</div>
+        <div class="bl-stat-value text-blue">{{ venteCount }}</div>
+    </div>
+    <div class="bl-stat">
+        <div class="bl-stat-label">En location</div>
+        <div class="bl-stat-value text-green">{{ locationCount }}</div>
+    </div>
+    <div class="bl-stat">
+        <div class="bl-stat-label">Agences</div>
+        <div class="bl-stat-value">{{ agences|length }}</div>
+    </div>
+</div>
+
+{# === FILTER BAR === #}
+<form method="GET" class="bl-filters">
+    <div class="bl-fg bl-fg-grow">
+        <label for="f-ville">Ville</label>
+        <div class="bl-search-wrap">
+            <span class="bl-search-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" id="f-ville" name="ville" value="{{ filters.ville ?? '' }}" placeholder="Rechercher une ville...">
+        </div>
+    </div>
+    <div class="bl-fg">
+        <label for="f-type">Type</label>
+        <select id="f-type" name="type">
+            <option value="">Tous les types</option>
             <option value="APPARTEMENT" {{ (filters.type ?? '') == 'APPARTEMENT' ? 'selected' }}>Appartement</option>
             <option value="MAISON" {{ (filters.type ?? '') == 'MAISON' ? 'selected' }}>Maison</option>
             <option value="STUDIO" {{ (filters.type ?? '') == 'STUDIO' ? 'selected' }}>Studio</option>
             <option value="TERRAIN" {{ (filters.type ?? '') == 'TERRAIN' ? 'selected' }}>Terrain</option>
         </select>
     </div>
-    <div class="form-group">
-        <label>Annonce</label>
-        <select name="annonce">
+    <div class="bl-fg">
+        <label for="f-annonce">Annonce</label>
+        <select id="f-annonce" name="annonce">
             <option value="">Toutes</option>
             <option value="vente" {{ (filters.annonce ?? '') == 'vente' ? 'selected' }}>En vente</option>
             <option value="location" {{ (filters.annonce ?? '') == 'location' ? 'selected' }}>En location</option>
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Filtrer</button>
-    <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Reset</a>
 </form>
 
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Type</th>
-            <th>Adresse</th>
-            <th>Ville</th>
-            <th>Superficie</th>
-            <th>Statut</th>
-            <th>Agence</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for bien in biens %}
-        <tr>
-            <td>{{ bien.id }}</td>
-            <td>{{ bien.type }}</td>
-            <td>{{ bien.rue }}</td>
-            <td>{{ bien.ville }} {{ bien.codePostal }}</td>
-            <td>{{ bien.superficie }} m²</td>
-            <td>
-                {% if bien.availableForSale %}<span class="badge badge-sale">Vente {{ bien.salePrice|number_format(0, ',', ' ') }}€</span>{% endif %}
-                {% if bien.availableForRent %}<span class="badge badge-rent">Location {{ bien.monthlyRent|number_format(0, ',', ' ') }}€/m</span>{% endif %}
-                {% if not bien.availableForSale and not bien.availableForRent %}<span class="badge" style="background:#f1f5f9;color:#94a3b8;">Aucune annonce</span>{% endif %}
-            </td>
-            <td>{{ bien.agence ? bien.agence.nom : '-' }}</td>
-            <td>
-                <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
-                <form method="POST" action="{{ path('admin_biens_delete', {id: bien.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce bien ?')">
-                    <button type="submit" class="btn btn-danger btn-sm">Suppr.</button>
-                </form>
-            </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="8">Aucun bien.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+{# === TABLE === #}
+<div class="bl-table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Adresse</th>
+                <th>Ville</th>
+                <th>Superficie</th>
+                <th>Prix / Loyer</th>
+                <th>Agence</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bien in biens %}
+            <tr>
+                <td><span class="bl-id">BI-{{ '%03d'|format(bien.id) }}</span></td>
+                <td>
+                    <div class="bl-type-cell">
+                        {% if bien.availableForSale %}
+                            <span class="bl-type-badge badge-vente">Vente</span>
+                        {% elseif bien.availableForRent %}
+                            <span class="bl-type-badge badge-location">Location</span>
+                        {% else %}
+                            <span class="bl-no-annonce">-</span>
+                        {% endif %}
+                        <span class="bl-type-subtype">{{ bien.type }}</span>
+                    </div>
+                </td>
+                <td><span class="bl-address">{{ bien.rue }}</span></td>
+                <td>{{ bien.ville }}</td>
+                <td>{{ bien.superficie }} m&sup2;</td>
+                <td>
+                    <span class="bl-price">
+                        {% if bien.availableForSale %}
+                            {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;
+                        {% elseif bien.availableForRent %}
+                            {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois
+                        {% else %}
+                            <span style="color: #94a3b8; font-weight: 400;">-</span>
+                        {% endif %}
+                    </span>
+                </td>
+                <td><span class="bl-agency">{{ bien.agence ? bien.agence.nom : '-' }}</span></td>
+                <td>
+                    <div class="bl-actions">
+                        <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="bl-action-btn edit-btn" title="Modifier">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                        <form method="POST" action="{{ path('admin_biens_delete', {id: bien.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce bien ?')">
+                            <button type="submit" class="bl-action-btn delete-btn" title="Supprimer">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="text-align: center; color: #94a3b8; padding: 2rem;">Aucun bien trouve.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
+{# === PAGINATION === #}
 {% if totalPages > 1 %}
-<div class="pagination">
-    {% for i in 0..totalPages-1 %}
-        {% if i == currentPage %}
-            <span class="current">{{ i + 1 }}</span>
+{% set pageSize = 20 %}
+{% set startItem = currentPage * pageSize + 1 %}
+{% set endItem = startItem + biens|length - 1 %}
+<div class="bl-pagination">
+    <div class="bl-pagination-info">
+        Affichage de <strong>{{ startItem }}-{{ endItem }}</strong> sur <strong>{{ totalPages * pageSize }}</strong> biens
+    </div>
+    <div class="bl-pagination-pages">
+        {# Previous #}
+        {% if currentPage > 0 %}
+            <a href="{{ path('admin_biens', filters|merge({page: currentPage - 1})) }}" class="bl-page-btn" aria-label="Page precedente">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </a>
         {% else %}
-            <a href="{{ path('admin_biens', filters|merge({page: i})) }}">{{ i + 1 }}</a>
+            <span class="bl-page-btn disabled">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </span>
         {% endif %}
-    {% endfor %}
+
+        {# Page numbers #}
+        {% for i in 0..totalPages-1 %}
+            {% if i == currentPage %}
+                <span class="bl-page-btn active">{{ i + 1 }}</span>
+            {% else %}
+                <a href="{{ path('admin_biens', filters|merge({page: i})) }}" class="bl-page-btn">{{ i + 1 }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {# Next #}
+        {% if currentPage < totalPages - 1 %}
+            <a href="{{ path('admin_biens', filters|merge({page: currentPage + 1})) }}" class="bl-page-btn" aria-label="Page suivante">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        {% else %}
+            <span class="bl-page-btn disabled">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+        {% endif %}
+    </div>
 </div>
 {% endif %}
 {% endblock %}

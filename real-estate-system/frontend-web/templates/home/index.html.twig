@@ -2,57 +2,212 @@
 
 {% block title %}Horoazhon - Accueil{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 1.5rem 3rem;
+        margin: -2rem -1.5rem 2.5rem -1.5rem;
+        background: #fff;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .hero h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -1px;
+        margin-bottom: 0.75rem;
+        line-height: 1.15;
+    }
+    .hero p {
+        color: #64748b;
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    /* Tabs */
+    .search-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 0.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .search-tab {
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    .search-tab:hover { border-color: #cbd5e1; color: #0f172a; }
+    .search-tab.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    /* Search bar */
+    .hero-search {
+        max-width: 720px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        padding: 1.25rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+    .hero-search .form-group { flex: 1; min-width: 140px; margin-bottom: 0; }
+    .hero-search .form-group label { font-size: 0.8rem; font-weight: 600; color: #374151; }
+    .hero-search .btn { height: 42px; padding: 0 1.25rem; }
+
+    .section-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.3px;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+        grid-column: 1 / -1;
+    }
+    .empty-state svg { margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state p { font-size: 0.95rem; }
+
+    @media (max-width: 768px) {
+        .hero { padding: 2.5rem 1rem 2rem; margin: -1.25rem -1rem 1.5rem -1rem; }
+        .hero h1 { font-size: 1.75rem; }
+        .hero p { font-size: 0.9rem; }
+        .hero-search { flex-direction: column; }
+        .hero-search .form-group { min-width: 100%; }
+        .hero-search .btn { width: 100%; }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="page-header">
-    <h1>Bienvenue sur Horoazhon</h1>
+<div class="hero">
+    <h1>Trouvez votre bien ideal</h1>
+    <p>Explorez des milliers d'annonces immobilieres en France et trouvez le logement qui vous correspond.</p>
+
+    <div class="search-tabs">
+        <button type="button" class="search-tab active" id="tab-all" onclick="setTab('all')">Tous</button>
+        <button type="button" class="search-tab" id="tab-achat" onclick="setTab('achat')">Achat</button>
+        <button type="button" class="search-tab" id="tab-location" onclick="setTab('location')">Location</button>
+    </div>
+
+    <form action="{{ path('biens_list') }}" method="GET" class="hero-search" id="searchForm">
+        <input type="hidden" name="forSale" id="forSaleInput" value="">
+        <div class="form-group">
+            <label>Ville</label>
+            <input type="text" name="ville" placeholder="Ex: Paris, Lyon...">
+        </div>
+        <div class="form-group">
+            <label>Type de bien</label>
+            <select name="type">
+                <option value="">Tous les types</option>
+                <option value="APPARTEMENT">Appartement</option>
+                <option value="MAISON">Maison</option>
+                <option value="STUDIO">Studio</option>
+                <option value="TERRAIN">Terrain</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
 </div>
 
-<form action="{{ path('biens_list') }}" method="GET" class="filters" style="margin-bottom: 2rem;">
-    <div class="form-group">
-        <label>Ville</label>
-        <input type="text" name="ville" placeholder="Ex: Paris">
-    </div>
-    <div class="form-group">
-        <label>Type</label>
-        <select name="type">
-            <option value="">Tous</option>
-            <option value="APPARTEMENT">Appartement</option>
-            <option value="MAISON">Maison</option>
-            <option value="STUDIO">Studio</option>
-            <option value="TERRAIN">Terrain</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label>Recherche</label>
-        <select name="forSale">
-            <option value="">Achat & Location</option>
-            <option value="true">Achat uniquement</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Rechercher</button>
-</form>
-
-<h2 style="margin-bottom: 1rem;">Derniers biens</h2>
+<h2 class="section-title">Biens en vedette</h2>
 <div class="property-grid">
     {% for bien in biens %}
+    {% set isSale = bien.availableForSale is defined and bien.availableForSale %}
+    {% set isRent = bien.availableForRent is defined and bien.availableForRent %}
+    {% set headerClass = (isSale and isRent) ? 'header-both' : (isSale ? 'header-sale' : 'header-rent') %}
+    {% set iconClass = (isSale and isRent) ? 'icon-both' : (isSale ? 'icon-sale' : 'icon-rent') %}
     <a href="{{ path('biens_detail', {id: bien.id}) }}" class="property-card" style="color: inherit; text-decoration: none;">
-        <div class="info">
-            <h3>{{ bien.type ?? 'Bien' }} - {{ bien.ville }}</h3>
-            <div class="meta">{{ bien.rue }}, {{ bien.codePostal }}</div>
-            <div class="meta">{{ bien.superficie }} m²</div>
-            {% if bien.availableForSale %}
-                <span class="badge badge-sale">Vente: {{ bien.salePrice|number_format(0, ',', ' ') }} €</span>
+        <div class="card-header {{ headerClass }}">
+            <div class="card-header-icon {{ iconClass }}">
+                {% if bien.type == 'APPARTEMENT' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                {% elseif bien.type == 'MAISON' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {% elseif bien.type == 'STUDIO' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+                {% elseif bien.type == 'TERRAIN' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12L17 14"/><path d="M3 22h18"/><path d="M17 2l4 4-4 4"/><path d="M7 8c-1.5 0-3 .5-3 2s1.5 2 3 2 3 .5 3 2-1.5 2-3 2"/></svg>
+                {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {% endif %}
+            </div>
+            <div class="card-header-text">
+                <h3>{{ bien.type ?? 'Bien' }} &mdash; {{ bien.ville }}</h3>
+            </div>
+            {% if isSale and isRent %}
+                <span class="badge badge-sale">Vente</span>
+                <span class="badge badge-rent">Location</span>
+            {% elseif isSale %}
+                <span class="badge badge-sale">Vente</span>
+            {% elseif isRent %}
+                <span class="badge badge-rent">Location</span>
             {% endif %}
-            {% if bien.availableForRent %}
-                <span class="badge badge-rent">Location: {{ bien.monthlyRent|number_format(0, ',', ' ') }} €/mois</span>
-            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="card-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}
+            </div>
+            <div class="card-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                {{ bien.superficie }} m&sup2;
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="card-price">
+                {% if isSale %}
+                    {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;
+                {% elseif isRent %}
+                    {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois
+                {% endif %}
+            </div>
             {% if bien.agence %}
-                <div class="meta" style="margin-top: 0.5rem;">{{ bien.agence.nom }}</div>
+                <span class="card-agency">{{ bien.agence.nom }}</span>
             {% endif %}
         </div>
     </a>
     {% else %}
-    <p>Aucun bien disponible.</p>
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <p>Aucun bien disponible pour le moment.</p>
+    </div>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function setTab(mode) {
+    document.querySelectorAll('.search-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('tab-' + mode).classList.add('active');
+    var input = document.getElementById('forSaleInput');
+    if (mode === 'achat') input.value = 'true';
+    else if (mode === 'location') input.value = 'false';
+    else input.value = '';
+}
+</script>
 {% endblock %}

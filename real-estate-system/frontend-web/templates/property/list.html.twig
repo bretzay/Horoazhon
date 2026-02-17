@@ -2,15 +2,38 @@
 
 {% block title %}Biens immobiliers{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .result-count {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+        grid-column: 1 / -1;
+    }
+    .empty-state svg { margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state p { font-size: 0.95rem; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="page-header">
-    <h1>Biens immobiliers</h1>
+    <div>
+        <h1>Biens immobiliers</h1>
+        {% if biens|length > 0 %}
+            <span class="result-count">{{ biens|length }} resultat{{ biens|length > 1 ? 's' }}</span>
+        {% endif %}
+    </div>
 </div>
 
 <form method="GET" class="filters">
     <div class="form-group">
         <label>Ville</label>
-        <input type="text" name="ville" value="{{ filters.ville ?? '' }}">
+        <input type="text" name="ville" value="{{ filters.ville ?? '' }}" placeholder="Ex: Paris...">
     </div>
     <div class="form-group">
         <label>Type</label>
@@ -32,11 +55,11 @@
     </div>
     <div class="form-group">
         <label>Prix min</label>
-        <input type="number" name="prixMin" value="{{ filters.prixMin ?? '' }}">
+        <input type="number" name="prixMin" value="{{ filters.prixMin ?? '' }}" placeholder="0">
     </div>
     <div class="form-group">
         <label>Prix max</label>
-        <input type="number" name="prixMax" value="{{ filters.prixMax ?? '' }}">
+        <input type="number" name="prixMax" value="{{ filters.prixMax ?? '' }}" placeholder="Illimite">
     </div>
     <div class="form-group">
         <label>Caracteristique</label>
@@ -80,24 +103,66 @@
 
 <div class="property-grid">
     {% for bien in biens %}
+    {% set isSale = bien.availableForSale is defined and bien.availableForSale %}
+    {% set isRent = bien.availableForRent is defined and bien.availableForRent %}
+    {% set headerClass = (isSale and isRent) ? 'header-both' : (isSale ? 'header-sale' : 'header-rent') %}
+    {% set iconClass = (isSale and isRent) ? 'icon-both' : (isSale ? 'icon-sale' : 'icon-rent') %}
     <a href="{{ path('biens_detail', {id: bien.id}) }}" class="property-card" style="color: inherit; text-decoration: none;">
-        <div class="info">
-            <h3>{{ bien.type ?? 'Bien' }} - {{ bien.ville }}</h3>
-            <div class="meta">{{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}</div>
-            <div class="meta">{{ bien.superficie }} m² {% if bien.ecoScore %} | Eco: {{ bien.ecoScore }}/10{% endif %}</div>
-            {% if bien.availableForSale %}
-                <span class="badge badge-sale">Vente: {{ bien.salePrice|number_format(0, ',', ' ') }} €</span>
+        <div class="card-header {{ headerClass }}">
+            <div class="card-header-icon {{ iconClass }}">
+                {% if bien.type == 'APPARTEMENT' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                {% elseif bien.type == 'MAISON' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {% elseif bien.type == 'STUDIO' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+                {% elseif bien.type == 'TERRAIN' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12L17 14"/><path d="M3 22h18"/><path d="M17 2l4 4-4 4"/></svg>
+                {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {% endif %}
+            </div>
+            <div class="card-header-text">
+                <h3>{{ bien.type ?? 'Bien' }} &mdash; {{ bien.ville }}</h3>
+            </div>
+            {% if isSale and isRent %}
+                <span class="badge badge-sale">Vente</span>
+                <span class="badge badge-rent">Location</span>
+            {% elseif isSale %}
+                <span class="badge badge-sale">Vente</span>
+            {% elseif isRent %}
+                <span class="badge badge-rent">Location</span>
             {% endif %}
-            {% if bien.availableForRent %}
-                <span class="badge badge-rent">Location: {{ bien.monthlyRent|number_format(0, ',', ' ') }} €/mois</span>
-            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="card-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}
+            </div>
+            <div class="card-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                {{ bien.superficie }} m&sup2;{% if bien.ecoScore %} &middot; Eco {{ bien.ecoScore }}/10{% endif %}
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="card-price">
+                {% if isSale %}
+                    {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;
+                {% elseif isRent %}
+                    {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois
+                {% endif %}
+            </div>
             {% if bien.agence %}
-                <div class="meta" style="margin-top: 0.5rem;">{{ bien.agence.nom }}</div>
+                <span class="card-agency">{{ bien.agence.nom }}</span>
             {% endif %}
         </div>
     </a>
     {% else %}
-    <p>Aucun bien ne correspond a vos criteres.</p>
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>Aucun bien ne correspond a vos criteres.</p>
+        <a href="{{ path('biens_list') }}" class="btn btn-secondary">Reinitialiser les filtres</a>
+    </div>
     {% endfor %}
 </div>
 

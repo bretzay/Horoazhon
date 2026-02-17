@@ -44,10 +44,10 @@ API will be available at: http://localhost:8080
 ```bash
 cd frontend-web
 composer install
-symfony server:start
+symfony server:start --port=8001
 ```
 
-Web app will be available at: https://127.0.0.1:8000
+Web app will be available at: https://127.0.0.1:8001
 
 ## LAN Access
 
@@ -57,7 +57,7 @@ To make the website accessible from other computers on the same local network:
 
 ```bash
 cd frontend-web
-symfony server:start --allow-all-ip --port=8000
+symfony server:start --allow-all-ip --port=8001
 ```
 
 This binds the server to all network interfaces (`0.0.0.0`) instead of `127.0.0.1` only.
@@ -65,7 +65,7 @@ This binds the server to all network interfaces (`0.0.0.0`) instead of `127.0.0.
 ### 2. Open the firewall (Windows - run as Administrator)
 
 ```powershell
-netsh advfirewall firewall add rule name="Symfony Dev Server" dir=in action=allow protocol=TCP localport=8000
+netsh advfirewall firewall add rule name="Symfony Dev Server" dir=in action=allow protocol=TCP localport=8001
 ```
 
 ### 3. Access from another computer
@@ -73,7 +73,7 @@ netsh advfirewall firewall add rule name="Symfony Dev Server" dir=in action=allo
 Find your LAN IP with `ipconfig`, then from the other computer navigate to:
 
 ```
-https://<YOUR_LAN_IP>:8000
+https://<YOUR_LAN_IP>:8001
 ```
 
 ### 4. Close access when done (run as Administrator)

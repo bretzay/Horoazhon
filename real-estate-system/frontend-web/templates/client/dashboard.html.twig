@@ -2,39 +2,432 @@
 
 {% block title %}Mon Espace - Tableau de bord{% endblock %}
 
+{% block stylesheets %}
+<style>
+    /* === WELCOME HEADER (V0: avatar + text) === */
+    .cd-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .cd-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #0f172a;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        letter-spacing: -0.5px;
+    }
+    .cd-header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+        line-height: 1.3;
+    }
+    .cd-header-text p {
+        color: #64748b;
+        font-size: 0.875rem;
+        margin-top: 0.125rem;
+    }
+
+    /* === STAT CARDS (V0: 5-col, uppercase label, icon right) === */
+    .cd-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .cd-stat {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: box-shadow 0.2s;
+    }
+    .cd-stat:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .cd-stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.875rem;
+    }
+    .cd-stat-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.4;
+    }
+    .cd-stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+    .cd-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+    }
+    /* Accented cards (revenue) */
+    .cd-stat.accent-green {
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+    }
+    .cd-stat.accent-green .cd-stat-icon {
+        background: #d1fae5;
+        color: #059669;
+    }
+    .cd-stat.accent-green .cd-stat-value { color: #047857; }
+    .cd-stat.accent-blue {
+        background: #f0f9ff;
+        border-color: #bae6fd;
+    }
+    .cd-stat.accent-blue .cd-stat-icon {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+    .cd-stat.accent-blue .cd-stat-value { color: #0369a1; }
+
+    /* === CONTRACTS TABLE CARD (V0: icon+title header, outline badges) === */
+    .cd-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+    .cd-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .cd-card-header svg { color: #94a3b8; }
+    .cd-card-body { padding: 0; }
+    .cd-card-body table { border: none; border-radius: 0; margin: 0; }
+    .cd-card-body table th { background: #fff; }
+    .cd-card-body table tr:hover { background: #f8fafc; }
+    .cd-card-body table td,
+    .cd-card-body table th { padding: 0.75rem 1.5rem; border-bottom: 1px solid #f1f5f9; }
+    .cd-card-body table tr:last-child td { border-bottom: none; }
+
+    /* Contract ID (monospace) */
+    .cd-id {
+        font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* Outline badges (V0 style) */
+    .cd-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid;
+    }
+    .cd-badge-location { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .cd-badge-achat { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; }
+    .cd-badge-en_cours { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+    .cd-badge-signe { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .cd-badge-annule { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .cd-badge-termine { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+
+    /* === PROPERTY LIST (V0: type badge, address with icon, area+price, buttons) === */
+    .cd-prop-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.15s;
+    }
+    .cd-prop-item:last-child { border-bottom: none; }
+    .cd-prop-item:hover { background: #f8fafc; }
+    .cd-prop-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        min-width: 0;
+    }
+    .cd-prop-type {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: fit-content;
+    }
+    .cd-prop-address {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.875rem;
+        color: #0f172a;
+    }
+    .cd-prop-address svg { color: #94a3b8; flex-shrink: 0; }
+    .cd-prop-address span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .cd-prop-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+    .cd-prop-meta .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .cd-prop-meta .meta-price {
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .cd-prop-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        flex-shrink: 0;
+        padding-top: 0.125rem;
+    }
+    .cd-btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #374151;
+        background: #fff;
+        cursor: pointer;
+        text-decoration: none;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+    .cd-btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a; text-decoration: none; }
+    .cd-btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #64748b;
+        background: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+    .cd-btn-ghost:hover { background: #f1f5f9; color: #0f172a; text-decoration: none; }
+
+    /* === CARD FOOTER LINK === */
+    .cd-card-footer {
+        padding: 0.75rem 1.5rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    /* === REVENUE CHART (V0: pill-group timeframe) === */
+    .cd-chart-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .cd-chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+    .cd-chart-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .cd-chart-title svg { color: #94a3b8; }
+    /* Pill-group timeframe (V0 style) */
+    .tf-pill-group {
+        display: flex;
+        gap: 2px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        padding: 3px;
+    }
+    .tf-pill {
+        padding: 0.35rem 0.875rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        cursor: pointer;
+        font-weight: 500;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+    .tf-pill:hover { color: #0f172a; }
+    .tf-pill.active {
+        background: #fff;
+        color: #0f172a;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* Two-col layout */
+    .cd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+
+    /* Empty state */
+    .cd-empty { color: #94a3b8; font-size: 0.9rem; padding: 2rem; text-align: center; }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+        .cd-header h1 { font-size: 1.25rem; }
+        .cd-stat-value { font-size: 1.25rem; }
+        .cd-stat-icon { width: 30px; height: 30px; border-radius: 8px; }
+        .cd-stat-icon svg { width: 14px; height: 14px; }
+        .cd-stat-top { margin-bottom: 0.5rem; }
+        .cd-stat { padding: 1rem; border-radius: 12px; }
+        .cd-grid { grid-template-columns: 1fr; }
+        .cd-prop-item { flex-direction: column; }
+        .cd-prop-actions { width: 100%; }
+        /* Make contracts table scrollable */
+        .cd-card-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .cd-card-body table { min-width: 480px; }
+        .cd-card-body table td,
+        .cd-card-body table th { padding: 0.625rem 1rem; font-size: 0.8rem; white-space: nowrap; }
+        /* Chart timeframe pills */
+        .cd-chart-header { flex-direction: column; align-items: flex-start; }
+        .tf-pill { padding: 0.3rem 0.625rem; font-size: 0.75rem; }
+    }
+    @media (max-width: 480px) {
+        .cd-header { gap: 0.75rem; }
+        .cd-avatar { width: 40px; height: 40px; font-size: 0.95rem; }
+        .cd-header-text h1 { font-size: 1.1rem; }
+        .cd-header-text p { font-size: 0.8rem; }
+        .cd-stats { gap: 0.75rem; }
+        .cd-stat { padding: 0.875rem; }
+        .cd-stat-value { font-size: 1.1rem; }
+        .cd-stat-label { font-size: 0.6rem; }
+        .cd-card-header { padding: 0.875rem 1rem; font-size: 0.9rem; }
+        .cd-prop-item { padding: 0.875rem 1rem; }
+        .cd-card-footer { padding: 0.625rem 1rem; }
+        .cd-chart-card { padding: 1rem; }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="page-header">
-    <h1>Bienvenue, {{ dashboard.prenom ?? '' }} {{ dashboard.nom ?? '' }}</h1>
+{# === WELCOME HEADER === #}
+<div class="cd-header">
+    <div class="cd-avatar">
+        {{ (dashboard.prenom ?? 'U')|slice(0,1)|upper }}{{ (dashboard.nom ?? '')|slice(0,1)|upper }}
+    </div>
+    <div class="cd-header-text">
+        <h1>Bienvenue, {{ dashboard.prenom ?? '' }} {{ dashboard.nom ?? '' }}</h1>
+        <p>Voici un apercu de votre portefeuille immobilier</p>
+    </div>
 </div>
 
 {% if dashboard %}
-<div class="stats">
-    <div class="stat-card">
-        <div class="number">{{ dashboard.totalProperties ?? 0 }}</div>
-        <div class="label">Biens possedes</div>
+{# === STAT CARDS === #}
+<div class="cd-stats">
+    <div class="cd-stat">
+        <div class="cd-stat-top">
+            <span class="cd-stat-label">Biens possedes</span>
+            <div class="cd-stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            </div>
+        </div>
+        <div class="cd-stat-value">{{ dashboard.totalProperties ?? 0 }}</div>
     </div>
-    <div class="stat-card">
-        <div class="number">{{ dashboard.activeContracts ?? 0 }}</div>
-        <div class="label">Contrats actifs</div>
+    <div class="cd-stat">
+        <div class="cd-stat-top">
+            <span class="cd-stat-label">Contrats actifs</span>
+            <div class="cd-stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+            </div>
+        </div>
+        <div class="cd-stat-value">{{ dashboard.activeContracts ?? 0 }}</div>
     </div>
-    <div class="stat-card">
-        <div class="number">{{ dashboard.totalContracts ?? 0 }}</div>
-        <div class="label">Total contrats</div>
+    <div class="cd-stat">
+        <div class="cd-stat-top">
+            <span class="cd-stat-label">Total contrats</span>
+            <div class="cd-stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z"/></svg>
+            </div>
+        </div>
+        <div class="cd-stat-value">{{ dashboard.totalContracts ?? 0 }}</div>
     </div>
-    <div class="stat-card">
-        <div class="number" style="color: #16a34a;">{{ dashboard.monthlyRevenue is defined ? dashboard.monthlyRevenue|number_format(0, ',', ' ') : '0' }} &euro;</div>
-        <div class="label">Revenu mensuel</div>
+    <div class="cd-stat accent-green">
+        <div class="cd-stat-top">
+            <span class="cd-stat-label">Revenu mensuel</span>
+            <div class="cd-stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+        </div>
+        <div class="cd-stat-value">{{ dashboard.monthlyRevenue is defined ? dashboard.monthlyRevenue|number_format(0, ',', ' ') : '0' }} &euro;</div>
     </div>
-    <div class="stat-card">
-        <div class="number" style="color: #2563eb;">{{ dashboard.totalRevenue is defined ? dashboard.totalRevenue|number_format(0, ',', ' ') : '0' }} &euro;</div>
-        <div class="label">Revenu total</div>
+    <div class="cd-stat accent-blue">
+        <div class="cd-stat-top">
+            <span class="cd-stat-label">Revenu total</span>
+            <div class="cd-stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 10H2"/><path d="M6 14h.01"/><path d="M10 14h.01"/></svg>
+            </div>
+        </div>
+        <div class="cd-stat-value">{{ dashboard.totalRevenue is defined ? dashboard.totalRevenue|number_format(0, ',', ' ') : '0' }} &euro;</div>
     </div>
 </div>
 
-<div class="detail-grid">
-    <div>
-        <div class="card">
-            <h3>Contrats recents</h3>
+{# === TWO-COLUMN: CONTRACTS + PROPERTIES === #}
+<div class="cd-grid">
+    {# -- Contracts Table -- #}
+    <div class="cd-card">
+        <div class="cd-card-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+            Contrats recents
+        </div>
+        <div class="cd-card-body">
             {% if dashboard.recentContracts is defined and dashboard.recentContracts|length > 0 %}
                 <table>
                     <tr>
@@ -42,90 +435,121 @@
                         <th>Type</th>
                         <th>Bien</th>
                         <th>Statut</th>
-                        <th>Derniere modification</th>
+                        <th>Date</th>
                     </tr>
                     {% for contrat in dashboard.recentContracts %}
                     <tr>
-                        <td>#{{ contrat.id }}</td>
+                        <td><span class="cd-id">CTR-{{ '%03d'|format(contrat.id) }}</span></td>
                         <td>
                             {% if contrat.type == 'LOCATION' %}
-                                <span class="badge badge-rent">Location</span>
+                                <span class="cd-badge cd-badge-location">Location</span>
                             {% elseif contrat.type == 'ACHAT' %}
-                                <span class="badge badge-sale">Achat</span>
+                                <span class="cd-badge cd-badge-achat">Achat</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td style="font-weight: 500; color: #0f172a;">
                             {% if contrat.bien %}
-                                {{ contrat.bien.type ?? '' }} - {{ contrat.bien.ville ?? '' }}
+                                {{ contrat.bien.type ?? '' }} {{ contrat.bien.ville ?? '' }}
                             {% else %}
                                 -
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge badge-{{ contrat.statut|lower }}">{{ contrat.statut }}</span>
+                            <span class="cd-badge cd-badge-{{ contrat.statut|lower }}">
+                                {% if contrat.statut == 'EN_COURS' %}En cours
+                                {% elseif contrat.statut == 'SIGNE' %}Signe
+                                {% elseif contrat.statut == 'ANNULE' %}Annule
+                                {% elseif contrat.statut == 'TERMINE' %}Termine
+                                {% else %}{{ contrat.statut }}
+                                {% endif %}
+                            </span>
                         </td>
-                        <td>{{ contrat.dateModification ? contrat.dateModification|date('d/m/Y') : (contrat.dateCreation ? contrat.dateCreation|date('d/m/Y') : '-') }}</td>
+                        <td style="color: #64748b;">{{ contrat.dateModification ? contrat.dateModification|date('d/m/Y') : (contrat.dateCreation ? contrat.dateCreation|date('d/m/Y') : '-') }}</td>
                     </tr>
                     {% endfor %}
                 </table>
-                <div style="margin-top: 0.75rem;">
+                <div class="cd-card-footer">
                     <a href="{{ path('client_contrats') }}" class="btn btn-secondary btn-sm">Voir tous les contrats</a>
                 </div>
             {% else %}
-                <p style="color: #64748b;">Aucun contrat pour le moment.</p>
+                <p class="cd-empty">Aucun contrat pour le moment.</p>
             {% endif %}
         </div>
-
     </div>
 
-    <div>
-        <div class="card">
-            <h3>Mes biens</h3>
+    {# -- Property List -- #}
+    <div class="cd-card">
+        <div class="cd-card-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+            Mes biens
+        </div>
+        <div class="cd-card-body">
             {% if dashboard.properties is defined and dashboard.properties|length > 0 %}
                 {% for bien in dashboard.properties %}
-                <div class="section-item" style="padding: 0.5rem 0;">
-                    <div>
-                        <strong>{{ bien.type ?? 'Bien' }}</strong> - {{ bien.rue ?? '' }}, {{ bien.ville ?? '' }}
-                        <br>
-                        <small style="color: #64748b;">
-                            {{ bien.superficie ?? '?' }} m&sup2;
-                            {% if bien.availableForSale %} | Vente: {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;{% endif %}
-                            {% if bien.availableForRent %} | Location: {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois{% endif %}
-                        </small>
+                <div class="cd-prop-item">
+                    <div class="cd-prop-info">
+                        <span class="cd-prop-type">{{ bien.type ?? 'Bien' }}</span>
+                        <div class="cd-prop-address">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>{{ bien.rue ?? '' }}, {{ bien.ville ?? '' }}</span>
+                        </div>
+                        <div class="cd-prop-meta">
+                            <span class="meta-item">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                {{ bien.superficie ?? '?' }} m&sup2;
+                            </span>
+                            {% if bien.availableForRent and bien.monthlyRent %}
+                                <span class="meta-price">{{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois</span>
+                            {% elseif bien.availableForSale and bien.salePrice %}
+                                <span class="meta-price">{{ bien.salePrice|number_format(0, ',', ' ') }} &euro;</span>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div>
-                        <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
-                        <a href="{{ path('biens_detail', {id: bien.id}) }}" class="btn btn-secondary btn-sm">Voir</a>
+                    <div class="cd-prop-actions">
+                        <a href="{{ path('admin_biens_edit', {id: bien.id}) }}" class="cd-btn-outline">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Modifier
+                        </a>
+                        <a href="{{ path('biens_detail', {id: bien.id}) }}" class="cd-btn-ghost">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Voir
+                        </a>
                     </div>
                 </div>
                 {% endfor %}
-                <div style="margin-top: 0.75rem;">
+                <div class="cd-card-footer">
                     <a href="{{ path('client_biens') }}" class="btn btn-secondary btn-sm">Voir tous mes biens</a>
                 </div>
             {% else %}
-                <p style="color: #64748b;">Aucun bien pour le moment.</p>
+                <p class="cd-empty">Aucun bien pour le moment.</p>
             {% endif %}
         </div>
     </div>
 </div>
 
+{# === REVENUE CHART === #}
 {% if dashboard.revenueByMonth is defined and dashboard.revenueByMonth|length > 0 %}
-<div class="card" style="margin-top: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-        <h3 style="margin: 0;">Revenus par mois</h3>
-        <div style="display: flex; gap: 0.25rem;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('6m')" id="tf-6m">6 mois</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('1y')" id="tf-1y" style="background: #3b82f6; color: white;">1 an</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('2y')" id="tf-2y">2 ans</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="setTimeframe('all')" id="tf-all">Tout</button>
+<div class="cd-chart-card">
+    <div class="cd-chart-header">
+        <div class="cd-chart-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            Revenus par mois
+        </div>
+        <div class="tf-pill-group">
+            <button type="button" class="tf-pill" onclick="setTimeframe('6m')" id="tf-6m">6 mois</button>
+            <button type="button" class="tf-pill active" onclick="setTimeframe('1y')" id="tf-1y">1 an</button>
+            <button type="button" class="tf-pill" onclick="setTimeframe('2y')" id="tf-2y">2 ans</button>
+            <button type="button" class="tf-pill" onclick="setTimeframe('all')" id="tf-all">Tout</button>
         </div>
     </div>
     <canvas id="revenueChart" height="100"></canvas>
 </div>
 {% endif %}
 {% else %}
-    <div class="card">
-        <p style="color: #64748b;">Impossible de charger les donnees du tableau de bord.</p>
+    <div class="cd-card">
+        <div class="cd-card-body" style="padding: 1.5rem;">
+            <p class="cd-empty">Impossible de charger les donnees du tableau de bord.</p>
+        </div>
     </div>
 {% endif %}
 {% endblock %}
@@ -146,42 +570,63 @@
     });
 
     var ctx = document.getElementById('revenueChart').getContext('2d');
+    var gradient = ctx.createLinearGradient(0, 0, 0, 320);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.15)');
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
+
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Revenus',
+                label: 'Revenu',
                 data: values,
-                borderColor: '#16a34a',
-                backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                borderColor: '#2563eb',
+                backgroundColor: gradient,
                 fill: true,
-                tension: 0.3,
-                pointRadius: 4,
-                pointHoverRadius: 6
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#2563eb',
+                pointHoverBackgroundColor: '#2563eb',
+                borderWidth: 2.5
             }]
         },
         options: {
             responsive: true,
             interaction: { intersect: false, mode: 'index' },
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true } },
+                legend: { display: false },
                 tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { family: 'Inter', size: 12 },
+                    bodyFont: { family: 'Inter', size: 13, weight: '600' },
+                    padding: 12,
+                    cornerRadius: 10,
+                    displayColors: false,
                     callbacks: {
                         label: function(ctx) {
-                            return ctx.dataset.label + ': ' + new Intl.NumberFormat('fr-FR').format(ctx.parsed.y) + ' \u20ac';
+                            return new Intl.NumberFormat('fr-FR').format(ctx.parsed.y) + ' \u20ac';
                         }
                     }
                 }
             },
             scales: {
-                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                x: {
+                    ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+                    grid: { display: false },
+                    border: { display: false }
+                },
                 y: {
                     ticks: {
                         color: '#94a3b8',
-                        callback: function(v) { return new Intl.NumberFormat('fr-FR').format(v) + ' \u20ac'; }
+                        font: { family: 'Inter', size: 11 },
+                        callback: function(v) {
+                            return v >= 1000 ? (v / 1000).toFixed(0) + 'k \u20ac' : v + ' \u20ac';
+                        }
                     },
-                    grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                    grid: { color: 'rgba(148, 163, 184, 0.08)', drawBorder: false },
+                    border: { display: false, dash: [3, 3] },
                     beginAtZero: true
                 }
             }
@@ -216,16 +661,10 @@
         chart.data.datasets[0].data = filteredValues;
         chart.update();
 
-        ['6m', '1y', '2y', 'all'].forEach(function(id) {
-            var btn = document.getElementById('tf-' + id);
-            if (id === tf) {
-                btn.style.background = '#3b82f6';
-                btn.style.color = 'white';
-            } else {
-                btn.style.background = '';
-                btn.style.color = '';
-            }
+        document.querySelectorAll('.tf-pill').forEach(function(btn) {
+            btn.classList.remove('active');
         });
+        document.getElementById('tf-' + tf).classList.add('active');
     };
 
     // Apply default timeframe on load
