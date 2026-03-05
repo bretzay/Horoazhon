@@ -112,9 +112,9 @@
                         <td>{{ c.type == 'LOCATION' ? 'Location' : 'Achat' }}</td>
                         <td>{% if c.bien %}{{ c.bien.type ?? '' }} - {{ c.bien.rue ?? '' }}, {{ c.bien.ville ?? '' }}{% else %}-{% endif %}</td>
                         <td>
-                            {% if c.statut == 'EN_COURS' %}<span class="badge" style="background:#fef3c7;color:#92400e;">En cours</span>
-                            {% elseif c.statut == 'SIGNE' %}<span class="badge" style="background:#d1fae5;color:#065f46;">Signe</span>
-                            {% elseif c.statut == 'ANNULE' %}<span class="badge" style="background:#fee2e2;color:#991b1b;">Annule</span>
+                            {% if c.statut == 'EN_COURS' %}<span class="badge" style="background:#eff6ff;color:#334155;">En cours</span>
+                            {% elseif c.statut == 'SIGNE' %}<span class="badge" style="background:#eff6ff;color:#1d4ed8;">Signe</span>
+                            {% elseif c.statut == 'ANNULE' %}<span class="badge" style="background:#f8fafc;color:#0f172a;">Annule</span>
                             {% else %}<span class="badge" style="background:#f1f5f9;color:#94a3b8;">{{ c.statut }}</span>{% endif %}
                         </td>
                         <td><a href="{{ path('admin_contrats_detail', {id: c.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>

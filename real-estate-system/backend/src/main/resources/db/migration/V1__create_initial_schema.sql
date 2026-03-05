@@ -28,7 +28,9 @@ CREATE TABLE Agence (
     telephone NVARCHAR(20),
     email NVARCHAR(255),
     dateCreation DATETIME2 DEFAULT GETDATE(),
-    dateModification DATETIME2
+    dateModification DATETIME2,
+    description NVARCHAR(MAX) NULL,
+    logo NVARCHAR(255) NULL,
 );
 
 
@@ -226,6 +228,8 @@ CREATE TABLE Compte (
     token_expiration DATETIME2 NULL,
     actif BIT NOT NULL DEFAULT 1,
     date_creation DATETIME2 NOT NULL DEFAULT GETDATE(),
+    token_reset NVARCHAR(255) NULL,
+    token_reset_expiration DATETIME2 NULL,
     CONSTRAINT FK_Compte_Agence FOREIGN KEY (agence_id) REFERENCES Agence(id) ON DELETE NO ACTION,
     CONSTRAINT FK_Compte_Personne FOREIGN KEY (personne_id) REFERENCES Personne(id) ON DELETE NO ACTION,
     CONSTRAINT CHK_Compte_Role CHECK (role IN ('CLIENT', 'AGENT', 'ADMIN_AGENCY', 'SUPER_ADMIN'))
@@ -235,6 +239,7 @@ CREATE INDEX IDX_Compte_Email ON Compte(email);
 CREATE INDEX IDX_Compte_Agence ON Compte(agence_id);
 CREATE INDEX IDX_Compte_Personne ON Compte(personne_id);
 CREATE INDEX IDX_Compte_Token ON Compte(token_activation);
+CREATE INDEX IDX_Compte_TokenReset ON Compte(token_reset);
 
 -- Add compte_createur_id to Bien table (tracks which user created the listing)
 ALTER TABLE Bien ADD compte_createur_id BIGINT NULL;

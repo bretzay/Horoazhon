@@ -44,7 +44,7 @@
         <td>
             {% if contrat.cosigners is defined %}
                 {% for cs in contrat.cosigners %}
-                    <span class="badge" style="background:#f1f5f9; color:#475569; margin: 0.1rem;">
+                    <span class="badge" style="background:#f1f5f9; color:#334155; margin: 0.25rem;">
                         {{ cs.prenom }} {{ cs.nom }} ({{ cs.typeSignataire }})
                     </span>
                 {% endfor %}

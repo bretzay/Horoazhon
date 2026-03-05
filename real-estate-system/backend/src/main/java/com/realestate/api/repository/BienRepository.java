@@ -9,9 +9,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Repository
 public interface BienRepository extends JpaRepository<Bien, Long> {
+
+    @Query("SELECT b FROM Bien b " +
+           "LEFT JOIN FETCH b.agence " +
+           "LEFT JOIN FETCH b.achat " +
+           "LEFT JOIN FETCH b.location " +
+           "WHERE b.id = :id")
+    Optional<Bien> findByIdWithDetails(@Param("id") Long id);
     
     // Find by city
     Page<Bien> findByVille(String ville, Pageable pageable);
@@ -32,10 +40,15 @@ public interface BienRepository extends JpaRepository<Bien, Long> {
     
     // Complex filter query with caracteristique and proximity support
     // Public version (no agency filter) - for public property listing
+    // Search terms are matched individually against a concatenated text of ville+rue+codePostal+description
     @Query("SELECT DISTINCT b FROM Bien b " +
            "LEFT JOIN b.achat a " +
            "LEFT JOIN b.location l " +
-           "WHERE (:ville IS NULL OR b.ville = :ville) " +
+           "WHERE (:s1 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s1) " +
+           "AND (:s2 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s2) " +
+           "AND (:s3 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s3) " +
+           "AND (:s4 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s4) " +
+           "AND (:s5 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s5) " +
            "AND (:type IS NULL OR b.type = :type) " +
            "AND (:forSale IS NULL OR (a IS NOT NULL)) " +
            "AND (:forRent IS NULL OR (l IS NOT NULL)) " +
@@ -44,7 +57,11 @@ public interface BienRepository extends JpaRepository<Bien, Long> {
            "AND (:caracId IS NULL OR EXISTS (SELECT ct FROM Contenir ct WHERE ct.bien = b AND ct.caracteristique.id = :caracId AND (:caracMin IS NULL OR CAST(ct.valeur AS Integer) >= :caracMin))) " +
            "AND (:lieuId IS NULL OR EXISTS (SELECT d FROM Deplacer d WHERE d.bien = b AND d.lieu.id = :lieuId AND (:maxMinutes IS NULL OR d.minutes <= :maxMinutes) AND (:locomotion IS NULL OR d.typeLocomotion = :locomotion)))")
     Page<Bien> findByFilters(
-        @Param("ville") String ville,
+        @Param("s1") String s1,
+        @Param("s2") String s2,
+        @Param("s3") String s3,
+        @Param("s4") String s4,
+        @Param("s5") String s5,
         @Param("type") String type,
         @Param("forSale") Boolean forSale,
         @Param("forRent") Boolean forRent,
@@ -63,7 +80,11 @@ public interface BienRepository extends JpaRepository<Bien, Long> {
            "LEFT JOIN b.achat a " +
            "LEFT JOIN b.location l " +
            "WHERE b.agence.id = :agenceId " +
-           "AND (:ville IS NULL OR b.ville = :ville) " +
+           "AND (:s1 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s1) " +
+           "AND (:s2 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s2) " +
+           "AND (:s3 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s3) " +
+           "AND (:s4 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s4) " +
+           "AND (:s5 IS NULL OR LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :s5) " +
            "AND (:type IS NULL OR b.type = :type) " +
            "AND (:forSale IS NULL OR (a IS NOT NULL)) " +
            "AND (:forRent IS NULL OR (l IS NOT NULL)) " +
@@ -73,7 +94,11 @@ public interface BienRepository extends JpaRepository<Bien, Long> {
            "AND (:lieuId IS NULL OR EXISTS (SELECT d FROM Deplacer d WHERE d.bien = b AND d.lieu.id = :lieuId AND (:maxMinutes IS NULL OR d.minutes <= :maxMinutes) AND (:locomotion IS NULL OR d.typeLocomotion = :locomotion)))")
     Page<Bien> findByFiltersAndAgence(
         @Param("agenceId") Long agenceId,
-        @Param("ville") String ville,
+        @Param("s1") String s1,
+        @Param("s2") String s2,
+        @Param("s3") String s3,
+        @Param("s4") String s4,
+        @Param("s5") String s5,
         @Param("type") String type,
         @Param("forSale") Boolean forSale,
         @Param("forRent") Boolean forRent,

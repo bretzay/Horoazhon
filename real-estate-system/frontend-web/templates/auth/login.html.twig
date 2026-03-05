@@ -4,7 +4,7 @@
 
 {% block stylesheets %}
 <style>
-    /* Make login page fill the entire viewport below the navbar */
+    /* Make auth page fill the entire viewport */
     .container:has(.login-page) {
         padding: 0 !important;
         max-width: 100% !important;
@@ -16,7 +16,7 @@
 
     /* === PAGE BACKGROUND === */
     .login-page {
-        min-height: calc(100vh - 64px);
+        min-height: 100vh;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -51,18 +51,18 @@
     .deco-2 {
         width: 160px; height: 160px; bottom: 8%; left: 3%;
         border: 2px solid rgba(37,99,235,0.06);
-        border-radius: 14px;
+        border-radius: 16px;
         transform: rotate(-12deg);
     }
     .deco-3 {
         width: 50px; height: 50px; top: 15%; left: 8%;
         border: 1.5px solid rgba(37,99,235,0.08);
-        border-radius: 50%;
+        border-radius: 9999px;
     }
     .deco-4 {
         width: 90px; height: 90px; bottom: 20%; right: 8%;
         border: 1.5px solid rgba(37,99,235,0.05);
-        border-radius: 10px;
+        border-radius: 8px;
         transform: rotate(30deg);
     }
     .deco-5 {
@@ -112,7 +112,7 @@
         box-shadow: 0 4px 16px rgba(37,99,235,0.3);
     }
     .login-brand .brand-name {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 800;
         color: #2563eb;
         letter-spacing: -0.5px;
@@ -120,7 +120,7 @@
     }
     .login-brand .brand-tagline {
         color: #64748b;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
     }
 
     /* === CARD (form only) === */
@@ -128,8 +128,8 @@
         background: #fff;
         border-radius: 16px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02), 0 12px 40px rgba(0,0,0,0.06);
-        padding: 2rem 2.25rem;
+        box-shadow: 0 8px 32px rgba(15,23,42,0.10);
+        padding: 2rem;
         width: 100%;
         max-width: 440px;
         position: relative;
@@ -141,9 +141,9 @@
         text-align: left;
         margin-bottom: 0.25rem;
         color: #0f172a;
-        font-size: 1.35rem;
+        font-size: 1.125rem;
         font-weight: 700;
-        letter-spacing: -0.3px;
+        letter-spacing: -0.25px;
     }
     .login-card .login-subtitle {
         color: #64748b;
@@ -160,16 +160,16 @@
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        margin-bottom: 0.375rem;
+        margin-bottom: 0.5rem;
     }
     .login-card .label-row label {
-        font-size: 0.85rem;
+        font-size: 0.875rem;
         font-weight: 600;
-        color: #374151;
+        color: #334155;
         margin-bottom: 0;
     }
     .login-card .forgot-link {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #2563eb;
         font-weight: 500;
     }
@@ -194,8 +194,8 @@
 
     .login-card .form-group input {
         padding: 0.75rem 1rem;
-        border-radius: 10px;
-        font-size: 0.9rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
         border: 1px solid #e2e8f0;
         transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -207,50 +207,71 @@
     /* Button */
     .login-card .btn-primary {
         width: 100%;
-        padding: 0.8rem;
-        font-size: 0.95rem;
+        padding: 0.75rem;
+        font-size: 0.875rem;
         font-weight: 600;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-top: 0.25rem;
     }
 
-    /* === DIVIDER === */
-    .login-divider {
+    /* === AGENCY SELECTOR (hidden until backend supports multi-agency) === */
+    .agency-step { display: none; }
+    .agency-step h2 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+    }
+    .agency-step .agency-subtitle {
+        color: #64748b;
+        font-size: 0.875rem;
+        margin-bottom: 1.25rem;
+    }
+    .agency-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.25rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .agency-option {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin: 1.5rem 0;
-        color: #cbd5e1;
-        font-size: 0.8rem;
-        font-weight: 500;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
     }
-    .login-divider::before,
-    .login-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e2e8f0;
-    }
-
-    /* === BOTTOM LINK === */
-    .login-bottom {
-        text-align: center;
+    .agency-option:hover { border-color: #3b82f6; background: #f8fafc; }
+    .agency-option.selected { border-color: #2563eb; background: #eff6ff; }
+    .agency-option input[type="radio"] { accent-color: #2563eb; width: 16px; height: 16px; cursor: pointer; }
+    .agency-option .agency-name { font-weight: 600; color: #0f172a; font-size: 0.875rem; }
+    .agency-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
         font-size: 0.875rem;
         color: #64748b;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-family: inherit;
+        padding: 0;
+        transition: color 0.15s;
     }
-    .login-bottom a {
-        color: #2563eb;
-        font-weight: 600;
-    }
-    .login-bottom a:hover { color: #1d4ed8; }
+    .agency-back:hover { color: #2563eb; }
 
     /* === ERROR === */
     .error-message {
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #991b1b;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #0f172a;
         padding: 0.75rem 1rem;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-bottom: 1.25rem;
         font-size: 0.875rem;
         display: flex;
@@ -309,7 +330,7 @@
             <div class="error-message">{{ error }}</div>
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" id="login-form">
             <div class="form-group">
                 <div class="label-row">
                     <label for="email">Adresse e-mail</label>
@@ -325,7 +346,7 @@
             <div class="form-group">
                 <div class="label-row">
                     <label for="password">Mot de passe</label>
-                    <a href="#" class="forgot-link" onclick="return false;">Mot de passe oublie ?</a>
+                    <a href="{{ path('forgot_password') }}" class="forgot-link">Mot de passe oublie ?</a>
                 </div>
                 <div class="input-icon-wrap">
                     <span class="input-icon">
@@ -335,16 +356,123 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Se connecter</button>
+            <button type="submit" class="btn btn-primary" id="login-btn">Se connecter</button>
         </form>
 
-        <div class="login-divider">ou</div>
-
-        <div class="login-bottom">
-            Pas encore de compte ? <a href="#">Creer un compte</a>
+        {# Agency selector - shown when backend returns multiple agencies #}
+        <div class="agency-step" id="agency-step">
+            <h2>Selectionnez votre agence</h2>
+            <p class="agency-subtitle">Votre compte est associe a plusieurs agences</p>
+            <ul class="agency-list" id="agency-list"></ul>
+            <button type="button" class="btn btn-primary" id="agency-continue-btn" style="width:100%;" disabled>Continuer</button>
+            <button type="button" class="agency-back" id="agency-back-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Retour
+            </button>
         </div>
     </div>
 
     <p class="login-footer-text">&copy; {{ "now"|date("Y") }} Horoazhon. Tous droits reserves.</p>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function() {
+    var form = document.getElementById('login-form');
+    var loginBtn = document.getElementById('login-btn');
+    var agencyStep = document.getElementById('agency-step');
+    var agencyList = document.getElementById('agency-list');
+    var agencyContinueBtn = document.getElementById('agency-continue-btn');
+    var agencyBackBtn = document.getElementById('agency-back-btn');
+    var selectedAgencyId = null;
+    var savedEmail = '';
+    var savedPassword = '';
+
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Connexion...';
+    });
+
+    // --- Future multi-agency flow (uncomment when backend is ready) ---
+    // form.addEventListener('submit', function(e) {
+    //     e.preventDefault();
+    //     savedEmail = document.getElementById('email').value;
+    //     savedPassword = document.getElementById('password').value;
+    //     loginBtn.disabled = true;
+    //     loginBtn.textContent = 'Connexion...';
+    //
+    //     fetch('{{ path("login") }}', {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+    //         body: 'email=' + encodeURIComponent(savedEmail) + '&password=' + encodeURIComponent(savedPassword)
+    //     })
+    //     .then(function(r) { return r.json(); })
+    //     .then(function(data) {
+    //         if (data.agencies && data.agencies.length > 1) {
+    //             showAgencySelector(data.agencies);
+    //         } else if (data.redirect) {
+    //             window.location.href = data.redirect;
+    //         } else {
+    //             form.submit(); // fallback: normal submit
+    //         }
+    //     })
+    //     .catch(function() {
+    //         form.submit(); // fallback on error
+    //     })
+    //     .finally(function() {
+    //         loginBtn.disabled = false;
+    //         loginBtn.textContent = 'Se connecter';
+    //     });
+    // });
+
+    function showAgencySelector(agencies) {
+        form.style.display = 'none';
+        agencyStep.style.display = 'block';
+        agencyList.innerHTML = '';
+        selectedAgencyId = null;
+        agencyContinueBtn.disabled = true;
+
+        agencies.forEach(function(ag) {
+            var li = document.createElement('li');
+            li.innerHTML = '<label class="agency-option">' +
+                '<input type="radio" name="agenceId" value="' + ag.id + '">' +
+                '<span class="agency-name">' + ag.nom + '</span>' +
+                '</label>';
+            li.querySelector('input').addEventListener('change', function() {
+                selectedAgencyId = ag.id;
+                agencyContinueBtn.disabled = false;
+                document.querySelectorAll('.agency-option').forEach(function(opt) { opt.classList.remove('selected'); });
+                li.querySelector('.agency-option').classList.add('selected');
+            });
+            agencyList.appendChild(li);
+        });
+    }
+
+    if (agencyBackBtn) {
+        agencyBackBtn.addEventListener('click', function() {
+            agencyStep.style.display = 'none';
+            form.style.display = 'block';
+        });
+    }
+
+    if (agencyContinueBtn) {
+        agencyContinueBtn.addEventListener('click', function() {
+            if (!selectedAgencyId) return;
+            // Re-submit with selected agency
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'agenceId';
+            hiddenInput.value = selectedAgencyId;
+            form.appendChild(hiddenInput);
+
+            document.getElementById('email').value = savedEmail;
+            document.getElementById('password').value = savedPassword;
+            form.submit();
+        });
+    }
+})();
+</script>
 {% endblock %}

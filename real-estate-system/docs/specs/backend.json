@@ -1,0 +1,167 @@
+{
+  "$schema": "spec-v2",
+  "role": "backend",
+  "lastUpdated": "2026-03-05T06:10:00Z",
+  "features": [
+    {
+      "id": "be-auth-login",
+      "title": "Authentication (login)",
+      "description": "POST /api/auth/login — public endpoint for JWT authentication.\n\nEndpoints:\n- POST /api/auth/login\n\nPermissions:\n- Public (no JWT required)\n- All user roles receive role-specific metadata in response\n\nSingle-agency flow: user belongs to one agency (or none for SUPER_ADMIN). Returns HTTP 200 with: token (JWT), role, nom, prenom, agenceId, agenceNom, agenceLogo, personneId.\n\nMulti-agency flow (future): user belongs to multiple agencies and no agenceId provided. Returns HTTP 200 with: token (null), agencies (array of {id, nom}). Client re-submits with chosen agenceId to complete authentication.\n\nBusiness rules:\n- Anti-enumeration: 401 error message does not reveal whether email exists or password is wrong (same generic message for both)\n- BCrypt password verification\n- SUPER_ADMIN: agenceId=null, agenceNom=null in response\n- ADMIN_AGENCY/AGENT: agenceId, agenceNom, agenceLogo matching their agency\n- Deactivated accounts (actif=false): must return 401 (cannot login)\n- Unactivated accounts (pending activation, no password set): must return 401\n\nEdge cases:\n- Empty body returns 400\n- Missing email or password returns 400\n- Non-existent email returns 401 (same message as wrong password)\n- Login with deactivated account (actif=false): 401\n- Login with unactivated account (pending activation): 401\n- No CLIENT test account in seed data — must be added in V3 migration to test CLIENT login",
+      "category": "auth",
+      "status": "failing",
+      "lastTestedAt": "2026-03-04T23:34:45Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "be-auth-me",
+      "title": "Current user profile",
+      "description": "GET /api/auth/me — returns the authenticated user's information.\n\nEndpoints:\n- GET /api/auth/me\n\nPermissions:\n- Any authenticated user: 200\n- No token: 401\n- Invalid/expired token: 401\n\nResponse: { id, email, nom, prenom, role, agenceId, agenceNom, agenceLogo, personneId }\n\nBusiness rules:\n- Returns identity from JWT claims + database lookup\n- Token must be valid and not expired\n- No role restriction — any logged-in user can call this\n- SUPER_ADMIN response: agenceId=null, agenceNom=null\n\nEdge cases:\n- Expired JWT: returns 401 with clear error message\n- Malformed Authorization header (e.g., 'Bearer invalid', 'Basic xxx'): returns 401\n- No Authorization header at all: returns 401\n- Garbage token string: returns 401",
+      "category": "auth",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T12:00:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-auth-activation",
+      "title": "Account activation and client invitation",
+      "description": "Activation token verification, account activation with password, and client invitation.\n\nEndpoints:\n- GET /api/auth/activation-status?token=xxx (public)\n- POST /api/auth/activate (public)\n- POST /api/auth/invite-client (restricted)\n\nPermissions:\n- activation-status: Public\n- activate: Public\n- invite-client: ADMIN_AGENCY and SUPER_ADMIN only. Other roles: 403. Unauthenticated: 401.\n- SECURITY NOTE: invite-client is under /api/auth/** (permitAll in SecurityConfig) — role check MUST happen in service layer, not Spring Security. Verify AGENT and CLIENT cannot call it despite the URL being under permitAll.\n\nActivation flow:\n- GET activation-status returns {valid: true/false}\n- POST activate accepts {token, password}. Hashes password with BCrypt, invalidates token (single-use). Returns 200.\n- Expired or used token: valid=false\n- Token expiry: 7 days\n\nInvitation flow:\n- POST invite-client accepts {personneId, email, agenceId (required for SUPER_ADMIN)}.\n- SUPER_ADMIN must provide agenceId; ADMIN_AGENCY auto-uses own agency.\n- Creates CLIENT account with activation token, sends activation email.\n- Returns {message: \"Invitation envoyee\", activationUrl: \"...\"}.\n\nBusiness rules:\n- Tokens are UUID, single-use, 7-day expiry\n- Password hashed with BCrypt on activation\n- Duplicate email on invite returns 400\n- Activating with already-used token: returns error (400)\n\nEdge cases:\n- Already-activated token returns valid=false on status check\n- invite-client without agenceId when caller is SUPER_ADMIN: returns 400\n- invite-client with duplicate email: returns 400\n- AGENT calling invite-client: must return 403 (despite permitAll URL)\n- CLIENT calling invite-client: must return 403",
+      "category": "auth",
+      "status": "failing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T23:36:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-auth-password-reset",
+      "title": "Password reset flow",
+      "description": "Forgot password request, token validation, and password reset.\n\nEndpoints:\n- POST /api/auth/forgot-password (public)\n- GET /api/auth/reset-status?token=xxx (public)\n- POST /api/auth/reset-password (public)\n\nPermissions:\n- All three endpoints are public (no JWT required)\n\nFlow:\n- POST forgot-password accepts {email}. Always returns 200 regardless of email existence (anti-enumeration). If email exists, stores UUID token in Compte.token_reset with 1-hour expiration.\n- GET reset-status returns {valid: true/false}.\n- POST reset-password accepts {token, password}. Hashes new password with BCrypt, invalidates token (single-use). Returns 200. Invalid/expired token returns 400.\n\nBusiness rules:\n- Anti-enumeration: forgot-password always returns 200 (critical security requirement)\n- Token: UUID, 1-hour expiry, single-use\n- Password hashed with BCrypt\n- Multiple forgot-password requests for same email: each request generates a new token and invalidates the previous one. Only the last link works.\n\nEdge cases:\n- Nonexistent email on forgot-password: still returns 200 (anti-enumeration)\n- Expired token (>1 hour): reset-status returns valid=false\n- Reused token (already consumed): reset-password returns 400\n- Multiple forgot requests: only latest token is valid, previous tokens invalidated\n- Empty email field: returns 400",
+      "category": "auth",
+      "status": "passing",
+      "lastTestedAt": "2026-03-04T23:34:15Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "be-auth-password-change",
+      "title": "Authenticated password change",
+      "description": "Change current user's password without a reset token.\n\nEndpoints:\n- POST /api/auth/change-password (authenticated)\n\nPermissions:\n- Any authenticated user: 200\n- Unauthenticated: 401\n\nRequest: {currentPassword, newPassword}\n\nResponse (200): {message: 'Mot de passe modifié avec succès'}\nError (400): {error: 'Mot de passe actuel incorrect'} or {error: 'Nouveau mot de passe trop court (min 6 caractères)'}\n\nBusiness rules:\n- Must verify current password via BCrypt before allowing change\n- New password hashed with BCrypt and saved to Compte entity\n- If current password is incorrect: 400\n- If new password does not meet minimum requirements (6 characters): 400\n\nImplementation status:\n- Backend DTO exists: ChangePasswordRequest.java (currentPassword, newPassword fields)\n- Backend endpoint exists in BACKEND_STATE.md: POST /api/auth/change-password (Authenticated)\n- Frontend integration missing: RealEstateApiClient.php needs changePassword() method, ProfileController needs wiring\n\nEdge cases:\n- Same password as current: allow (no error, just re-hash)\n- Empty currentPassword: 400\n- Empty newPassword: 400",
+      "category": "auth",
+      "status": "failing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T23:35:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-bien-read",
+      "title": "Property listing and detail",
+      "description": "Public read endpoints for property search and detail.\n\nEndpoints:\n- GET /api/biens (public, paginated)\n- GET /api/biens/{id} (public)\n\nPermissions:\n- Both endpoints are public (no JWT required)\n\nGET /api/biens:\n- Basic params: search (string, filters city/address/postal/description), type (string), annonce ('vente'|'location'), prixMin/prixMax (numbers), page (default 0), size (default 12)\n- Advanced params: caracMin_{caracId} (min value filter), lieuMax_{lieuId} (max travel minutes), lieuLoco_{lieuId} (locomotion type)\n- All filters combine with AND logic. Dynamic JPQL query engine in BienService.findByFilters.\n- Response: Page<BienDTO> with { content[], totalElements, totalPages, number }\n- Each item: { id, type, rue, ville, codePostal, superficie, ecoScore, description, availableForSale, availableForRent, salePrice, monthlyRent, principalPhotoUrl, photoCount, agence }\n\nGET /api/biens/{id}:\n- Returns complete BienDetailDTO with nested: photos, caracteristiques, lieux, proprietaires, achat (or null), location (or null)\n- Dual listing: both achat and location can be non-null\n- Property with no photos: principalPhotoUrl=null (no error)\n- Nonexistent ID: 404\n\nBusiness rules:\n- Dynamic JPQL: high complexity area for caracMin/lieuMax filters — multiple simultaneous filters must all apply with AND logic\n- Speed ranking for proximity: A_PIED/MARCHE < VELO < TRANSPORT_PUBLIC < VOITURE\n\nEdge cases:\n- Empty search results: content=[], totalElements=0 (not 404)\n- Negative page number: returns 400 (Spring Pageable validation rejects negative values)\n- Very large page number beyond max: returns empty page (content=[], totalElements unchanged)\n- No filters: returns all properties paginated\n- Search with special characters (quotes, SQL-like strings): must not cause injection or error\n- Multiple caracMin filters simultaneously: all must match (AND logic)\n- Property with no photos: principalPhotoUrl is null, photoCount is 0\n- forSale=true filter: only properties with an Achat listing",
+      "category": "bien",
+      "status": "failing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T23:35:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-bien-write",
+      "title": "Property create, update, delete and sub-resources",
+      "description": "Authenticated write endpoints for property management and sub-resources.\n\nEndpoints:\n- POST /api/biens (create)\n- PUT /api/biens/{id} (update)\n- DELETE /api/biens/{id} (delete)\n- POST /api/biens/{bienId}/caracteristiques?caracteristiqueId=X&valeur=Y&unite=Z\n- DELETE /api/biens/{bienId}/caracteristiques/{cId}\n- POST /api/biens/{bienId}/lieux?lieuId=X&minutes=Y&typeLocomotion=Z\n- DELETE /api/biens/{bienId}/lieux/{lId}\n- PUT /api/biens/{bienId}/proprietaire?personneId=X&dateDebut=Y\n- DELETE /api/biens/{bienId}/proprietaire\n- POST /api/biens/{bienId}/photos (multipart)\n- DELETE /api/biens/{bienId}/photos/{pId}\n\nPermissions:\n- All endpoints require valid JWT. Unauthenticated: 401/403\n- No @PreAuthorize annotations on BienController — role enforcement is in service layer\n- SUPER_ADMIN: can manage any property in any agency\n- ADMIN_AGENCY/AGENT: can manage properties in their own agency only (403 on other agencies)\n- CLIENT: must return 403 on all write operations (verify — no CLIENT test account yet)\n\nBusiness rules:\n- POST returns 201, PUT returns 200, DELETE returns 204\n- Agency scoping: non-SUPER_ADMIN users restricted to their agency's properties\n- Create: agenceId required for SUPER_ADMIN. For other roles, agenceId is auto-assigned from JWT if omitted; if a mismatched agenceId is explicitly submitted, the request must be rejected with 403\n- Sub-resources: caracteristiques (valeur/unite), lieux (minutes/typeLocomotion), proprietaire assignment, photo upload (multipart)\n\nEdge cases:\n- Update/delete nonexistent ID: 404\n- Create with missing required fields: 400\n- AGENT updating property from another agency: must return 403\n- Deleting property with active contracts: must fail with descriptive error\n- Photo upload with non-image file or oversized file: must validate and reject\n- CLIENT role attempting any write operation: must return 403",
+      "category": "bien",
+      "status": "failing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T23:37:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-listing",
+      "title": "Rental and sale listing operations",
+      "description": "CRUD for Location (rental) and Achat (sale) listings attached to properties.\n\nEndpoints:\n- GET /api/locations (list), GET /api/locations/{id} (detail)\n- POST /api/locations (create), PUT /api/locations/{id} (update), DELETE /api/locations/{id} (delete)\n- GET /api/achats (list), GET /api/achats/{id} (detail)\n- POST /api/achats (create), PUT /api/achats/{id} (update), DELETE /api/achats/{id} (delete)\n\nPermissions:\n- All endpoints require valid JWT. Unauthenticated: 403\n- No @PreAuthorize on LocationController or AchatController — permission enforcement expected in service layer\n- Agency scoping: verify non-SUPER_ADMIN cannot create/modify listings on properties from other agencies\n\nLocation (rental): LocationDTO { id, caution, dateDispo, mensualite, dureeMois, bienId }\n- POST body: {bienId, caution, dateDispo, mensualite, dureeMois}\n\nAchat (sale): AchatDTO { id, prix, dateDispo, bienId }\n- POST body: {bienId, prix, dateDispo}\n\nBusiness rules:\n- UNIQUE constraint on bien_id for both tables — one rental listing and one sale listing per property max\n- Duplicate listing attempt returns 409\n- A property can have both a location AND an achat (dual listing)\n- POST returns 201, PUT returns 200, DELETE returns 204\n\nEdge cases:\n- Second Location on same bien: 409 (UNIQUE violation)\n- Second Achat on same bien: 409 (UNIQUE violation)\n- Delete nonexistent listing: 404\n- Creating listing for nonexistent bienId: 404\n- Creating listing on property from another agency (non-SUPER_ADMIN): should be blocked",
+      "category": "bien",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T22:36:30Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-agence",
+      "title": "Agency operations",
+      "description": "Full agency management with strict role-based access control.\n\nEndpoints:\n- GET /api/agences (public, returns array)\n- GET /api/agences/{id} (public)\n- GET /api/agences/{id}/biens (public, paginated) — needed for public agency profile page\n- POST /api/agences (SUPER_ADMIN only)\n- PUT /api/agences/{id} (SUPER_ADMIN or own ADMIN_AGENCY)\n- DELETE /api/agences/{id} (SUPER_ADMIN only)\n\nPermissions (@PreAuthorize confirmed in code):\n- GET list, GET detail, GET biens: Public (no auth)\n- POST: SUPER_ADMIN only. ADMIN_AGENCY: 403. AGENT: 403. CLIENT: 403. Unauthenticated: 403\n- PUT: SUPER_ADMIN for any agency. ADMIN_AGENCY for own agency only (403 on other agencies). AGENT: 403. CLIENT: 403. Unauthenticated: 403\n- DELETE: SUPER_ADMIN only. All others: 403. Unauthenticated: 403\n\nBackend TODO: SecurityConfig.java must add permitAll for GET /api/agences/*/biens (currently blocked for unauthenticated users, returns 403)\n\nResponse: AgenceDTO { id, siret, nom, numeroTva, rue, ville, codePostal, telephone, email, description, logo }\nList of biens: Page<BienDTO> with pagination (page, size params)\n\nBusiness rules:\n- SIRET must be unique — duplicate SIRET on create should return 400 or 409\n- ADMIN_AGENCY can only update their own agency (agenceId from JWT must match)\n- Agency deletion should be blocked if agency has active contracts or active users\n\nEdge cases:\n- Nonexistent agency ID: 404\n- GET biens for agency with no properties: empty page (not 404)\n- ADMIN_AGENCY PUT on another agency: 403\n- Duplicate SIRET on create: 400 or 409\n- Delete agency with active contracts: should fail with descriptive error\n- GET /api/agences returns at least 2 agencies from seed data",
+      "category": "agence",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T22:39:27Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-contrat-read",
+      "title": "Contract listing and detail",
+      "description": "Authenticated read endpoints for contracts with agency isolation.\n\nEndpoints:\n- GET /api/contrats (authenticated, paginated)\n- GET /api/contrats/{id} (authenticated)\n\nPermissions:\n- Any authenticated user: 200 (with agency scoping)\n- Unauthenticated: 403\n- ADMIN_AGENCY/AGENT: see only contracts for biens in their agency\n- SUPER_ADMIN: sees all contracts across all agencies\n\nGET /api/contrats:\n- Pagination: page (default 0), size (default 10), sorted by dateCreation DESC\n- Response: Page<ContratDTO> { content[], totalElements, totalPages }\n- ContratDTO: { id, dateCreation, dateModification, statut, type, bien (nested BienDTO), hasSignedDocument, cosigners[] }\n- Statut values: EN_COURS, SIGNE, ANNULE, TERMINE\n- Type values: LOCATION, ACHAT\n\nGET /api/contrats/{id}:\n- Response: ContratDetailDTO extending ContratDTO with: location (LocationDTO or null), achat (AchatDTO or null), siblingContratCount (int)\n- Cosigners: { personneId, nom, prenom, typeSignataire }\n- typeSignataire values: BUYER, SELLER, RENTER, OWNER\n- Nonexistent ID: 404\n\nBusiness rules:\n- Agency isolation enforced in service layer — critical security requirement\n- siblingContratCount = number of other EN_COURS contracts on the same offer (must be accurate)\n- Every contract must have at least 2 cosigners\n\nEdge cases:\n- ADMIN_AGENCY requesting contract from another agency: 403 or empty/filtered result\n- AGENT requesting contract from another agency: same behavior\n- Nonexistent ID: 404\n- siblingContratCount accuracy: verify it correctly counts only EN_COURS siblings",
+      "category": "contrat",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T22:38:14Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-contrat-create",
+      "title": "Contract creation",
+      "description": "Create a new contract with cosigners linked to a rental or sale listing.\n\nEndpoints:\n- POST /api/contrats (authenticated)\n\nPermissions:\n- Any authenticated user: 201\n- Unauthenticated: 403\n- No @PreAuthorize — relies on general authentication\n- Agency scoping: non-SUPER_ADMIN should only create contracts for listings in their own agency\n\nRequest body: { locationId (int, optional), achatId (int, optional), cosigners: [{personneId, typeSignataire}] }\n\nBusiness rules:\n- Exactly one of locationId or achatId must be provided (mutually exclusive). Both or neither: 400.\n- Cosigners array must have at least 2 entries (minimum 2, no maximum)\n- Contract type auto-inferred: locationId → LOCATION, achatId → ACHAT\n- Default statut: EN_COURS\n- Returns 201 with created ContratDTO\n\nEdge cases:\n- Both locationId and achatId provided: 400\n- Neither provided: 400\n- Fewer than 2 cosigners: 400\n- Invalid personneId in cosigners: 400 or 404\n- Invalid locationId/achatId: 404\n- Creating contract for listing in another agency (non-SUPER_ADMIN): should be blocked (403)",
+      "category": "contrat",
+      "status": "failing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T23:36:10Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-contrat-lifecycle",
+      "title": "Contract workflow, documents, and expiration",
+      "description": "Contract status transitions, PDF generation, signed document management, and automated expiration.\n\nEndpoints:\n- PATCH /api/contrats/{id}/statut?statut={value} (status update)\n- POST /api/contrats/{id}/confirm (EN_COURS → SIGNE)\n- POST /api/contrats/{id}/cancel (EN_COURS → ANNULE)\n- GET /api/contrats/{id}/pdf (generate PDF)\n- POST /api/contrats/{id}/document-signe (upload signed doc, multipart)\n- GET /api/contrats/{id}/document-signe (download signed doc)\n- DELETE /api/contrats/{id}/document-signe (delete signed doc)\n- POST /api/contrats/expire-check (manual expiration trigger)\n\nPermissions:\n- All endpoints require valid JWT. Unauthenticated: 401/403\n- expire-check: should be restricted (SUPER_ADMIN or admin roles only)\n\nStatus state machine:\n- EN_COURS → SIGNE (via confirm, requires signed document uploaded first)\n- EN_COURS → ANNULE (via cancel)\n- SIGNE → TERMINE (via PATCH statut)\n- Cannot go backwards (SIGNE → EN_COURS blocked, TERMINE is frozen)\n- Invalid transitions must return error with descriptive message\n\nConfirm side effects (highest complexity — most likely area for bugs):\n- Sets cosigner dateSignature to current date\n- Auto-cancels all other EN_COURS contracts on the same offer (sibling cancellation)\n- Verify sibling cancellation is transactional (all or nothing)\n\nPurchase completion (ACHAT contract → TERMINE):\n- Ownership of bien transfers from seller to buyer (Posseder records updated)\n- Active SIGNE rental on same bien is terminated + reconduction contract auto-created\n- EN_COURS rentals on same bien are auto-cancelled\n- Achat link removed from bien\n- This is the most complex business logic — needs thorough testing\n\nDocument management:\n- Upload stores as contrat-{id}-signe.pdf\n- Cannot upload/delete when status is SIGNE or TERMINE (blocked)\n- Download returns 404 if no signed document\n\nExpiration scheduler:\n- Daily cron at 2:00 AM\n- Finds SIGNE rental contracts where dureeMois has elapsed since creation\n- Transitions to TERMINE\n- Contracts with null/0 dureeMois are skipped (indefinite rental)\n- Manual trigger via POST /api/contrats/expire-check\n\nEdge cases:\n- Confirm without uploaded document: must return error\n- Cancel already-SIGNE contract: must return error\n- Cancel already-ANNULE contract: must return error (or idempotent)\n- PDF generation for nonexistent contract: 404\n- Upload to SIGNE or TERMINE contract: blocked\n- Confirm with sibling EN_COURS: verify all siblings cancelled correctly\n- Purchase completion: verify ownership transfer, rental reconduction, and Achat removal all happen atomically\n- Expiration with null/0 dureeMois: must be skipped (indefinite)",
+      "category": "contrat",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T22:38:42Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-personne",
+      "title": "Person operations",
+      "description": "All person management: listing, search, detail, sub-resources, and CRUD.\n\nEndpoints:\n- GET /api/personnes (authenticated, array)\n- GET /api/personnes/search?q={query} (authenticated)\n- GET /api/personnes/{id} (authenticated)\n- GET /api/personnes/{id}/account-status (authenticated)\n- GET /api/personnes/{id}/biens (authenticated)\n- GET /api/personnes/{id}/contrats (authenticated)\n- POST /api/personnes (authenticated)\n- PUT /api/personnes/{id} (authenticated)\n- DELETE /api/personnes/{id} (authenticated)\n\nPermissions:\n- All endpoints require valid JWT. Unauthenticated: 403\n- No @PreAuthorize — relies on general authentication\n- GET list: SUPER_ADMIN sees all, other roles scoped to their agency\n- Agency isolation: non-SUPER_ADMIN must not access personnes from other agencies\n\nPersonneDTO: { id, nom, prenom, dateNais, rue, ville, codePostal, avoirs, rib }\n\nSearch: case-insensitive, accent-insensitive via native SQL (searchByNameIgnoreAccents). Matches nom or prenom.\n\nSub-resources:\n- account-status: returns { hasAccount, status (ACTIVE|PENDING|EXPIRED), email }\n- biens: array of BienDTO owned by person\n- contrats: array of ContratDTO where person is cosigner\n\nBusiness rules:\n- POST returns 201, PUT returns 200, DELETE returns 204\n- Agency scoping on list and search (non-SUPER_ADMIN see only their agency's personnes)\n- Delete blocked if person is linked to active contracts (cosigner)\n\nEdge cases:\n- Nonexistent ID: 404 on detail/update/delete\n- Search with no matches: empty array\n- Search with accented characters (é, è, ê, ë): must match via accent-insensitive logic\n- Search with special characters: must not cause SQL injection\n- account-status for person without Compte: { hasAccount: false }\n- Delete person linked to active contracts: must fail with descriptive error\n- Agency isolation: non-SUPER_ADMIN accessing person from another agency: 403 or filtered out",
+      "category": "personne",
+      "status": "failing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-05T06:10:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-user",
+      "title": "User account operations",
+      "description": "User account listing, creation, deactivation, and reactivation.\n\nEndpoints:\n- GET /api/users (authenticated, paginated)\n- POST /api/users (authenticated)\n- DELETE /api/users/{id} (authenticated, soft-delete)\n- PUT /api/users/{id}/reactivate (authenticated)\n\nPermissions:\n- No @PreAuthorize — role enforcement in service layer (critical to verify)\n- SUPER_ADMIN: all operations, sees all users across agencies\n- ADMIN_AGENCY: manage users in own agency, sees only own agency users\n- AGENT: 403 on all operations\n- CLIENT: 403 on all operations\n- Unauthenticated: 401\n\nGET /api/users: paginated (page default 0, size default 20). Each item: { id, email, nom, prenom, role, actif, activated, dateCreation }\n\nPOST /api/users: body { email, nom, prenom, role, dateNais (optional), agenceId (required for SUPER_ADMIN) }. Creates Personne + Compte with activation token (UUID, 7-day expiry). Returns 201 with { activationToken }.\n\nDELETE: soft-delete (sets actif=false), does not remove from database. Returns 204.\nPUT reactivate: re-enables deactivated account. Returns 204.\n\nBusiness rules:\n- Duplicate email: 400\n- Role hierarchy: SUPER_ADMIN > ADMIN_AGENCY > AGENT > CLIENT. Cannot create equal or higher role: 403\n- SUPER_ADMIN must provide agenceId, ADMIN_AGENCY uses own agency\n- Deactivation is reversible (soft-delete)\n- Cannot deactivate the last SUPER_ADMIN account\n\nEdge cases:\n- Create with existing email: 400\n- ADMIN_AGENCY creating ADMIN_AGENCY: 403 (equal role)\n- ADMIN_AGENCY creating SUPER_ADMIN: 403 (higher role)\n- AGENT attempting any user operation: 403\n- Reactivate already-active user: 204 (idempotent)\n- Deactivating the last SUPER_ADMIN: must fail\n- SUPER_ADMIN create without agenceId: 400",
+      "category": "utilisateur",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T22:38:04Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-reference",
+      "title": "Reference data operations",
+      "description": "CRUD for Caracteristiques and Lieux reference data.\n\nEndpoints:\n- GET /api/caracteristiques (public)\n- GET /api/caracteristiques/{id} (public)\n- POST /api/caracteristiques (SUPER_ADMIN only)\n- PUT /api/caracteristiques/{id} (SUPER_ADMIN only)\n- DELETE /api/caracteristiques/{id} (SUPER_ADMIN only)\n- GET /api/lieux (public)\n- GET /api/lieux/{id} (public)\n- POST /api/lieux (SUPER_ADMIN only)\n- PUT /api/lieux/{id} (SUPER_ADMIN only)\n- DELETE /api/lieux/{id} (SUPER_ADMIN only)\n\nPermissions (@PreAuthorize confirmed in code):\n- GET (list and detail): Public, no auth required\n- POST/PUT/DELETE: SUPER_ADMIN only. ADMIN_AGENCY: 403. AGENT: 403. CLIENT: 403. Unauthenticated: 403\n\nResponse: { id, lib } sorted alphabetically (findAllByOrderByLibAsc)\n\nBusiness rules:\n- POST returns 201, PUT returns 200, DELETE returns 204\n- Alphabetical sorting enforced in repository\n- Deleting a characteristic/lieu in use by existing properties: should fail with descriptive error (referential integrity)\n\nEdge cases:\n- Non-SUPER_ADMIN write attempt: 403\n- Delete nonexistent ID: 404\n- Duplicate lib: no unique constraint in DB — verify behavior (allow? or reject?). Decision needed.\n- Empty lib value on create: must return 400 (validation required)\n- Delete characteristic in use by properties (Contenir table): must fail or handle gracefully\n- Delete lieu in use by properties (Deplacer table): must fail or handle gracefully",
+      "category": "reference",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-04T23:35:50Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "be-client-dashboard",
+      "title": "Client dashboard API",
+      "description": "Dashboard endpoints restricted to CLIENT role.\n\nEndpoints:\n- GET /api/client/dashboard\n- GET /api/client/contrats\n- GET /api/client/biens\n\nPermissions (@PreAuthorize confirmed at class level):\n- CLIENT only: 200\n- SUPER_ADMIN: 403\n- ADMIN_AGENCY: 403\n- AGENT: 403\n- Unauthenticated: 401\n\nGET /api/client/dashboard: returns ClientDashboardDTO { personneId, totalProperties, totalContracts, activeContracts, totalRevenue, monthlyRevenue, revenueByMonth }\n\nGET /api/client/contrats: contracts where client's personne is a cosigner\nGET /api/client/biens: properties owned by client's personne\n\nBusiness rules:\n- All data scoped to the client's linked Personne entity\n- Revenue calculated from signed contracts\n- revenueByMonth is a map of month → amount\n\nTest data gap:\n- No CLIENT account exists in V2 seed data. A V3 migration should add a CLIENT test account (with linked Personne, at least one contract and one owned property) so QA can test these endpoints without manual setup.\n- Suggested test account: client@horoazhon.fr / Client / CLIENT role / Horoazhon France (id=1)\n\nEdge cases:\n- CLIENT with no linked personne: empty/error\n- CLIENT with no contracts: totalContracts=0, empty arrays\n- Non-CLIENT role attempting access: 403",
+      "category": "client",
+      "status": "passing",
+      "lastTestedAt": "2026-03-04T23:36:09Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    }
+  ]
+}

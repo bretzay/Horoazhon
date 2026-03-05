@@ -39,12 +39,15 @@ public class AchatService {
     public AchatDTO findById(Long id) {
         Achat achat = achatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
+        verifyAgencyAccess(achat);
         return convertToDTO(achat);
     }
 
     public AchatDTO create(CreateAchatRequest request) {
         Bien bien = bienRepository.findById(request.getBienId())
                 .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + request.getBienId()));
+
+        verifyBienAgencyAccess(bien);
 
         if (bien.getAchat() != null) {
             throw new IllegalStateException("Bien " + request.getBienId() + " already has a sale listing");
@@ -62,6 +65,7 @@ public class AchatService {
     public AchatDTO update(Long id, CreateAchatRequest request) {
         Achat achat = achatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
+        verifyAgencyAccess(achat);
 
         if (request.getPrix() != null) achat.setPrix(request.getPrix());
         if (request.getDateDispo() != null) achat.setDateDispo(request.getDateDispo());
@@ -71,10 +75,24 @@ public class AchatService {
     }
 
     public void delete(Long id) {
-        if (!achatRepository.existsById(id)) {
-            throw new EntityNotFoundException("Achat not found with id: " + id);
-        }
+        Achat achat = achatRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
+        verifyAgencyAccess(achat);
         achatRepository.deleteById(id);
+    }
+
+    private void verifyAgencyAccess(Achat achat) {
+        if (achat.getBien() != null) {
+            verifyBienAgencyAccess(achat.getBien());
+        }
+    }
+
+    private void verifyBienAgencyAccess(Bien bien) {
+        Long agenceId = securityUtils.getCurrentAgenceId();
+        if (agenceId != null && bien.getAgence() != null
+                && !bien.getAgence().getId().equals(agenceId)) {
+            throw new SecurityException("Access denied: this property belongs to another agency");
+        }
     }
 
     private AchatDTO convertToDTO(Achat a) {

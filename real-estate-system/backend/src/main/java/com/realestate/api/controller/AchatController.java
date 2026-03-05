@@ -8,12 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/achats")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")
 public class AchatController {
 
     private final AchatService achatService;

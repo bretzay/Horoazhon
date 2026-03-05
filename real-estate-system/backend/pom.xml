@@ -52,10 +52,10 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Flyway for migrations -->
+        <!-- Flyway for migrations (Spring Boot 4.0 requires the starter) -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>

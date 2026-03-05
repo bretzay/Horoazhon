@@ -1,14 +1,13 @@
 package com.realestate.api.controller;
 
-import com.realestate.api.dto.ActivateAccountRequest;
-import com.realestate.api.dto.AuthenticationResponse;
-import com.realestate.api.dto.LoginRequest;
+import com.realestate.api.dto.*;
 import com.realestate.api.entity.Compte;
 import com.realestate.api.security.CompteUserDetailsService;
 import com.realestate.api.security.SecurityUtils;
 import com.realestate.api.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +24,9 @@ public class AuthController {
     private final CompteUserDetailsService userDetailsService;
     private final SecurityUtils securityUtils;
 
+    @Value("${app.frontend.base-url:https://localhost:8001}")
+    private String frontendBaseUrl;
+
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthenticationResponse response = authService.login(request);
@@ -32,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<Map<String, String>> activateAccount(@RequestBody ActivateAccountRequest request) {
+    public ResponseEntity<Map<String, String>> activateAccount(@Valid @RequestBody ActivateAccountRequest request) {
         authService.activateAccount(request);
         return ResponseEntity.ok(Map.of("message", "Account activated successfully"));
     }
@@ -44,31 +46,65 @@ public class AuthController {
     }
 
     @PostMapping("/invite-client")
-    public ResponseEntity<Map<String, String>> inviteClient(@RequestBody Map<String, Object> request) {
-        Long personneId = Long.valueOf(request.get("personneId").toString());
-        String email = request.get("email").toString();
-
+    public ResponseEntity<Map<String, String>> inviteClient(@Valid @RequestBody InviteClientRequest request) {
+        // Manual role check: endpoint is under /api/auth/** (permitAll) so @PreAuthorize won't work
+        if (!securityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Authentication required"));
+        }
         Compte currentCompte = securityUtils.getCurrentCompteOrThrow();
+        if (!currentCompte.isSuperAdmin() && currentCompte.getRole() != Compte.Role.ADMIN_AGENCY) {
+            return ResponseEntity.status(403).body(Map.of("error", "Seuls les administrateurs peuvent inviter des clients"));
+        }
+
         Long agenceId;
         if (currentCompte.isSuperAdmin()) {
-            // SUPER_ADMIN must provide agenceId in request
-            Object reqAgenceId = request.get("agenceId");
-            if (reqAgenceId == null) {
+            if (request.getAgenceId() == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "agenceId is required for SUPER_ADMIN"));
             }
-            agenceId = Long.valueOf(reqAgenceId.toString());
+            agenceId = request.getAgenceId();
         } else {
             agenceId = currentCompte.getAgence().getId();
         }
 
-        String token = authService.createClientAccount(personneId, email, agenceId);
+        String token = authService.createClientAccount(request.getPersonneId(), request.getEmail(), agenceId);
 
-        String activationUrl = "http://localhost:8001/activate?token=" + token;
+        String activationUrl = frontendBaseUrl + "/activate?token=" + token;
 
         return ResponseEntity.ok(Map.of(
                 "message", "Invitation envoyee",
                 "activationUrl", activationUrl
         ));
+    }
+
+    // ========== Password Reset ==========
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.requestPasswordReset(request.getEmail());
+        // Always return success to avoid revealing which emails exist
+        return ResponseEntity.ok(Map.of("message", "Si un compte existe avec cet email, un lien de reinitialisation a ete envoye."));
+    }
+
+    @GetMapping("/reset-status")
+    public ResponseEntity<Map<String, Object>> checkResetToken(@RequestParam String token) {
+        boolean valid = authService.isResetTokenValid(token);
+        return ResponseEntity.ok(Map.of("valid", valid));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(Map.of("message", "Mot de passe reinitialise avec succes."));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, String>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        if (!securityUtils.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Authentication required"));
+        }
+        Compte compte = securityUtils.getCurrentCompteOrThrow();
+        authService.changePassword(compte, request);
+        return ResponseEntity.ok(Map.of("message", "Mot de passe modifie avec succes."));
     }
 
     @GetMapping("/me")
@@ -87,7 +123,8 @@ public class AuthController {
         result.put("role", compte.getRole().name());
         result.put("agenceId", compte.getAgence() != null ? compte.getAgence().getId() : null);
         result.put("agenceNom", compte.getAgence() != null ? compte.getAgence().getNom() : null);
-        result.put("personneId", compte.getPersonne().getId());
+        result.put("agenceLogo", compte.getAgence() != null ? compte.getAgence().getLogo() : null);
+        result.put("personneId", compte.getPersonne() != null ? compte.getPersonne().getId() : null);
 
         return ResponseEntity.ok(result);
     }

@@ -45,6 +45,8 @@ public class AgenceService {
         agence.setCodePostal(request.getCodePostal());
         agence.setTelephone(request.getTelephone());
         agence.setEmail(request.getEmail());
+        agence.setDescription(request.getDescription());
+        agence.setLogo(request.getLogo());
 
         Agence saved = agenceRepository.save(agence);
         return convertToDTO(saved);
@@ -61,6 +63,8 @@ public class AgenceService {
         if (request.getCodePostal() != null) agence.setCodePostal(request.getCodePostal());
         if (request.getTelephone() != null) agence.setTelephone(request.getTelephone());
         if (request.getEmail() != null) agence.setEmail(request.getEmail());
+        if (request.getDescription() != null) agence.setDescription(request.getDescription());
+        if (request.getLogo() != null) agence.setLogo(request.getLogo());
 
         Agence saved = agenceRepository.save(agence);
         return convertToDTO(saved);
@@ -84,6 +88,8 @@ public class AgenceService {
         dto.setCodePostal(agence.getCodePostal());
         dto.setTelephone(agence.getTelephone());
         dto.setEmail(agence.getEmail());
+        dto.setDescription(agence.getDescription());
+        dto.setLogo(agence.getLogo());
         return dto;
     }
 }

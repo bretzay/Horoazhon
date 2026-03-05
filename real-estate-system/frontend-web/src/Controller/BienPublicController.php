@@ -17,20 +17,28 @@ class BienPublicController extends AbstractController
     {
         $annonce = $request->query->get('annonce');
         $filters = array_filter([
-            'ville' => $request->query->get('ville'),
+            'search' => $request->query->get('search'),
             'type' => $request->query->get('type'),
             'prixMin' => $request->query->get('prixMin'),
             'prixMax' => $request->query->get('prixMax'),
             'forSale' => $annonce === 'vente' ? 'true' : null,
             'forRent' => $annonce === 'location' ? 'true' : null,
-            'caracId' => $request->query->get('caracId'),
-            'caracMin' => $request->query->get('caracMin'),
-            'lieuId' => $request->query->get('lieuId'),
-            'maxMinutes' => $request->query->get('maxMinutes'),
-            'locomotion' => $request->query->get('locomotion'),
             'page' => $request->query->get('page', 0),
             'size' => 12,
         ], fn($v) => $v !== null && $v !== '');
+
+        // Per-characteristic filters: caracMin_1, caracMin_2, etc.
+        foreach ($request->query->all() as $key => $value) {
+            if (str_starts_with($key, 'caracMin_') && $value !== '' && $value !== null) {
+                $filters[$key] = $value;
+            }
+            if (str_starts_with($key, 'lieuMax_') && $value !== '' && $value !== null) {
+                $filters[$key] = $value;
+            }
+            if (str_starts_with($key, 'lieuLoco_') && $value !== '' && $value !== null) {
+                $filters[$key] = $value;
+            }
+        }
 
         $data = $this->api->getBiens($filters);
 
@@ -49,11 +57,21 @@ class BienPublicController extends AbstractController
     }
 
     #[Route('/biens/{id}', name: 'biens_detail')]
-    public function detail(int $id): Response
+    public function detail(int $id, Request $request): Response
     {
         $bien = $this->api->getBienById($id);
+        $contrats = [];
+        $role = $request->getSession()->get('user_role');
+        if ($role && $role !== 'CLIENT') {
+            try {
+                $contrats = $this->api->getContratsByBien($id);
+            } catch (\Exception $e) {
+                // Silently fail — contracts are supplementary info
+            }
+        }
         return $this->render('property/detail.html.twig', [
             'bien' => $bien,
+            'contrats' => $contrats,
         ]);
     }
 }

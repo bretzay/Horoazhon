@@ -65,7 +65,9 @@ public class ClientDashboardService {
                             && cs.getTypeSignataire() == Cosigner.TypeSignataire.OWNER);
             if (!isOwner) continue;
 
+            if (c.getLocation() == null) continue;
             BigDecimal mensualite = c.getLocation().getMensualite();
+            if (mensualite == null) continue;
             Integer dureeMois = c.getLocation().getDureeMois();
 
             // Use the latest cosigner signature date as the contract start date for revenue

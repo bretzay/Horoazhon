@@ -32,9 +32,13 @@ class AuthenticationSubscriber implements EventSubscriberInterface
         $role = $session->get('user_role');
 
         // Allow public routes without login
-        $publicPaths = ['/login', '/logout', '/activate', '/_profiler', '/_wdt'];
-        foreach ($publicPaths as $publicPath) {
-            if (str_starts_with($path, $publicPath)) {
+        $publicExact = ['/', '/login', '/logout', '/activate', '/forgot-password', '/reset-password'];
+        if (in_array($path, $publicExact, true)) {
+            return;
+        }
+        $publicPrefixes = ['/biens', '/agences', '/_profiler', '/_wdt'];
+        foreach ($publicPrefixes as $prefix) {
+            if (str_starts_with($path, $prefix)) {
                 return;
             }
         }

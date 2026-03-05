@@ -9,11 +9,11 @@
 </div>
 
 {% if activationUrl is defined and activationUrl %}
-<div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid #22c55e;">
+<div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid #2563eb;">
     <h3>Lien d'activation</h3>
     <p style="color: #94a3b8; margin-bottom: 0.75rem;">Transmettez ce lien a l'utilisateur pour qu'il active son compte et choisisse son mot de passe. Ce lien expire dans 7 jours.</p>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <input type="text" id="activationLink" value="{{ activationUrl }}" readonly style="flex: 1; font-size: 0.85rem;">
+        <input type="text" id="activationLink" value="{{ activationUrl }}" readonly style="flex: 1; font-size: 0.875rem;">
         <button type="button" class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('activationLink').value); this.textContent='Copie!'; setTimeout(() => this.textContent='Copier', 2000);">Copier</button>
     </div>
 </div>

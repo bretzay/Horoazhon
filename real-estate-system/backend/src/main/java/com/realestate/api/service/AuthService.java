@@ -10,6 +10,8 @@ import com.realestate.api.repository.PersonneRepository;
 import com.realestate.api.security.CompteUserDetailsService;
 import com.realestate.api.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,9 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+    @Value("${app.frontend.base-url:https://localhost:8001}")
+    private String frontendBaseUrl;
 
     private final AuthenticationManager authenticationManager;
     private final CompteUserDetailsService userDetailsService;
@@ -44,7 +50,7 @@ public class AuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", compte.getRole().name());
         claims.put("agenceId", compte.getAgence() != null ? compte.getAgence().getId() : null);
-        claims.put("personneId", compte.getPersonne().getId());
+        claims.put("personneId", compte.getPersonne() != null ? compte.getPersonne().getId() : null);
 
         String token = jwtUtil.generateToken(userDetails, claims);
 
@@ -55,7 +61,8 @@ public class AuthService {
         response.setPrenom(compte.getPrenom());
         response.setAgenceId(compte.getAgence() != null ? compte.getAgence().getId() : null);
         response.setAgenceNom(compte.getAgence() != null ? compte.getAgence().getNom() : null);
-        response.setPersonneId(compte.getPersonne().getId());
+        response.setAgenceLogo(compte.getAgence() != null ? compte.getAgence().getLogo() : null);
+        response.setPersonneId(compte.getPersonne() != null ? compte.getPersonne().getId() : null);
         return response;
     }
 
@@ -106,5 +113,55 @@ public class AuthService {
         return compteRepository.findByTokenActivation(token)
                 .map(Compte::isTokenValid)
                 .orElse(false);
+    }
+
+    // ========== Password Reset ==========
+
+    public void requestPasswordReset(String email) {
+        Compte compte = compteRepository.findByEmail(email)
+                .orElse(null);
+
+        // Silently succeed even if email doesn't exist (security: don't reveal valid emails)
+        if (compte == null || !compte.isActivated()) {
+            return;
+        }
+
+        String token = UUID.randomUUID().toString();
+        compte.setTokenReset(token);
+        compte.setTokenResetExpiration(LocalDateTime.now().plusHours(1));
+        compteRepository.save(compte);
+
+        // TODO: Send email with reset link containing this token
+        String resetUrl = frontendBaseUrl + "/reset-password?token=" + token;
+        log.debug("Password reset link for {}: {}", email, resetUrl);
+    }
+
+    public boolean isResetTokenValid(String token) {
+        return compteRepository.findByTokenReset(token)
+                .map(Compte::isResetTokenValid)
+                .orElse(false);
+    }
+
+    public void changePassword(Compte compte, ChangePasswordRequest request) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), compte.getPassword())) {
+            throw new IllegalArgumentException("Le mot de passe actuel est incorrect");
+        }
+        compte.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        compteRepository.save(compte);
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        Compte compte = compteRepository.findByTokenReset(request.getToken())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
+
+        if (!compte.isResetTokenValid()) {
+            throw new IllegalArgumentException("Reset token has expired");
+        }
+
+        compte.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Invalidate the token (single-use)
+        compte.setTokenReset(null);
+        compte.setTokenResetExpiration(null);
+        compteRepository.save(compte);
     }
 }

@@ -41,6 +41,7 @@ class AuthController extends AbstractController
                     'role' => $response['role'],
                     'agenceId' => $response['agenceId'] ?? null,
                     'agenceNom' => $response['agenceNom'] ?? null,
+                    'agenceLogo' => $response['agenceLogo'] ?? null,
                     'personneId' => $response['personneId'] ?? null,
                 ]);
 
@@ -107,6 +108,78 @@ class AuthController extends AbstractController
         return $this->render('auth/activate.html.twig', [
             'valid' => $valid,
             'activated' => $activated,
+            'error' => $error,
+            'token' => $token,
+        ]);
+    }
+
+    #[Route('/forgot-password', name: 'forgot_password')]
+    public function forgotPassword(Request $request): Response
+    {
+        $sent = false;
+
+        if ($request->isMethod('POST')) {
+            $email = $request->request->get('email', '');
+
+            try {
+                $this->api->requestPasswordReset($email);
+            } catch (\Exception $e) {
+                // Always show success to avoid revealing which emails exist
+            }
+
+            $sent = true;
+        }
+
+        return $this->render('auth/forgot-password.html.twig', [
+            'sent' => $sent,
+        ]);
+    }
+
+    #[Route('/reset-password', name: 'reset_password')]
+    public function resetPassword(Request $request): Response
+    {
+        $token = $request->query->get('token', $request->request->get('token', ''));
+        $error = null;
+        $success = false;
+        $valid = false;
+
+        if (empty($token)) {
+            return $this->render('auth/reset-password.html.twig', [
+                'valid' => false,
+                'success' => false,
+                'error' => null,
+                'token' => '',
+            ]);
+        }
+
+        try {
+            $result = $this->api->checkResetToken($token);
+            $valid = $result['valid'] ?? false;
+        } catch (\Exception $e) {
+            $valid = false;
+        }
+
+        if ($valid && $request->isMethod('POST')) {
+            $password = $request->request->get('password', '');
+            $passwordConfirm = $request->request->get('password_confirm', '');
+
+            if (strlen($password) < 6) {
+                $error = 'Le mot de passe doit contenir au moins 6 caracteres.';
+            } elseif ($password !== $passwordConfirm) {
+                $error = 'Les mots de passe ne correspondent pas.';
+            } else {
+                try {
+                    $this->api->resetPassword($token, $password);
+                    $success = true;
+                } catch (\Exception $e) {
+                    $error = 'Erreur lors de la reinitialisation. Veuillez reessayer.';
+                }
+            }
+        }
+
+        return $this->render('auth/reset-password.html.twig', [
+            'valid' => $valid,
+            'success' => $success,
             'error' => $error,
             'token' => $token,
         ]);

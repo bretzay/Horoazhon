@@ -16,7 +16,148 @@
         grid-column: 1 / -1;
     }
     .empty-state svg { margin-bottom: 1rem; opacity: 0.3; }
-    .empty-state p { font-size: 0.95rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: 0.875rem; margin-bottom: 1rem; }
+
+    /* Dynamic filter rows */
+    .filter-adder {
+        grid-column: 1 / -1;
+    }
+    .filter-adder-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+    .filter-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .filter-chips:empty { margin-bottom: 0; }
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.3rem 0.5rem 0.3rem 0.625rem;
+        font-size: 0.75rem;
+        color: #334155;
+    }
+    .filter-chip-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        line-height: 1;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        transition: color 0.15s;
+    }
+    .filter-chip-remove:hover { color: #0f172a; }
+    .filter-add-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .filter-add-row select,
+    .filter-add-row input {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+        color: #334155;
+    }
+    .filter-add-row input { width: 80px; }
+    .filter-add-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+        transition: all 0.15s;
+        flex-shrink: 0;
+    }
+    .filter-add-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
+
+    /* Photo slider */
+    .card-slider {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 16px 16px 0 0;
+        background: #e2e8f0;
+    }
+    .card-slider img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .card-slider .slider-badges {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 2;
+    }
+    .card-slider .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.85);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        color: #0f172a;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 0.2s;
+        box-shadow: 0 1px 4px rgba(15,23,42,0.10);
+    }
+    .card-slider .slider-arrow:hover { background: #fff; }
+    .card-slider:hover .slider-arrow { opacity: 1; }
+    .card-slider .slider-prev { left: 0.5rem; }
+    .card-slider .slider-next { right: 0.5rem; }
+    .card-slider .slider-dots {
+        position: absolute;
+        bottom: 0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 4px;
+        z-index: 2;
+    }
+    .card-slider .slider-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.5);
+        transition: background 0.2s;
+    }
+    .card-slider .slider-dot.active { background: #fff; }
 </style>
 {% endblock %}
 
@@ -24,16 +165,18 @@
 <div class="page-header">
     <div>
         <h1>Biens immobiliers</h1>
-        {% if biens|length > 0 %}
-            <span class="result-count">{{ biens|length }} resultat{{ biens|length > 1 ? 's' }}</span>
-        {% endif %}
+        <span class="result-count" id="resultCount">
+            {% if biens|length > 0 %}
+                {{ biens|length }} resultat{{ biens|length > 1 ? 's' }}
+            {% endif %}
+        </span>
     </div>
 </div>
 
-<form method="GET" class="filters">
+<form method="GET" class="filters" id="filterForm">
     <div class="form-group">
-        <label>Ville</label>
-        <input type="text" name="ville" value="{{ filters.ville ?? '' }}" placeholder="Ex: Paris...">
+        <label>Recherche</label>
+        <input type="text" name="search" value="{{ filters.search ?? '' }}" placeholder="Ville, adresse, code postal...">
     </div>
     <div class="form-group">
         <label>Type</label>
@@ -61,46 +204,77 @@
         <label>Prix max</label>
         <input type="number" name="prixMax" value="{{ filters.prixMax ?? '' }}" placeholder="Illimite">
     </div>
-    <div class="form-group">
-        <label>Caracteristique</label>
-        <select name="caracId">
-            <option value="">-</option>
+
+    {% if caracteristiques|length > 0 %}
+    <div class="filter-adder" id="caracAdder">
+        <div class="filter-adder-label">Caracteristiques</div>
+        <div class="filter-chips" id="caracChips">
             {% for c in caracteristiques %}
-                <option value="{{ c.id }}" {{ (filters.caracId ?? '') == c.id ? 'selected' }}>{{ c.lib }}</option>
+                {% set val = filters['caracMin_' ~ c.id] ?? '' %}
+                {% if val is not empty %}
+                <div class="filter-chip" data-carac-id="{{ c.id }}">
+                    <span>{{ c.lib }} &ge; {{ val }}</span>
+                    <input type="hidden" name="caracMin_{{ c.id }}" value="{{ val }}">
+                    <button type="button" class="filter-chip-remove" onclick="removeCaracFilter(this)">&times;</button>
+                </div>
+                {% endif %}
             {% endfor %}
-        </select>
+        </div>
+        <div class="filter-add-row">
+            <select id="caracSelect">
+                <option value="">Caracteristique...</option>
+                {% for c in caracteristiques %}
+                <option value="{{ c.id }}" data-lib="{{ c.lib }}">{{ c.lib }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" id="caracMinInput" placeholder="Min" min="0">
+            <button type="button" class="filter-add-btn" id="caracAddBtn" title="Ajouter">+</button>
+        </div>
     </div>
-    <div class="form-group">
-        <label>Valeur min</label>
-        <input type="number" name="caracMin" value="{{ filters.caracMin ?? '' }}" placeholder="Min">
-    </div>
-    <div class="form-group">
-        <label>Proximite</label>
-        <select name="lieuId">
-            <option value="">-</option>
+    {% endif %}
+
+    {% if lieux|length > 0 %}
+    <div class="filter-adder" id="lieuAdder">
+        <div class="filter-adder-label">Proximite</div>
+        <div class="filter-chips" id="lieuChips">
             {% for l in lieux %}
-                <option value="{{ l.id }}" {{ (filters.lieuId ?? '') == l.id ? 'selected' }}>{{ l.lib }}</option>
+                {% set val = filters['lieuMax_' ~ l.id] ?? '' %}
+                {% set loco = filters['lieuLoco_' ~ l.id] ?? '' %}
+                {% if val is not empty %}
+                <div class="filter-chip" data-lieu-id="{{ l.id }}">
+                    {% set locoLabels = {'A_PIED': 'a pied', 'MARCHE': 'a pied', 'VELO': 'a velo', 'TRANSPORT_PUBLIC': 'en transport', 'VOITURE': 'en voiture'} %}
+                    <span>{{ l.lib }} &le; {{ val }} min{{ loco ? ' ' ~ locoLabels[loco]|default(loco) }}</span>
+                    <input type="hidden" name="lieuMax_{{ l.id }}" value="{{ val }}">
+                    {% if loco %}<input type="hidden" name="lieuLoco_{{ l.id }}" value="{{ loco }}">{% endif %}
+                    <button type="button" class="filter-chip-remove" onclick="removeLieuFilter(this)">&times;</button>
+                </div>
+                {% endif %}
             {% endfor %}
-        </select>
+        </div>
+        <div class="filter-add-row">
+            <select id="lieuSelect">
+                <option value="">Lieu...</option>
+                {% for l in lieux %}
+                <option value="{{ l.id }}" data-lib="{{ l.lib }}">{{ l.lib }}</option>
+                {% endfor %}
+            </select>
+            <select id="lieuLocoSelect">
+                <option value="">Tous modes</option>
+                <option value="A_PIED">A pied</option>
+                <option value="VELO">A velo</option>
+                <option value="TRANSPORT_PUBLIC">Transport</option>
+                <option value="VOITURE">Voiture</option>
+            </select>
+            <input type="number" id="lieuMaxInput" placeholder="Max min" min="0">
+            <button type="button" class="filter-add-btn" id="lieuAddBtn" title="Ajouter">+</button>
+        </div>
     </div>
-    <div class="form-group">
-        <label>Max minutes</label>
-        <input type="number" name="maxMinutes" value="{{ filters.maxMinutes ?? '' }}" placeholder="Max">
-    </div>
-    <div class="form-group">
-        <label>Transport</label>
-        <select name="locomotion">
-            <option value="">Tous</option>
-            <option value="MARCHE" {{ (filters.locomotion ?? '') == 'MARCHE' ? 'selected' }}>Pied</option>
-            <option value="VELO" {{ (filters.locomotion ?? '') == 'VELO' ? 'selected' }}>Velo</option>
-            <option value="TRANSPORT_PUBLIC" {{ (filters.locomotion ?? '') == 'TRANSPORT_PUBLIC' ? 'selected' }}>Bus/Metro</option>
-            <option value="VOITURE" {{ (filters.locomotion ?? '') == 'VOITURE' ? 'selected' }}>Voiture</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Filtrer</button>
+    {% endif %}
+
     <a href="{{ path('biens_list') }}" class="btn btn-secondary">Reset</a>
 </form>
 
+<div id="resultsContainer">
 <div class="property-grid">
     {% for bien in biens %}
     {% set isSale = bien.availableForSale is defined and bien.availableForSale %}
@@ -108,6 +282,31 @@
     {% set headerClass = (isSale and isRent) ? 'header-both' : (isSale ? 'header-sale' : 'header-rent') %}
     {% set iconClass = (isSale and isRent) ? 'icon-both' : (isSale ? 'icon-sale' : 'icon-rent') %}
     <a href="{{ path('biens_detail', {id: bien.id}) }}" class="property-card" style="color: inherit; text-decoration: none;">
+        {% if bien.photoUrls is defined and bien.photoUrls|length > 0 %}
+        <div class="card-slider" data-index="0">
+            <img src="{{ bien.photoUrls[0] }}" alt="{{ bien.type ?? 'Bien' }} - {{ bien.ville }}">
+            <div class="slider-badges">
+                {% if isSale and isRent %}
+                    <span class="badge badge-sale">Vente</span>
+                    <span class="badge badge-rent">Location</span>
+                {% elseif isSale %}
+                    <span class="badge badge-sale">Vente</span>
+                {% elseif isRent %}
+                    <span class="badge badge-rent">Location</span>
+                {% endif %}
+            </div>
+            {% if bien.photoUrls|length > 1 %}
+                <button class="slider-arrow slider-prev" onclick="slideCard(event, this, -1)">&lsaquo;</button>
+                <button class="slider-arrow slider-next" onclick="slideCard(event, this, 1)">&rsaquo;</button>
+                <div class="slider-dots">
+                    {% for url in bien.photoUrls %}
+                        <div class="slider-dot{{ loop.first ? ' active' : '' }}"></div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <script type="application/json" class="slider-urls">{{ bien.photoUrls|json_encode|raw }}</script>
+        </div>
+        {% else %}
         <div class="card-header {{ headerClass }}">
             <div class="card-header-icon {{ iconClass }}">
                 {% if bien.type == 'APPARTEMENT' %}
@@ -134,6 +333,7 @@
                 <span class="badge badge-rent">Location</span>
             {% endif %}
         </div>
+        {% endif %}
         <div class="card-body">
             <div class="card-row">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -166,6 +366,24 @@
     {% endfor %}
 </div>
 
+<script>
+function slideCard(event, btn, dir) {
+    event.preventDefault();
+    event.stopPropagation();
+    var slider = btn.closest('.card-slider');
+    var urls = JSON.parse(slider.querySelector('.slider-urls').textContent);
+    var idx = parseInt(slider.dataset.index) + dir;
+    if (idx < 0) idx = urls.length - 1;
+    if (idx >= urls.length) idx = 0;
+    slider.dataset.index = idx;
+    slider.querySelector('img').src = urls[idx];
+    var dots = slider.querySelectorAll('.slider-dot');
+    for (var i = 0; i < dots.length; i++) {
+        dots[i].classList.toggle('active', i === idx);
+    }
+}
+</script>
+
 {% if totalPages > 1 %}
 <div class="pagination">
     {% for i in 0..totalPages-1 %}
@@ -177,4 +395,156 @@
     {% endfor %}
 </div>
 {% endif %}
+</div>{# /resultsContainer #}
+
+<script>
+// --- Filter chip management ---
+function removeCaracFilter(btn) {
+    btn.closest('.filter-chip').remove();
+    doFilter();
+}
+function removeLieuFilter(btn) {
+    btn.closest('.filter-chip').remove();
+    doFilter();
+}
+
+(function() {
+    var form = document.getElementById('filterForm');
+    if (!form) return;
+    var debounceTimer = null;
+    var currentRequest = null;
+    var basePath = new URL(form.action).pathname;
+
+    // Expose doFilter globally so chip remove buttons can call it
+    window.doFilter = doFilter;
+
+    function doFilter() {
+        var params = new URLSearchParams(new FormData(form));
+        var clean = new URLSearchParams();
+        params.forEach(function(v, k) { if (v) clean.set(k, v); });
+        clean.delete('page');
+
+        var fetchUrl = basePath + (clean.toString() ? '?' + clean.toString() : '');
+
+        if (currentRequest) currentRequest.abort();
+        var controller = new AbortController();
+        currentRequest = controller;
+
+        var container = document.getElementById('resultsContainer');
+        container.style.opacity = '0.5';
+        container.style.transition = 'opacity 0.15s';
+
+        fetch(fetchUrl, { signal: controller.signal, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(r) { return r.text(); })
+            .then(function(html) {
+                currentRequest = null;
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var newResults = doc.getElementById('resultsContainer');
+                if (newResults) container.innerHTML = newResults.innerHTML;
+                container.style.opacity = '1';
+                var newCount = doc.getElementById('resultCount');
+                var oldCount = document.getElementById('resultCount');
+                if (newCount && oldCount) oldCount.innerHTML = newCount.innerHTML;
+            })
+            .catch(function(e) {
+                if (e.name !== 'AbortError') { container.style.opacity = '1'; }
+            });
+    }
+
+    // --- Enter key in adder inputs triggers add ---
+    var caracMinInput = document.getElementById('caracMinInput');
+    var lieuMaxInput = document.getElementById('lieuMaxInput');
+    if (caracMinInput) caracMinInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('caracAddBtn').click(); } });
+    if (lieuMaxInput) lieuMaxInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('lieuAddBtn').click(); } });
+
+    // --- Caracteristique add ---
+    var caracAddBtn = document.getElementById('caracAddBtn');
+    if (caracAddBtn) {
+        caracAddBtn.addEventListener('click', function() {
+            var sel = document.getElementById('caracSelect');
+            var minInput = document.getElementById('caracMinInput');
+            var id = sel.value;
+            var minVal = minInput.value;
+            if (!id || !minVal) return;
+
+            var lib = sel.options[sel.selectedIndex].dataset.lib;
+            var chips = document.getElementById('caracChips');
+
+            // Replace existing chip for same characteristic
+            var existing = chips.querySelector('[data-carac-id="' + id + '"]');
+            if (existing) existing.remove();
+
+            var chip = document.createElement('div');
+            chip.className = 'filter-chip';
+            chip.dataset.caracId = id;
+            chip.innerHTML = '<span>' + lib + ' \u2265 ' + minVal + '</span>' +
+                '<input type="hidden" name="caracMin_' + id + '" value="' + minVal + '">' +
+                '<button type="button" class="filter-chip-remove" onclick="removeCaracFilter(this)">\u00d7</button>';
+            chips.appendChild(chip);
+
+            // Reset inputs
+            sel.value = '';
+            minInput.value = '';
+            doFilter();
+        });
+    }
+
+    // --- Lieu add ---
+    var locoLabels = {'A_PIED': 'a pied', 'VELO': 'a velo', 'TRANSPORT_PUBLIC': 'en transport', 'VOITURE': 'en voiture'};
+    var lieuAddBtn = document.getElementById('lieuAddBtn');
+    if (lieuAddBtn) {
+        lieuAddBtn.addEventListener('click', function() {
+            var sel = document.getElementById('lieuSelect');
+            var locoSel = document.getElementById('lieuLocoSelect');
+            var maxInput = document.getElementById('lieuMaxInput');
+            var id = sel.value;
+            var maxVal = maxInput.value;
+            if (!id || !maxVal) return;
+
+            var lib = sel.options[sel.selectedIndex].dataset.lib;
+            var loco = locoSel.value;
+            var locoText = loco ? ' ' + (locoLabels[loco] || loco) : '';
+            var chips = document.getElementById('lieuChips');
+
+            // Replace existing chip for same lieu
+            var existing = chips.querySelector('[data-lieu-id="' + id + '"]');
+            if (existing) existing.remove();
+
+            var chip = document.createElement('div');
+            chip.className = 'filter-chip';
+            chip.dataset.lieuId = id;
+            var html = '<span>' + lib + ' \u2264 ' + maxVal + ' min' + locoText + '</span>' +
+                '<input type="hidden" name="lieuMax_' + id + '" value="' + maxVal + '">';
+            if (loco) {
+                html += '<input type="hidden" name="lieuLoco_' + id + '" value="' + loco + '">';
+            }
+            html += '<button type="button" class="filter-chip-remove" onclick="removeLieuFilter(this)">\u00d7</button>';
+            chip.innerHTML = html;
+            chips.appendChild(chip);
+
+            sel.value = '';
+            locoSel.value = '';
+            maxInput.value = '';
+            doFilter();
+        });
+    }
+
+    // Listen to standard form inputs (not the adder selects/inputs)
+    form.querySelectorAll('select[name]').forEach(function(el) {
+        el.addEventListener('change', function() { doFilter(); });
+    });
+    form.querySelectorAll('input[name][type="text"], input[name][type="number"]').forEach(function(el) {
+        el.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(doFilter, 350);
+        });
+    });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearTimeout(debounceTimer);
+        doFilter();
+    });
+})();
+</script>
 {% endblock %}

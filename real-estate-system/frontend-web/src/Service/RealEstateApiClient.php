@@ -85,6 +85,14 @@ class RealEstateApiClient
         ]);
     }
 
+    public function changePassword(string $currentPassword, string $newPassword): array
+    {
+        return $this->post('/api/auth/change-password', [
+            'currentPassword' => $currentPassword,
+            'newPassword' => $newPassword,
+        ]);
+    }
+
     // ========== Biens (Properties) ==========
 
     public function getBiens(array $filters = []): array
@@ -95,6 +103,11 @@ class RealEstateApiClient
     public function getBienById(int $id): array
     {
         return $this->get('/api/biens/' . $id);
+    }
+
+    public function getContratsByBien(int $bienId): array
+    {
+        return $this->get('/api/biens/' . $bienId . '/contrats');
     }
 
     public function createBien(array $data): array
@@ -212,11 +225,21 @@ class RealEstateApiClient
         $this->doDelete('/api/agences/' . $id);
     }
 
+    public function getAgenceBiens(int $agenceId, int $page = 0, int $size = 12): array
+    {
+        return $this->get('/api/agences/' . $agenceId . '/biens', ['page' => $page, 'size' => $size]);
+    }
+
     // ========== Personnes ==========
 
     public function getPersonnes(): array
     {
         return $this->get('/api/personnes');
+    }
+
+    public function getPersonnesPaginated(int $page = 0, int $size = 20): array
+    {
+        return $this->get('/api/personnes', ['page' => $page, 'size' => $size]);
     }
 
     public function getPersonneById(int $id): array
@@ -445,6 +468,28 @@ class RealEstateApiClient
     public function activateAccount(string $token, string $password): array
     {
         return $this->post('/api/auth/activate', [
+            'token' => $token,
+            'password' => $password,
+        ]);
+    }
+
+    // ========== Password Reset ==========
+
+    public function requestPasswordReset(string $email): array
+    {
+        return $this->post('/api/auth/forgot-password', [
+            'email' => $email,
+        ]);
+    }
+
+    public function checkResetToken(string $token): array
+    {
+        return $this->get('/api/auth/reset-status', ['token' => $token]);
+    }
+
+    public function resetPassword(string $token, string $password): array
+    {
+        return $this->post('/api/auth/reset-password', [
             'token' => $token,
             'password' => $password,
         ]);

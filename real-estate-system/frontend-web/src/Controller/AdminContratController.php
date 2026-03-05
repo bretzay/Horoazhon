@@ -16,10 +16,17 @@ class AdminContratController extends AbstractController
     #[Route('', name: 'admin_contrats')]
     public function list(Request $request): Response
     {
-        $data = $this->api->getContrats([
+        $params = [
             'page' => $request->query->get('page', 0),
             'size' => 20,
-        ]);
+        ];
+        if ($type = $request->query->get('type')) {
+            $params['type'] = $type;
+        }
+        if ($statut = $request->query->get('statut')) {
+            $params['statut'] = $statut;
+        }
+        $data = $this->api->getContrats($params);
         return $this->render('admin/contrat/list.html.twig', [
             'contrats' => $data['content'] ?? [],
             'totalPages' => $data['totalPages'] ?? 0,

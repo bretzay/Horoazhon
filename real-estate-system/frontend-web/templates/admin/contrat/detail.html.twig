@@ -33,10 +33,10 @@
         {% endif %}
         <div style="position: relative; display: inline-block;">
             <button type="button" class="btn btn-primary" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">Telecharger &#9662;</button>
-            <div style="display: none; position: absolute; top: 100%; right: 0; background: #1e293b; border: 1px solid #334155; border-radius: 6px; min-width: 180px; z-index: 10; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                <a href="{{ path('admin_contrats_pdf', {id: contrat.id}) }}" style="display: block; padding: 0.5rem 1rem; color: #e2e8f0; text-decoration: none; font-size: 0.9rem;">Document vierge</a>
+            <div style="display: none; position: absolute; top: 100%; right: 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; min-width: 180px; z-index: 10; margin-top: 4px; box-shadow: 0 4px 12px rgba(15,23,42,0.10);">
+                <a href="{{ path('admin_contrats_pdf', {id: contrat.id}) }}" style="display: block; padding: 0.5rem 1rem; color: #e2e8f0; text-decoration: none; font-size: 0.875rem;">Document vierge</a>
                 {% if hasSigned %}
-                <a href="{{ path('admin_contrats_signed_pdf', {id: contrat.id}) }}" style="display: block; padding: 0.5rem 1rem; color: #e2e8f0; text-decoration: none; font-size: 0.9rem; border-top: 1px solid #334155;">Document signe</a>
+                <a href="{{ path('admin_contrats_signed_pdf', {id: contrat.id}) }}" style="display: block; padding: 0.5rem 1rem; color: #e2e8f0; text-decoration: none; font-size: 0.875rem; border-top: 1px solid #334155;">Document signe</a>
                 {% endif %}
             </div>
         </div>
@@ -58,28 +58,28 @@
             {% set isPast = loop.index0 < currentIndex %}
             <div style="display: flex; align-items: center;">
                 <div style="display: flex; flex-direction: column; align-items: center; min-width: 100px;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+                    <div style="width: 32px; height: 32px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.875rem;
                         {% if isActive %}background: #3b82f6; color: white;
-                        {% elseif isPast %}background: #22c55e; color: white;
+                        {% elseif isPast %}background: #2563eb; color: white;
                         {% else %}background: #e2e8f0; color: #94a3b8;{% endif %}">
                         {% if isPast %}&#10003;{% else %}{{ loop.index }}{% endif %}
                     </div>
-                    <span style="margin-top: 0.25rem; font-size: 0.85rem; font-weight: {% if isActive %}bold{% else %}normal{% endif %}; color: {% if isActive %}#3b82f6{% elseif isPast %}#22c55e{% else %}#94a3b8{% endif %};">
+                    <span style="margin-top: 0.25rem; font-size: 0.875rem; font-weight: {% if isActive %}bold{% else %}normal{% endif %}; color: {% if isActive %}#3b82f6{% elseif isPast %}#2563eb{% else %}#94a3b8{% endif %};">
                         {{ stage.label }}
                     </span>
                 </div>
                 {% if not loop.last %}
-                    <div style="width: 60px; height: 2px; margin: 0 0.25rem; margin-bottom: 1.2rem;
-                        {% if isPast %}background: #22c55e;{% else %}background: #e2e8f0;{% endif %}"></div>
+                    <div style="width: 60px; height: 2px; margin: 0 0.25rem; margin-bottom: 1.25rem;
+                        {% if isPast %}background: #2563eb;{% else %}background: #e2e8f0;{% endif %}"></div>
                 {% endif %}
             </div>
         {% endfor %}
         {% if isAnnule %}
             <div style="display: flex; align-items: center;">
-                <div style="width: 60px; height: 2px; margin: 0 0.25rem; margin-bottom: 1.2rem; background: #ef4444;"></div>
+                <div style="width: 60px; height: 2px; margin: 0 0.25rem; margin-bottom: 1.25rem; background: #0f172a;"></div>
                 <div style="display: flex; flex-direction: column; align-items: center; min-width: 100px;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; background: #ef4444; color: white;">&#10007;</div>
-                    <span style="margin-top: 0.25rem; font-size: 0.85rem; font-weight: bold; color: #ef4444;">Annule</span>
+                    <div style="width: 32px; height: 32px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.875rem; background: #0f172a; color: white;">&#10007;</div>
+                    <span style="margin-top: 0.25rem; font-size: 0.875rem; font-weight: bold; color: #0f172a;">Annule</span>
                 </div>
             </div>
         {% endif %}
@@ -98,14 +98,14 @@
             <div class="label">Document signe</div>
             <div class="value" style="display: flex; align-items: center; gap: 0.5rem;">
                 {% if hasSigned %}
-                    <span class="badge" style="background:#d1fae5;color:#065f46;">Televerse</span>
+                    <span class="badge" style="background:#eff6ff;color:#1d4ed8;">Televerse</span>
                     {% if isAgent and isEnCours %}
                         <form method="POST" action="{{ path('admin_contrats_delete_signe', {id: contrat.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer le document signe ?');">
-                            <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Supprimer</button>
                         </form>
                     {% endif %}
                 {% else %}
-                    <span class="badge" style="background:#fee2e2;color:#991b1b;">Non televerse</span>
+                    <span class="badge" style="background:#f8fafc;color:#0f172a;">Non televerse</span>
                 {% endif %}
             </div>
         </div>

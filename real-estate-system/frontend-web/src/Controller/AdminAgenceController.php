@@ -59,6 +59,96 @@ class AdminAgenceController extends AbstractController
         ]);
     }
 
+    #[Route('/settings', name: 'admin_agence_settings')]
+    public function settings(Request $request): Response
+    {
+        $user = $request->getSession()->get('user');
+        $agenceId = $user['agenceId'] ?? null;
+        if (!$agenceId) {
+            return $this->redirectToRoute('admin_dashboard');
+        }
+        $agence = $this->api->getAgenceById($agenceId);
+
+        if ($request->isMethod('POST')) {
+            try {
+                $data = [
+                    'nom' => $request->request->get('nom'),
+                    'description' => $request->request->get('description'),
+                ];
+
+                // Handle logo file upload — force 1:1 square crop
+                /** @var \Symfony\Component\HttpFoundation\File\UploadedFile|null $logoFile */
+                $logoFile = $request->files->get('logo_file');
+                if ($logoFile && $logoFile->isValid()) {
+                    $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/logos';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+
+                    // Load and center-crop to square
+                    $srcPath = $logoFile->getPathname();
+                    $imageInfo = @getimagesize($srcPath);
+                    $filename = 'agence-' . $agenceId . '-' . uniqid() . '.png';
+                    $destPath = $uploadDir . '/' . $filename;
+
+                    if ($imageInfo && function_exists('imagecreatetruecolor')) {
+                        $mime = $imageInfo['mime'];
+                        $src = match ($mime) {
+                            'image/jpeg' => imagecreatefromjpeg($srcPath),
+                            'image/png' => imagecreatefrompng($srcPath),
+                            'image/webp' => imagecreatefromwebp($srcPath),
+                            default => null,
+                        };
+
+                        if ($src) {
+                            $w = imagesx($src);
+                            $h = imagesy($src);
+                            $side = min($w, $h);
+                            $x = (int)(($w - $side) / 2);
+                            $y = (int)(($h - $side) / 2);
+
+                            $square = imagecreatetruecolor($side, $side);
+                            imagealphablending($square, false);
+                            imagesavealpha($square, true);
+                            imagecopy($square, $src, 0, 0, $x, $y, $side, $side);
+                            imagepng($square, $destPath);
+                            imagedestroy($src);
+                            imagedestroy($square);
+                        } else {
+                            // Fallback: just move the file as-is
+                            $logoFile->move($uploadDir, $filename);
+                        }
+                    } else {
+                        // No GD: just move file
+                        $logoFile->move($uploadDir, $filename);
+                    }
+
+                    $data['logo'] = '/uploads/logos/' . $filename;
+                }
+
+                $this->api->updateAgence($agenceId, $data);
+
+                // Update session with new name/logo
+                if ($data['nom']) {
+                    $user['agenceNom'] = $data['nom'];
+                }
+                if (isset($data['logo'])) {
+                    $user['agenceLogo'] = $data['logo'];
+                }
+                $request->getSession()->set('user', $user);
+
+                $this->addFlash('success', 'Parametres de l\'agence mis a jour.');
+                return $this->redirectToRoute('admin_agence_settings');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+            }
+        }
+
+        return $this->render('admin/agence/settings.html.twig', [
+            'agence' => $agence,
+        ]);
+    }
+
     #[Route('/{id}/delete', name: 'admin_agences_delete', methods: ['POST'])]
     public function delete(int $id): Response
     {

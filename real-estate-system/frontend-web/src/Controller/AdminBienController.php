@@ -18,7 +18,7 @@ class AdminBienController extends AbstractController
     {
         $annonce = $request->query->get('annonce');
         $filters = array_filter([
-            'ville' => $request->query->get('ville'),
+            'search' => $request->query->get('search'),
             'type' => $request->query->get('type'),
             'forSale' => $annonce === 'vente' ? 'true' : null,
             'forRent' => $annonce === 'location' ? 'true' : null,

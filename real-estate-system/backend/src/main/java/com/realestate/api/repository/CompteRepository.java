@@ -16,6 +16,8 @@ public interface CompteRepository extends JpaRepository<Compte, Long> {
 
     Optional<Compte> findByTokenActivation(String token);
 
+    Optional<Compte> findByTokenReset(String tokenReset);
+
     Optional<Compte> findByPersonneId(Long personneId);
 
     boolean existsByEmail(String email);

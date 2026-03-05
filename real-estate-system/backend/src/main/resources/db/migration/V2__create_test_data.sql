@@ -15,7 +15,7 @@ INSERT INTO Agence (siret, nom, rue, ville, codePostal, telephone, email)
 VALUES ('98765432109876', 'Immobilier du Sud', '45 Rue de la Republique', 'Lyon', '69002', '0478123456', 'contact@immosud.fr');
 
 -- ========================================
--- PERSONNES (id 1-12)
+-- PERSONNES (id 1-18)
 -- ========================================
 
 -- Personne 1: Admin Horoazhon
@@ -66,9 +66,29 @@ VALUES ('Fournier', 'Camille', '1991-06-17', '7 Cours de la Liberte', 'Lyon', '6
 INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
 VALUES ('Lambert', 'Nicolas', '1986-03-25', '18 Rue Garibaldi', 'Lyon', '69006', 'FR7630002032531234567890168');
 
--- Personne 13: Super Admin Horoazhon 
+-- Personne 13: Super Admin Horoazhon
 INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal)
 VALUES ('Super', 'Admin', '1975-01-01', '1 Place de la Republique', 'Paris', '75003');
+
+-- Personne 14: Buyer/Renter in Agency 1 area (also CLIENT account)
+INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
+VALUES ('Girard', 'Julien', '1992-05-18', '40 Rue de Turbigo', 'Paris', '75003', 'FR7630001007941234567890200');
+
+-- Personne 15: Buyer/Renter in Agency 1 area
+INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
+VALUES ('Robin', 'Emilie', '1994-09-23', '17 Rue Oberkampf', 'Paris', '75011', 'FR7630001007941234567890201');
+
+-- Personne 16: Buyer/Renter in Agency 1 area
+INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
+VALUES ('Mercier', 'Hugo', '1988-02-14', '9 Rue de Bretagne', 'Paris', '75003', 'FR7630001007941234567890202');
+
+-- Personne 17: Buyer/Renter in Agency 2 area
+INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
+VALUES ('Blanc', 'Marine', '1993-11-30', '28 Rue Victor Hugo', 'Lyon', '69002', 'FR7630001007941234567890203');
+
+-- Personne 18: Buyer/Renter in Agency 2 area
+INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
+VALUES ('Faure', 'Alexandre', '1987-07-09', '5 Place des Terreaux', 'Lyon', '69001', 'FR7630001007941234567890204');
 
 -- ========================================
 -- COMPTES
@@ -77,25 +97,30 @@ VALUES ('Super', 'Admin', '1975-01-01', '1 Place de la Republique', 'Paris', '75
 -- Agence 1 accounts
 INSERT INTO Compte (email, password, agence_id, personne_id, role, actif, date_creation)
 VALUES ('admin@horoazhon.fr', '$2a$10$4IJZ9dimJ7uzfHCSoksndedrRJxRKuyKq4WTrf5NH876TJwn9inUG', 1, 1, 'ADMIN_AGENCY', 1, GETDATE());
--- Pwd: Admin
+-- Pwd: Admin (case-sensitive: capital A)
 
 INSERT INTO Compte (email, password, agence_id, personne_id, role, actif, date_creation)
 VALUES ('agent@horoazhon.fr', '$2a$10$npN//NaACo6iy7RIjiG1heMtLP5NWqJDABgFsJYcbKi1RFC29p4EO', 1, 2, 'AGENT', 1, GETDATE());
--- Pwd: Agent
+-- Pwd: Agent (case-sensitive: capital A)
+
+-- Client account (Agence 1) — uses Personne 14 (Girard Julien)
+INSERT INTO Compte (email, password, agence_id, personne_id, role, actif, date_creation)
+VALUES ('client@horoazhon.fr', '$2a$10$ILDXK8nfwFVJYn/r5Thl7.MiVW6/pCjFHdH65Y27Mgv7jB0zwBOS.', 1, 14, 'CLIENT', 1, GETDATE());
+-- Pwd: Client (case-sensitive: capital C)
 
 -- Agence 2 accounts
 INSERT INTO Compte (email, password, agence_id, personne_id, role, actif, date_creation)
 VALUES ('admin@immosud.fr', '$2a$10$4IJZ9dimJ7uzfHCSoksndedrRJxRKuyKq4WTrf5NH876TJwn9inUG', 2, 8, 'ADMIN_AGENCY', 1, GETDATE());
--- Pwd: Admin
+-- Pwd: Admin (case-sensitive: capital A)
 
 INSERT INTO Compte (email, password, agence_id, personne_id, role, actif, date_creation)
 VALUES ('agent@immosud.fr', '$2a$10$npN//NaACo6iy7RIjiG1heMtLP5NWqJDABgFsJYcbKi1RFC29p4EO', 2, 9, 'AGENT', 1, GETDATE());
--- Pwd: Agent
+-- Pwd: Agent (case-sensitive: capital A)
 
 -- No Agence SUPER_ADMIN
 INSERT INTO Compte (email, password, agence_id, personne_id, role, actif, date_creation)
 VALUES ('superadmin@horoazhon.fr', '$2a$10$4IJZ9dimJ7uzfHCSoksndedrRJxRKuyKq4WTrf5NH876TJwn9inUG', NULL, 13, 'SUPER_ADMIN', 1, GETDATE());
--- Pwd: Admin
+-- Pwd: Admin (case-sensitive: capital A)
 
 -- ========================================
 -- REFERENCE DATA
@@ -124,6 +149,9 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (1, 1, 
 INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (1, 2, '1', 'pieces');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (1, 1, 2, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (1, 3, 5, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop', 1, 1, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop', 2, 1, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop', 3, 1, GETDATE());
 
 -- Bien 2: Studio Marais (for rent) — owned by Durand Marie (Personne 4)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
@@ -137,6 +165,8 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (2, 1, 
 INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (2, 2, '1', 'pieces');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (2, 1, 3, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (2, 2, 8, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop', 1, 2, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', 2, 2, GETDATE());
 
 -- Bien 3: Maison Vincennes (for sale) — owned by Lefevre Sophie (Personne 5)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
@@ -152,6 +182,11 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (3, 3, 
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (3, 1, 10, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (3, 2, 5, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (3, 3, 7, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop', 1, 3, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&h=600&fit=crop', 2, 3, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop', 3, 3, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&h=600&fit=crop', 4, 3, GETDATE());
+
 
 -- Bien 4: Appartement Bastille (for rent) — owned by Moreau Luc (Personne 6)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
@@ -165,6 +200,9 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (4, 1, 
 INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (4, 2, '1', 'pieces');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (4, 1, 4, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (4, 3, 3, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop', 1, 4, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&h=600&fit=crop', 2, 4, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop', 3, 4, GETDATE());
 
 -- Bien 5: Terrain Fontainebleau (for sale) — owned by Bernard Claire (Personne 7 — SHARED with Agency 2)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
@@ -174,6 +212,7 @@ VALUES ('Route de Bourgogne', 'Fontainebleau', '77300', 9, 850,
 
 INSERT INTO Achat (prix, dateDispo, bien_id) VALUES (195000.00, '2026-05-01', 5);
 INSERT INTO Posseder (bien_id, personne_id) VALUES (5, 7);
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop', 1, 5, GETDATE());
 
 -- ============================================================
 -- AGENCY 2 PROPERTIES (5 biens) — Immobilier du Sud
@@ -183,7 +222,7 @@ INSERT INTO Posseder (bien_id, personne_id) VALUES (5, 7);
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
 VALUES ('14 Rue de la Barre', 'Lyon', '69002', 6, 78,
         'Appartement de standing en plein coeur de la Presqu''ile. Parquet ancien, hauts plafonds, balcon filant. Vue sur la Saone.',
-        'APPARTEMENT', 2, 3);
+        'APPARTEMENT', 2, 4);
 
 INSERT INTO Achat (prix, dateDispo, bien_id) VALUES (365000.00, '2026-04-15', 6);
 INSERT INTO Posseder (bien_id, personne_id) VALUES (6, 10);
@@ -191,12 +230,15 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (6, 1, 
 INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (6, 2, '1', 'pieces');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (6, 1, 5, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (6, 3, 4, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&h=600&fit=crop', 1, 6, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=800&h=600&fit=crop', 2, 6, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1615529328331-f8917597711f?w=800&h=600&fit=crop', 3, 6, GETDATE());
 
 -- Bien 7: Studio Part-Dieu (for rent) — owned by Fournier Camille (Personne 11)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
 VALUES ('55 Cours Lafayette', 'Lyon', '69006', 7, 25,
         'Studio fonctionnel a deux pas de la gare Part-Dieu. Ideal etudiant ou jeune actif. Meuble et equipe. Cave incluse.',
-        'STUDIO', 2, 4);
+        'STUDIO', 2, 5);
 
 INSERT INTO Location (caution, dateDispo, mensualite, dureeMois, bien_id) VALUES (1100.00, '2026-03-01', 550.00, 12, 7);
 INSERT INTO Posseder (bien_id, personne_id) VALUES (7, 11);
@@ -205,12 +247,14 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (7, 2, 
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (7, 1, 3, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (7, 2, 10, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (7, 3, 2, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&h=600&fit=crop', 1, 7, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=800&h=600&fit=crop', 2, 7, GETDATE());
 
 -- Bien 8: Maison Caluire (for sale) — owned by Lambert Nicolas (Personne 12)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
 VALUES ('12 Chemin de Crépieux', 'Caluire-et-Cuire', '69300', 8, 160,
         'Maison contemporaine avec piscine et vue sur Lyon. 5 chambres, suite parentale, grand salon cathedrale. Terrain 500m2 clos.',
-        'MAISON', 2, 3);
+        'MAISON', 2, 4);
 
 INSERT INTO Achat (prix, dateDispo, bien_id) VALUES (620000.00, '2026-07-01', 8);
 INSERT INTO Posseder (bien_id, personne_id) VALUES (8, 12);
@@ -219,12 +263,16 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (8, 2, 
 INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (8, 3, '3', 'places');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (8, 2, 8, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (8, 3, 6, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop', 1, 8, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&h=600&fit=crop', 2, 8, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=800&h=600&fit=crop', 3, 8, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=600&fit=crop', 4, 8, GETDATE());
 
 -- Bien 9: Appartement Confluence (for rent) — owned by Garcia Thomas (Personne 10)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
 VALUES ('8 Quai Perrache', 'Lyon', '69002', 9, 55,
         'Appartement neuf dans le quartier Confluence. Terrasse avec vue sur le Rhone. Residence securisee avec parking souterrain. Basse consommation.',
-        'APPARTEMENT', 2, 4);
+        'APPARTEMENT', 2, 5);
 
 INSERT INTO Location (caution, dateDispo, mensualite, dureeMois, bien_id) VALUES (2200.00, '2026-04-01', 1100.00, 24, 9);
 INSERT INTO Posseder (bien_id, personne_id) VALUES (9, 10);
@@ -233,12 +281,15 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (9, 2, 
 INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (9, 3, '1', 'places');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (9, 1, 6, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (9, 3, 3, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&h=600&fit=crop', 1, 9, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600566753376-12c8ab7c5a38?w=800&h=600&fit=crop', 2, 9, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600585154363-67eb9e2e2099?w=800&h=600&fit=crop', 3, 9, GETDATE());
 
 -- Bien 10: Maison Villeurbanne (for sale) — owned by Bernard Claire (Personne 7 — SHARED owner, also owns Bien 5 in Agency 1)
 INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
 VALUES ('25 Rue du 4 Aout 1789', 'Villeurbanne', '69100', 7, 110,
         'Maison de ville avec cour interieure. 3 chambres, bureau, cave voutee. Proximite campus universitaire et transports.',
-        'MAISON', 2, 3);
+        'MAISON', 2, 4);
 
 INSERT INTO Achat (prix, dateDispo, bien_id) VALUES (420000.00, '2026-05-15', 10);
 INSERT INTO Posseder (bien_id, personne_id) VALUES (10, 7);
@@ -248,30 +299,9 @@ INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (10, 3,
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (10, 1, 5, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (10, 2, 4, 'A_PIED');
 INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (10, 3, 6, 'A_PIED');
-
--- ============================================================
--- ADDITIONAL PERSONNES (Buyers / Renters for contracts)
--- ============================================================
-
--- Personne 14: Buyer/Renter in Agency 1 area
-INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
-VALUES ('Girard', 'Julien', '1992-05-18', '40 Rue de Turbigo', 'Paris', '75003', 'FR7630001007941234567890200');
-
--- Personne 15: Buyer/Renter in Agency 1 area
-INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
-VALUES ('Robin', 'Emilie', '1994-09-23', '17 Rue Oberkampf', 'Paris', '75011', 'FR7630001007941234567890201');
-
--- Personne 16: Buyer/Renter in Agency 1 area
-INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
-VALUES ('Mercier', 'Hugo', '1988-02-14', '9 Rue de Bretagne', 'Paris', '75003', 'FR7630001007941234567890202');
-
--- Personne 17: Buyer/Renter in Agency 2 area
-INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
-VALUES ('Blanc', 'Marine', '1993-11-30', '28 Rue Victor Hugo', 'Lyon', '69002', 'FR7630001007941234567890203');
-
--- Personne 18: Buyer/Renter in Agency 2 area
-INSERT INTO Personne (nom, prenom, dateNais, rue, ville, codePostal, rib)
-VALUES ('Faure', 'Alexandre', '1987-07-09', '5 Place des Terreaux', 'Lyon', '69001', 'FR7630001007941234567890204');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop', 1, 10, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&h=600&fit=crop', 2, 10, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=800&h=600&fit=crop', 3, 10, GETDATE());
 
 -- ============================================================
 -- DUAL LISTING: Add a Location to Bien 3 (Maison Vincennes)
@@ -333,19 +363,19 @@ INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VA
 
 -- Contrat 8: SALE of Bien 6 (Appart Presqu'ile, Achat 4)
 -- Normal EN_COURS. Seller: Garcia Thomas (10), Buyer: Blanc Marine (17)
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 4, 3);
+INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 4, 4);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (8, 10, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (8, 17, 'BUYER', NULL);
 
 -- Contrat 9: RENT of Bien 7 (Studio Part-Dieu, Location 3)
 -- Normal EN_COURS. Owner: Fournier Camille (11), Renter: Faure Alexandre (18)
-INSERT INTO Contrat (statut, location_id, compte_createur_id) VALUES ('EN_COURS', 3, 4);
+INSERT INTO Contrat (statut, location_id, compte_createur_id) VALUES ('EN_COURS', 3, 5);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (9, 11, 'OWNER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (9, 18, 'RENTER', NULL);
 
 -- Contrat 10: SALE of Bien 10 (Maison Villeurbanne, Achat 6)
 -- Normal EN_COURS. Seller: Bernard Claire (7), Buyer: Faure Alexandre (18)
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 6, 3);
+INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 6, 4);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (10, 7, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (10, 18, 'BUYER', NULL);
 

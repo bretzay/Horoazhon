@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.realestate.api.service.ContratExpirationScheduler;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +33,7 @@ import java.nio.file.StandardCopyOption;
 @RestController
 @RequestMapping("/api/contrats")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")
 public class ContratController {
 
     private final ContratService contratService;
@@ -95,6 +98,11 @@ public class ContratController {
             return ResponseEntity.badRequest().build();
         }
 
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.equals("application/pdf")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Path uploadPath = Paths.get(uploadDir);
         Files.createDirectories(uploadPath);
 
@@ -121,6 +129,7 @@ public class ContratController {
     }
 
     // TODO: TEMPORARY endpoint — remove after testing
+    @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     @PostMapping("/expire-check")
     public ResponseEntity<String> triggerExpirationCheck() {
         contratExpirationScheduler.expireContracts();

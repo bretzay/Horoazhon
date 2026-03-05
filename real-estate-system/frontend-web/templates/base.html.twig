@@ -5,52 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2563eb">
     <title>{% block title %}Horoazhon - Immobilier{% endblock %}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* === RESET & BASE === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #0f172a;
             background: #f8fafc;
-            line-height: 1.6;
+            line-height: 1.5;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
         a { color: #2563eb; text-decoration: none; transition: color 0.2s; }
         a:hover { color: #1d4ed8; }
 
-        /* === NAVBAR (light, V0-style) === */
-        nav {
-            background: #fff;
-            color: #0f172a;
-            padding: 0 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 64px;
-            position: sticky;
+        /* === SIDEBAR === */
+        .sidebar {
+            position: fixed;
             top: 0;
+            left: 0;
+            width: 240px;
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
             z-index: 1000;
-            border-bottom: 1px solid #e2e8f0;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
-        nav .brand {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.5px;
+        .sidebar-header {
+            padding: 1.25rem 1.25rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .sidebar-brand {
             display: flex;
             align-items: center;
             gap: 0.625rem;
             text-decoration: none;
+            color: #0f172a;
         }
-        nav .brand:hover { color: #0f172a; text-decoration: none; }
-        nav .brand-icon {
+        .sidebar-brand:hover { color: #0f172a; text-decoration: none; }
+        .sidebar-brand .brand-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -60,82 +57,206 @@
             border-radius: 8px;
             flex-shrink: 0;
         }
-        nav .links {
+        .sidebar-brand span:last-child {
+            font-size: 1.0625rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-agency {
             display: flex;
-            gap: 0.25rem;
             align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.625rem;
+            background: #f8fafc;
+            border-radius: 6px;
         }
-        nav .links a {
+        .sidebar-agency img {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .sidebar-agency span {
+            font-size: 0.75rem;
+            font-weight: 600;
             color: #64748b;
-            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Sidebar navigation */
+        .sidebar-nav {
+            flex: 1;
+            padding: 0.5rem 0;
+            overflow-y: auto;
+        }
+        .sidebar-section {
+            padding: 0.25rem 0;
+        }
+        .sidebar-section + .sidebar-section {
+            border-top: 1px solid #f1f5f9;
+        }
+        .sidebar-label {
+            display: block;
+            padding: 0.75rem 1.25rem 0.375rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.8125rem;
             font-weight: 500;
-            padding: 0.5rem 0.875rem;
-            border-radius: 8px;
-            transition: all 0.2s;
+            color: #64748b;
             text-decoration: none;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            margin: 1px 0;
         }
-        nav .links a:hover {
+        .sidebar-link:hover {
             color: #0f172a;
-            background: #f1f5f9;
+            background: #f8fafc;
             text-decoration: none;
         }
-        nav .nav-user {
-            color: #475569;
+        .sidebar-link.active {
+            color: #2563eb;
+            background: #eff6ff;
+            font-weight: 600;
+            border-left-color: #2563eb;
+        }
+        .sidebar-link svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            color: currentColor;
+            opacity: 0.7;
+        }
+        .sidebar-link.active svg {
+            opacity: 1;
+        }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: auto;
+        }
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .user-name {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .user-role {
+            font-size: 0.6875rem;
+            color: #94a3b8;
+            font-weight: 500;
+            display: block;
+        }
+        .sidebar-logout-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            padding: 0.4rem 0.75rem;
-            background: #f1f5f9;
-            border-radius: 9999px;
-            margin-left: 0.25rem;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            color: #94a3b8;
+            transition: all 0.15s;
+            flex-shrink: 0;
         }
-        nav .links a.nav-logout {
-            color: #ef4444;
-            font-weight: 500;
-        }
-        nav .links a.nav-logout:hover {
+        .sidebar-logout-btn:hover {
+            background: #fee2e2;
             color: #dc2626;
-            background: #fef2f2;
         }
-
-        /* Mobile hamburger */
-        .nav-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #0f172a;
-            cursor: pointer;
+        .sidebar-login-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
             padding: 0.5rem;
-            border-radius: 8px;
-            transition: background 0.2s;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 6px;
+            transition: background 0.15s;
         }
-        .nav-toggle:hover { background: #f1f5f9; }
-        .nav-toggle svg { display: block; }
+        .sidebar-login-btn:hover {
+            background: #1d4ed8;
+            color: #fff;
+            text-decoration: none;
+        }
 
-        @media (max-width: 768px) {
-            .nav-toggle { display: block; }
-            nav .links {
-                display: none;
-                position: absolute;
-                top: 64px;
-                left: 0;
-                right: 0;
-                background: #fff;
-                flex-direction: column;
-                padding: 0.75rem;
-                gap: 0.25rem;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-                border-bottom: 1px solid #e2e8f0;
-            }
-            nav .links.open { display: flex; }
-            nav .links a { padding: 0.75rem 1rem; width: 100%; }
-            nav .nav-user { margin-left: 0; width: 100%; padding: 0.75rem 1rem; border-radius: 8px; }
+        /* Mobile sidebar toggle */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 0.75rem;
+            left: 0.75rem;
+            z-index: 1001;
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+            transition: all 0.15s;
+        }
+        .sidebar-toggle:hover { background: #f8fafc; }
+        .sidebar-toggle svg { display: block; color: #0f172a; }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.4);
+            z-index: 999;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-content {
+            margin-left: 240px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* === LAYOUT === */
-        .container { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; flex: 1; }
+        .container { max-width: 1280px; padding: 2rem 1.5rem; flex: 1; }
         .page-header {
             margin-bottom: 2rem;
             display: flex;
@@ -144,17 +265,17 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-        .page-header h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
+        .page-header h1 { font-size: 1.125rem; font-weight: 700; color: #0f172a; letter-spacing: -0.25px; }
 
         /* === BUTTONS === */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.375rem;
+            gap: 0.5rem;
             padding: 0.5rem 1rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 0.875rem;
             font-weight: 500;
@@ -163,34 +284,34 @@
             font-family: inherit;
             white-space: nowrap;
         }
-        .btn:hover { text-decoration: none; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .btn:hover { text-decoration: none; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
         .btn:active { transform: translateY(0); box-shadow: none; }
         .btn-primary { background: #2563eb; color: #fff; }
         .btn-primary:hover { background: #1d4ed8; }
-        .btn-danger { background: #dc2626; color: #fff; }
-        .btn-danger:hover { background: #b91c1c; }
-        .btn-success { background: #16a34a; color: #fff; }
-        .btn-success:hover { background: #15803d; }
-        .btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .btn-secondary:hover { background: #e2e8f0; color: #1e293b; }
-        .btn-sm { padding: 0.3rem 0.625rem; font-size: 0.8rem; border-radius: 6px; }
+        .btn-danger { background: #0f172a; color: #fff; }
+        .btn-danger:hover { background: #1d4ed8; }
+        .btn-success { background: #2563eb; color: #fff; }
+        .btn-success:hover { background: #1d4ed8; }
+        .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+        .btn-secondary:hover { background: #e2e8f0; color: #0f172a; }
+        .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 4px; }
 
         /* === TABLES === */
-        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
-        th, td { padding: 0.875rem 1rem; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #f1f5f9; }
         th { background: #f8fafc; font-weight: 600; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
         tr { transition: background 0.15s; }
-        tr:hover { background: #fafbfc; }
+        tr:hover { background: #f8fafc; }
         tr:last-child td { border-bottom: none; }
 
         /* === FORMS === */
         .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.375rem; font-weight: 500; font-size: 0.875rem; color: #374151; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem; color: #334155; }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 0.625rem 0.75rem;
+            padding: 0.75rem;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 0.875rem;
             font-family: inherit;
             color: #0f172a;
@@ -212,30 +333,30 @@
         /* === CARDS === */
         .card {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 1rem;
             transition: box-shadow 0.2s;
             border: 1px solid #e2e8f0;
         }
-        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-        .card h3 { margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600; color: #0f172a; }
+        .card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.06); }
+        .card h3 { margin-bottom: 1rem; font-size: 1.125rem; font-weight: 600; color: #0f172a; }
 
-        /* === PROPERTY GRID (V0-style) === */
+        /* === PROPERTY GRID === */
         .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
         @media (min-width: 640px) { .property-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .property-grid { grid-template-columns: repeat(3, 1fr); } }
 
         .property-card {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 10px;
             overflow: hidden;
             border: 1px solid #e2e8f0;
             transition: all 0.2s;
             display: flex;
             flex-direction: column;
         }
-        .property-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .property-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(15,23,42,0.10); }
 
         .property-card .card-header {
             padding: 1rem 1.25rem;
@@ -244,23 +365,23 @@
             gap: 0.75rem;
         }
         .property-card .card-header.header-sale { background: #eff6ff; }
-        .property-card .card-header.header-rent { background: #f0fdf4; }
+        .property-card .card-header.header-rent { background: #f8fafc; }
         .property-card .card-header.header-both { background: #f8fafc; }
         .property-card .card-header-icon {
             width: 40px;
             height: 40px;
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
         .property-card .card-header-icon.icon-sale { background: #dbeafe; color: #2563eb; }
-        .property-card .card-header-icon.icon-rent { background: #dcfce7; color: #16a34a; }
-        .property-card .card-header-icon.icon-both { background: #e2e8f0; color: #475569; }
+        .property-card .card-header-icon.icon-rent { background: #f1f5f9; color: #0f172a; }
+        .property-card .card-header-icon.icon-both { background: #e2e8f0; color: #334155; }
         .property-card .card-header-text { flex: 1; min-width: 0; }
         .property-card .card-header-text h3 {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 700;
             color: #0f172a;
             margin: 0;
@@ -274,50 +395,50 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             color: #64748b;
         }
         .property-card .card-row svg { flex-shrink: 0; color: #94a3b8; }
 
         .property-card .card-footer {
-            padding: 0.875rem 1.25rem;
+            padding: 0.75rem 1.25rem;
             border-top: 1px solid #f1f5f9;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .property-card .card-price { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+        .property-card .card-price { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
         .property-card .card-agency { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
 
         /* Legacy property-card support */
         .property-card .info { padding: 1.25rem; }
-        .property-card .info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.375rem; color: #0f172a; }
-        .property-card .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; }
-        .property-card .price { font-size: 1.1rem; font-weight: bold; color: #2563eb; }
+        .property-card .info h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: #0f172a; }
+        .property-card .meta { font-size: 0.875rem; color: #64748b; margin-bottom: 0.5rem; }
+        .property-card .price { font-size: 1.125rem; font-weight: bold; color: #2563eb; }
 
         /* === BADGES === */
         .badge {
             display: inline-flex;
             align-items: center;
-            padding: 0.25rem 0.625rem;
+            padding: 0.25rem 0.75rem;
             border-radius: 9999px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
         .badge-sale { background: #2563eb; color: #fff; }
-        .badge-rent { background: #16a34a; color: #fff; }
-        .badge-en_cours { background: #fef3c7; color: #92400e; }
-        .badge-signe { background: #dcfce7; color: #166534; }
-        .badge-annule { background: #fee2e2; color: #991b1b; }
-        .badge-termine { background: #e0e7ff; color: #3730a3; }
+        .badge-rent { background: #0f172a; color: #fff; }
+        .badge-en_cours { background: #dbeafe; color: #1d4ed8; }
+        .badge-signe { background: #f1f5f9; color: #0f172a; }
+        .badge-annule { background: #e2e8f0; color: #334155; }
+        .badge-termine { background: #eff6ff; color: #2563eb; }
 
         /* === FILTERS === */
         .filters {
             background: #fff;
             padding: 1.25rem;
-            border-radius: 16px;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
             display: flex;
             gap: 1rem;
@@ -325,16 +446,16 @@
             align-items: end;
             border: 1px solid #e2e8f0;
         }
-        .filters .form-group { margin-bottom: 0; min-width: 150px; }
+        .filters .form-group { margin-bottom: 0; min-width: 152px; }
 
         /* === FLASH MESSAGES === */
         .flash {
-            padding: 0.875rem 1rem;
-            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.625rem;
+            gap: 0.75rem;
             font-size: 0.875rem;
             font-weight: 500;
             animation: flashIn 0.3s ease-out;
@@ -344,15 +465,15 @@
             from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .flash-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .flash-success::before { content: '\2713'; font-weight: bold; font-size: 1rem; }
-        .flash-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-        .flash-error::before { content: '\2717'; font-weight: bold; font-size: 1rem; }
+        .flash-success { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+        .flash-success::before { content: '\2713'; font-weight: bold; font-size: 0.875rem; }
+        .flash-error { background: #f8fafc; color: #0f172a; border: 1px solid #e2e8f0; }
+        .flash-error::before { content: '\2717'; font-weight: bold; font-size: 0.875rem; }
         .flash .flash-close {
             margin-left: auto;
             background: none;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.125rem;
             cursor: pointer;
             opacity: 0.4;
             transition: opacity 0.2s;
@@ -363,28 +484,28 @@
 
         /* === DETAIL LAYOUTS === */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-        .detail-item { margin-bottom: 0.625rem; }
-        .detail-item .label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 0.25rem; }
-        .detail-item .value { font-size: 1rem; color: #0f172a; font-weight: 500; }
+        .detail-item { margin-bottom: 0.5rem; }
+        .detail-item .label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 0.25rem; }
+        .detail-item .value { font-size: 0.875rem; color: #0f172a; font-weight: 500; }
 
         /* === SECTIONS === */
-        .section { border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
-        .section h4 { margin-bottom: 0.75rem; color: #475569; font-weight: 600; }
+        .section { border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+        .section h4 { margin-bottom: 0.75rem; color: #334155; font-weight: 600; }
         .section-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; }
         .section-item:last-child { border-bottom: none; }
 
         /* === PAGINATION === */
-        .pagination { display: flex; gap: 0.375rem; justify-content: center; margin-top: 2rem; }
+        .pagination { display: flex; gap: 0.5rem; justify-content: center; margin-top: 2rem; }
         .pagination a, .pagination span {
-            padding: 0.5rem 0.875rem;
+            padding: 0.5rem 0.75rem;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 0.875rem;
             font-weight: 500;
             transition: all 0.2s;
-            color: #475569;
+            color: #334155;
         }
-        .pagination a:hover { background: #f1f5f9; border-color: #cbd5e1; text-decoration: none; color: #0f172a; }
+        .pagination a:hover { background: #f1f5f9; text-decoration: none; color: #0f172a; }
         .pagination span.current { background: #2563eb; color: #fff; border-color: #2563eb; }
 
         /* === STATS === */
@@ -392,42 +513,57 @@
         .stat-card {
             background: #fff;
             padding: 1.5rem;
-            border-radius: 16px;
+            border-radius: 10px;
             border: 1px solid #e2e8f0;
             transition: all 0.2s;
         }
-        .stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); transform: translateY(-2px); }
-        .stat-card .number { font-size: 2rem; font-weight: 800; color: #2563eb; letter-spacing: -1px; }
-        .stat-card .label { font-size: 0.85rem; color: #64748b; font-weight: 500; margin-top: 0.125rem; }
+        .stat-card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.06); transform: translateY(-2px); }
+        .stat-card .number { font-size: 1.5rem; font-weight: 800; color: #2563eb; letter-spacing: -0.5px; }
+        .stat-card .label { font-size: 0.875rem; color: #64748b; font-weight: 500; margin-top: 0.25rem; }
 
-        /* === FOOTER (V0-style) === */
+        /* === FOOTER === */
         .site-footer {
             background: #fff;
             color: #64748b;
             padding: 1.5rem;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             margin-top: auto;
             border-top: 1px solid #e2e8f0;
         }
         .footer-inner {
             max-width: 1280px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
         }
-        .footer-brand { font-weight: 700; color: #0f172a; font-size: 1rem; }
+        .footer-brand { font-weight: 700; color: #0f172a; font-size: 0.875rem; }
         .footer-links { display: flex; gap: 1.5rem; }
-        .footer-links a { color: #94a3b8; transition: color 0.2s; text-decoration: none; font-size: 0.8rem; }
+        .footer-links a { color: #94a3b8; transition: color 0.2s; text-decoration: none; font-size: 0.75rem; }
         .footer-links a:hover { color: #0f172a; }
 
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
-            .container { padding: 1.25rem 1rem; }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.visible {
+                display: block;
+            }
+            .sidebar-toggle {
+                display: flex;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .container { padding: 1.25rem 1rem; padding-top: 3.5rem; }
             .page-header { flex-direction: column; align-items: flex-start; }
-            .page-header h1 { font-size: 1.25rem; }
+            .page-header h1 { font-size: 1.125rem; }
             .detail-grid { grid-template-columns: 1fr; }
             .property-grid { grid-template-columns: 1fr; }
             .form-row { flex-direction: column; gap: 0; }
@@ -444,77 +580,214 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <nav>
-        <a href="{{ path('home') }}" class="brand">
-            <span class="brand-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </span>
-            Horoazhon
-        </a>
-        <button class="nav-toggle" onclick="document.querySelector('.links').classList.toggle('open')" aria-label="Menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <div class="links">
-            {% if app.request.get('_route') != 'login' %}
-                <a href="{{ path('home') }}">Accueil</a>
-                <a href="{{ path('biens_list') }}">Biens</a>
-            {% endif %}
-            {% if app.session.get('jwt_token') and app.session.get('user') %}
-                {% set user = app.session.get('user') %}
-                {% if user.role != 'CLIENT' %}
-                    <a href="{{ path('admin_dashboard') }}">Admin</a>
-                {% else %}
-                    <a href="{{ path('client_dashboard') }}">Mon Espace</a>
-                {% endif %}
-                <span class="nav-user">
-                    {% if user.role == 'SUPER_ADMIN' %}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#f59e0b"/><path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#fff"/></svg>
-                    {% elseif user.role == 'ADMIN_AGENCY' %}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#22c55e"/><path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#fff"/></svg>
-                    {% elseif user.role == 'AGENT' %}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#3b82f6"/><path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#fff"/></svg>
-                    {% else %}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#94a3b8"/></svg>
-                    {% endif %}
-                    {{ user.prenom }} {{ user.nom }}
+    {% set route = app.request.get('_route') %}
+    {% set is_auth = app.session.get('jwt_token') and app.session.get('user') %}
+    {% set user = is_auth ? app.session.get('user') : null %}
+    {% set user_role = user ? user.role : null %}
+
+    {# === SIDEBAR === #}
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ path('home') }}" class="sidebar-brand">
+                <span class="brand-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </span>
-                <a href="{{ path('logout') }}" class="nav-logout">Deconnexion</a>
-            {% else %}
-                <a href="{{ path('login') }}">Connexion</a>
+                <span>Horoazhon</span>
+            </a>
+            {% if user and user.agenceNom is defined and user.agenceNom %}
+            <div class="sidebar-agency">
+                {% if user.agenceLogo is defined and user.agenceLogo %}
+                <img src="{{ user.agenceLogo }}" alt="{{ user.agenceNom }}">
+                {% endif %}
+                <span>{{ user.agenceNom }}</span>
+            </div>
             {% endif %}
         </div>
-    </nav>
-    <div class="container">
-        {% for message in app.flashes('success') %}
-            <div class="flash flash-success">
-                <span>{{ message }}</span>
-                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+
+        <nav class="sidebar-nav">
+            {# --- Public links (always visible) --- #}
+            <div class="sidebar-section">
+                <a href="{{ path('home') }}" class="sidebar-link{{ route == 'home' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Accueil
+                </a>
+                <a href="{{ path('biens_list') }}" class="sidebar-link{{ route starts with 'biens_' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    Biens
+                </a>
+                <a href="{{ path('agences_list') }}" class="sidebar-link{{ route starts with 'agence' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                    Agences
+                </a>
             </div>
-        {% endfor %}
-        {% for message in app.flashes('error') %}
-            <div class="flash flash-error">
-                <span>{{ message }}</span>
-                <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
-            </div>
-        {% endfor %}
-        {% block body %}{% endblock %}
-    </div>
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <span class="footer-brand">Horoazhon</span>
-            <div class="footer-links">
-                <a href="{{ path('biens_list') }}">Biens</a>
-                {% if app.session.get('jwt_token') and app.session.get('user') %}
-                    {% if app.session.get('user').role != 'CLIENT' %}
-                        <a href="{{ path('admin_dashboard') }}">Admin</a>
-                    {% else %}
-                        <a href="{{ path('client_dashboard') }}">Mon Espace</a>
-                    {% endif %}
+
+            {# --- Admin links (SUPER_ADMIN, ADMIN_AGENCY, AGENT) --- #}
+            {% if user_role in ['SUPER_ADMIN', 'ADMIN_AGENCY', 'AGENT'] %}
+            <div class="sidebar-section">
+                <span class="sidebar-label">Administration</span>
+                <a href="{{ path('admin_dashboard') }}" class="sidebar-link{{ route == 'admin_dashboard' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    Tableau de bord
+                </a>
+                <a href="{{ path('admin_biens') }}" class="sidebar-link{{ route starts with 'admin_biens' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>
+                    Biens
+                </a>
+                <a href="{{ path('admin_contrats') }}" class="sidebar-link{{ route starts with 'admin_contrats' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Contrats
+                </a>
+                <a href="{{ path('admin_personnes') }}" class="sidebar-link{{ route starts with 'admin_personnes' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    Personnes
+                </a>
+                {% if user_role in ['SUPER_ADMIN', 'ADMIN_AGENCY'] %}
+                <a href="{{ path('admin_utilisateurs') }}" class="sidebar-link{{ route starts with 'admin_utilisateurs' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
+                    Utilisateurs
+                </a>
+                {% endif %}
+                {% if user_role == 'ADMIN_AGENCY' %}
+                <a href="{{ path('admin_agence_settings') }}" class="sidebar-link{{ route == 'admin_agence_settings' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1.08 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001.08 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1.08z"/></svg>
+                    Parametres agence
+                </a>
+                {% endif %}
+                {% if user_role == 'SUPER_ADMIN' %}
+                <a href="{{ path('admin_agences') }}" class="sidebar-link{{ route starts with 'admin_agences' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/></svg>
+                    Agences
+                </a>
+                <a href="{{ path('admin_references') }}" class="sidebar-link{{ route starts with 'admin_ref' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    Donnees de reference
+                </a>
                 {% endif %}
             </div>
-            <span>&copy; {{ "now"|date("Y") }} Horoazhon. Tous droits reserves.</span>
+            {% endif %}
+
+            {# --- Client links --- #}
+            {% if user_role == 'CLIENT' %}
+            <div class="sidebar-section">
+                <span class="sidebar-label">Mon espace</span>
+                <a href="{{ path('client_dashboard') }}" class="sidebar-link{{ route == 'client_dashboard' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    Tableau de bord
+                </a>
+                <a href="{{ path('client_contrats') }}" class="sidebar-link{{ route == 'client_contrats' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Mes contrats
+                </a>
+                <a href="{{ path('client_biens') }}" class="sidebar-link{{ route == 'client_biens' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>
+                    Mes biens
+                </a>
+            </div>
+            {% endif %}
+
+            {# --- Account links (any authenticated user) --- #}
+            {% if is_auth %}
+            <div class="sidebar-section">
+                <span class="sidebar-label">Compte</span>
+                <a href="{{ path('profil') }}" class="sidebar-link{{ route == 'profil' ? ' active' : '' }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Mon profil
+                </a>
+                {% if user.agenceId is defined and user.agenceId %}
+                <a href="{{ path('agence_profile', {id: user.agenceId}) }}" class="sidebar-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>
+                    Mon agence
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </nav>
+
+        {# --- Sidebar footer: user info or login button --- #}
+        <div class="sidebar-footer">
+            {% if is_auth %}
+            <div class="sidebar-user">
+                <div class="user-avatar">{{ user.prenom|first|upper }}</div>
+                <div class="user-info">
+                    <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+                    <span class="user-role">
+                        {% if user_role == 'SUPER_ADMIN' %}Super Admin
+                        {% elseif user_role == 'ADMIN_AGENCY' %}Admin Agence
+                        {% elseif user_role == 'AGENT' %}Agent
+                        {% else %}Client{% endif %}
+                    </span>
+                </div>
+                <a href="{{ path('logout') }}" class="sidebar-logout-btn" title="Deconnexion">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </a>
+            </div>
+            {% else %}
+            <a href="{{ path('login') }}" class="sidebar-login-btn">Se connecter</a>
+            {% endif %}
         </div>
-    </footer>
+    </aside>
+
+    {# === MOBILE TOGGLE === #}
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    {# === MAIN CONTENT === #}
+    <main class="main-content">
+        <div class="container">
+            {% for message in app.flashes('success') %}
+                <div class="flash flash-success">
+                    <span>{{ message }}</span>
+                    <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="flash flash-error">
+                    <span>{{ message }}</span>
+                    <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+            {% endfor %}
+            {% block body %}{% endblock %}
+        </div>
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <span class="footer-brand">Horoazhon</span>
+                <div class="footer-links">
+                    <a href="{{ path('biens_list') }}">Biens</a>
+                </div>
+                <span>&copy; {{ "now"|date("Y") }} Horoazhon. Tous droits reserves.</span>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+    (function() {
+        var sidebar = document.getElementById('sidebar');
+        var toggle = document.getElementById('sidebarToggle');
+        var overlay = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('visible');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('visible');
+            document.body.style.overflow = '';
+        }
+
+        if (toggle) toggle.addEventListener('click', function() {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeSidebar();
+        });
+    })();
+    </script>
     {% block javascripts %}{% endblock %}
 </body>
 </html>

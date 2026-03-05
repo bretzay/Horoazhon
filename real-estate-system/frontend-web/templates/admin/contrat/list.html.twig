@@ -8,6 +8,31 @@
     <a href="{{ path('admin_contrats_new') }}" class="btn btn-primary">+ Nouveau Contrat</a>
 </div>
 
+<form method="GET" class="filters" style="display:flex;gap:1rem;align-items:flex-end;margin-bottom:1rem;">
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Type</label>
+        <select name="type" style="padding:0.5rem;border-radius:6px;border:1px solid #e2e8f0;">
+            <option value="">Tous</option>
+            <option value="LOCATION"{{ app.request.query.get('type') == 'LOCATION' ? ' selected' : '' }}>Location</option>
+            <option value="ACHAT"{{ app.request.query.get('type') == 'ACHAT' ? ' selected' : '' }}>Achat</option>
+        </select>
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Statut</label>
+        <select name="statut" style="padding:0.5rem;border-radius:6px;border:1px solid #e2e8f0;">
+            <option value="">Tous</option>
+            <option value="EN_COURS"{{ app.request.query.get('statut') == 'EN_COURS' ? ' selected' : '' }}>En cours</option>
+            <option value="SIGNE"{{ app.request.query.get('statut') == 'SIGNE' ? ' selected' : '' }}>Signe</option>
+            <option value="ANNULE"{{ app.request.query.get('statut') == 'ANNULE' ? ' selected' : '' }}>Annule</option>
+            <option value="TERMINE"{{ app.request.query.get('statut') == 'TERMINE' ? ' selected' : '' }}>Termine</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+    {% if app.request.query.get('type') or app.request.query.get('statut') %}
+        <a href="{{ path('admin_contrats') }}" class="btn btn-secondary btn-sm">Reset</a>
+    {% endif %}
+</form>
+
 <table>
     <thead>
         <tr><th>ID</th><th>Type</th><th>Bien</th><th>Statut</th><th>Cosignataires</th><th>Date</th><th>Actions</th></tr>

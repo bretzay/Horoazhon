@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Agences{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+    .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+    }
+    .page-header p {
+        color: #64748b;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    .agency-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+    .agency-card {
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        display: flex;
+        flex-direction: column;
+    }
+    .agency-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+    .agency-card-top {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem;
+        align-items: flex-start;
+    }
+    .agency-card-logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+    .agency-card-logo img {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+    .agency-card-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .agency-card-info h2 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.3px;
+        margin-bottom: 0.25rem;
+    }
+    .agency-card-info .agency-city {
+        font-size: 0.875rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    .agency-card-info .agency-city svg {
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+    .agency-card-details {
+        padding: 0 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .agency-card-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        color: #64748b;
+    }
+    .agency-card-detail svg {
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+    .agency-card-footer {
+        border-top: 1px solid #f1f5f9;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .agency-card-footer .view-link {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+        grid-column: 1 / -1;
+    }
+    .empty-state svg { margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state p { font-size: 0.875rem; }
+    @media (max-width: 768px) {
+        .agency-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h1>Nos Agences</h1>
+    <p>Decouvrez nos agences immobilieres partenaires</p>
+</div>
+
+<div class="agency-grid">
+    {% for agence in agences %}
+    <a href="{{ path('agence_profile', {id: agence.id}) }}" class="agency-card">
+        <div class="agency-card-top">
+            {% if agence.logo is defined and agence.logo %}
+                <div class="agency-card-logo">
+                    <img src="{{ agence.logo }}" alt="{{ agence.nom }}">
+                </div>
+            {% else %}
+                <div class="agency-card-logo">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                </div>
+            {% endif %}
+            <div class="agency-card-info">
+                <h2>{{ agence.nom }}</h2>
+                <span class="agency-city">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {{ agence.ville ?? '' }}{% if agence.codePostal is defined and agence.codePostal %} ({{ agence.codePostal }}){% endif %}
+                </span>
+            </div>
+        </div>
+        <div class="agency-card-details">
+            {% if agence.rue is defined and agence.rue %}
+            <span class="agency-card-detail">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {{ agence.rue }}
+            </span>
+            {% endif %}
+            {% if agence.telephone is defined and agence.telephone %}
+            <span class="agency-card-detail">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                {{ agence.telephone }}
+            </span>
+            {% endif %}
+            {% if agence.email is defined and agence.email %}
+            <span class="agency-card-detail">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                {{ agence.email }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="agency-card-footer">
+            <span class="view-link">
+                Voir l'agence
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+        </div>
+    </a>
+    {% else %}
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/></svg>
+        <p>Aucune agence disponible pour le moment.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

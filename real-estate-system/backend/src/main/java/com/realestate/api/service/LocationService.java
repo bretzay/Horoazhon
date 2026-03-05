@@ -39,12 +39,15 @@ public class LocationService {
     public LocationDTO findById(Long id) {
         Location loc = locationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
+        verifyAgencyAccess(loc);
         return convertToDTO(loc);
     }
 
     public LocationDTO create(CreateLocationRequest request) {
         Bien bien = bienRepository.findById(request.getBienId())
                 .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + request.getBienId()));
+
+        verifyBienAgencyAccess(bien);
 
         if (bien.getLocation() != null) {
             throw new IllegalStateException("Bien " + request.getBienId() + " already has a rental listing");
@@ -64,6 +67,7 @@ public class LocationService {
     public LocationDTO update(Long id, CreateLocationRequest request) {
         Location loc = locationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
+        verifyAgencyAccess(loc);
 
         if (request.getCaution() != null) loc.setCaution(request.getCaution());
         if (request.getMensualite() != null) loc.setMensualite(request.getMensualite());
@@ -75,10 +79,24 @@ public class LocationService {
     }
 
     public void delete(Long id) {
-        if (!locationRepository.existsById(id)) {
-            throw new EntityNotFoundException("Location not found with id: " + id);
-        }
+        Location loc = locationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
+        verifyAgencyAccess(loc);
         locationRepository.deleteById(id);
+    }
+
+    private void verifyAgencyAccess(Location loc) {
+        if (loc.getBien() != null) {
+            verifyBienAgencyAccess(loc.getBien());
+        }
+    }
+
+    private void verifyBienAgencyAccess(Bien bien) {
+        Long agenceId = securityUtils.getCurrentAgenceId();
+        if (agenceId != null && bien.getAgence() != null
+                && !bien.getAgence().getId().equals(agenceId)) {
+            throw new SecurityException("Access denied: this property belongs to another agency");
+        }
     }
 
     private LocationDTO convertToDTO(Location loc) {

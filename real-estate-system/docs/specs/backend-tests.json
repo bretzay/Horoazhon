@@ -1,0 +1,4627 @@
+{
+  "$schema": "spec-tests-v1",
+  "role": "backend",
+  "lastUpdated": "2026-03-05T06:10:00Z",
+  "tests": [
+    {
+      "featureId": "be-auth-login",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-auth-login-superadmin",
+          "title": "SUPER_ADMIN login returns token and role metadata",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "token"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "SUPER_ADMIN"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceId",
+              "value": null
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceNom",
+              "value": null
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-admin-agency",
+          "title": "ADMIN_AGENCY login returns token with agency metadata",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "token"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "ADMIN_AGENCY"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceId",
+              "value": 1
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceNom",
+              "value": "Horoazhon France"
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-agent",
+          "title": "AGENT login returns token with agency metadata",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as AGENT of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "token"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "AGENT"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceId",
+              "value": 1
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceNom",
+              "value": "Horoazhon France"
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-wrong-password",
+          "title": "Login with wrong password returns 401",
+          "type": "http",
+          "status": "failing",
+          "lastResult": "Expected HTTP 401 but got 500. The backend throws an unhandled exception instead of returning a clean 401 for invalid credentials. Response: {\"status\":500,\"message\":\"Une erreur interne est survenue\"}",
+          "steps": [
+            {
+              "description": "Login with correct email but wrong password",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "WrongPassword"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-nonexistent-email",
+          "title": "Login with nonexistent email returns 401 (anti-enumeration)",
+          "type": "http",
+          "status": "failing",
+          "lastResult": "Expected HTTP 401 but got 500. The backend throws an unhandled exception for nonexistent email lookup instead of returning a clean 401. Response: {\"status\":500,\"message\":\"Une erreur interne est survenue\"}",
+          "steps": [
+            {
+              "description": "Login with email that does not exist",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "nobody@nowhere.com",
+                "password": "Admin"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-empty-body",
+          "title": "Login with empty body returns 400",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login with empty JSON body",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {}
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-agency2",
+          "title": "ADMIN_AGENCY login for agency 2 returns correct agency metadata",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY of agency 2",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@immosud.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "token"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "ADMIN_AGENCY"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceId",
+              "value": 2
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceNom",
+              "value": "Immobilier du Sud"
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-sql-injection",
+          "title": "Login with SQL injection email returns 401 (not 500)",
+          "type": "http",
+          "status": "failing",
+          "lastResult": "Expected HTTP 401 but got 500. The SQL injection email ('admin'--@test.com) is passed to the login service but triggers an unhandled exception instead of a clean 401. Response: {\"status\":500,\"message\":\"Une erreur interne est survenue\"}",
+          "steps": [
+            {
+              "description": "Login with SQL injection email",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin'--@test.com",
+                "password": "Admin"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ]
+        },
+        {
+          "id": "be-auth-login-xss-email",
+          "title": "Login with XSS in email returns 400 or 401",
+          "type": "http",
+          "status": "failing",
+          "lastResult": "Expected HTTP 401 (per assertion) but got 400. The XSS email <script>alert(1)</script> is correctly rejected by bean validation with 'email: Email must be valid'. The assertion value 401 is inconsistent with the test title which says '400 or 401'. The behavior (400 from validation) is actually correct and secure.",
+          "steps": [
+            {
+              "description": "Login with script tag in email",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "<script>alert(1)</script>",
+                "password": "Admin"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "be-auth-me",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-auth-me-superadmin",
+          "title": "GET /me returns SUPER_ADMIN profile",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get current user profile",
+              "method": "GET",
+              "url": "http://localhost:8080/api/auth/me",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "email",
+              "value": "superadmin@horoazhon.fr"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "SUPER_ADMIN"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceId",
+              "value": null
+            },
+            {
+              "type": "json_field_exists",
+              "field": "personneId"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-me-admin-agency",
+          "title": "GET /me returns ADMIN_AGENCY profile with agency info",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get current user profile",
+              "method": "GET",
+              "url": "http://localhost:8080/api/auth/me",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "email",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "ADMIN_AGENCY"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceId",
+              "value": 1
+            },
+            {
+              "type": "json_field_equals",
+              "field": "agenceNom",
+              "value": "Horoazhon France"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-me-unauthenticated",
+          "title": "GET /me without token returns 401",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Call /me without Authorization header",
+              "method": "GET",
+              "url": "http://localhost:8080/api/auth/me"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-me-invalid-token",
+          "title": "GET /me with invalid token returns 401 or 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Call /me with a garbage token",
+              "method": "GET",
+              "url": "http://localhost:8080/api/auth/me",
+              "headers": {
+                "Authorization": "Bearer invalid.token.here"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-auth-activation",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-auth-activation-status-invalid",
+          "title": "Activation status for nonexistent token returns valid=false",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Check activation status for a random token",
+              "method": "GET",
+              "url": "http://localhost:8080/api/auth/activation-status?token=nonexistent-token-abc123"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "valid",
+              "value": false
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-activation-activate-invalid-token",
+          "title": "Activate with invalid token returns error",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to activate with nonexistent token",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/activate",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "token": "nonexistent-token-xyz789",
+                "password": "NewPassword123"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-activation-invite-superadmin",
+          "title": "SUPER_ADMIN can invite client with agenceId",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Invite a client (personne 14 who has no account)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/invite-client",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "personneId": 14,
+                "email": "testinvite-sa@test.com",
+                "agenceId": 1
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "message"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "activationUrl"
+            }
+          ],
+          "status": "failing",
+          "lastResult": "personneId 14 now has an account (client@horoazhon.fr, added in V3 migration). The test step says \"personne 14 who has no account\" but this is no longer true. Backend returns HTTP 400 \"This person already has an account\". Additionally, testinvite-sa@test.com was consumed by an adapted run. Test data needs update: use personneId 17 or 18 with a fresh unique email."
+        },
+        {
+          "id": "be-auth-activation-invite-superadmin-no-agence",
+          "title": "SUPER_ADMIN invite without agenceId returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Invite client without agenceId",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/invite-client",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "personneId": 15,
+                "email": "testinvite-noagence@test.com"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            },
+            {
+              "type": "json_field_exists",
+              "field": "error"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-activation-invite-agent-forbidden",
+          "title": "AGENT cannot invite clients (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt invite as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/invite-client",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "personneId": 15,
+                "email": "testinvite-agent@test.com",
+                "agenceId": 1
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-activation-invite-unauthenticated",
+          "title": "Unauthenticated invite returns 401",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt invite without any token",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/invite-client",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "personneId": 15,
+                "email": "testinvite-unauth@test.com",
+                "agenceId": 1
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-activation-invite-admin-agency",
+          "title": "ADMIN_AGENCY can invite client (uses own agency)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Invite a client as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/invite-client",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "personneId": 16,
+                "email": "testinvite-admin@test.com"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "message"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "activationUrl"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-auth-password-reset",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-auth-password-reset-forgot-existing",
+          "title": "Forgot password with existing email returns 200",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Request password reset for existing email",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/forgot-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "message"
+            }
+          ]
+        },
+        {
+          "id": "be-auth-password-reset-forgot-nonexistent",
+          "title": "Forgot password with nonexistent email still returns 200 (anti-enumeration)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Request password reset for nonexistent email",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/forgot-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "nonexistent@nowhere.com"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "message"
+            }
+          ]
+        },
+        {
+          "id": "be-auth-password-reset-status-invalid",
+          "title": "Reset status for invalid token returns valid=false",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Check reset status for nonexistent token",
+              "method": "GET",
+              "url": "http://localhost:8080/api/auth/reset-status?token=invalid-reset-token-abc"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "valid",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "be-auth-password-reset-reset-invalid-token",
+          "title": "Reset password with invalid token returns 400",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Attempt to reset password with invalid token",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/reset-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "token": "invalid-reset-token-xyz",
+                "password": "NewPassword456"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "be-auth-password-change",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-auth-password-change-valid",
+          "title": "Authenticated user can change password (idempotent: same password)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Change password to the same value (idempotent)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/change-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "currentPassword": "Admin",
+                "newPassword": "Admin"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "message"
+            }
+          ],
+          "status": "failing",
+          "lastResult": "Expected HTTP 200 but got 400. Backend enforces @Size(min=6) on ChangePasswordRequest.newPassword. The seeded test password \"Admin\" is 5 characters, which fails the minimum length constraint. Response: {\"status\":400,\"message\":\"newPassword: Le nouveau mot de passe doit contenir entre 6 et 128 caracteres\"}. Fix: update V2 seed data to use 6-char+ passwords for test accounts, or update this test to use a longer same-password value."
+        },
+        {
+          "id": "be-auth-password-change-wrong-current",
+          "title": "Change password with wrong current password returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt change with wrong current password",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/change-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "currentPassword": "WrongPassword",
+                "newPassword": "NewPassword123"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-password-change-unauthenticated",
+          "title": "Change password without token returns 401",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt change password without authentication",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/change-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "currentPassword": "Admin",
+                "newPassword": "NewPassword123"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 401
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-password-change-empty-new",
+          "title": "Change with empty newPassword returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Change with empty new password",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/change-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "currentPassword": "Admin",
+                "newPassword": ""
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-auth-password-change-short-new",
+          "title": "Change with 2-char newPassword returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Change with short password",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/change-password",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "currentPassword": "Agent",
+                "newPassword": "ab"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-bien-read",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-bien-read-list-public",
+          "title": "GET /api/biens is public and returns paginated results",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List all properties without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalElements"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalPages"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-detail-public",
+          "title": "GET /api/biens/{id} is public and returns full detail",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Get detail for bien 1 (Appartement Haussmannien)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens/1"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "type",
+              "value": "APPARTEMENT"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "photos"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "caracteristiques"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "lieux"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-detail-not-found",
+          "title": "GET /api/biens/{id} for nonexistent ID returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Get detail for nonexistent bien",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens/99999"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-filter-type",
+          "title": "Filter properties by type",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Search for MAISON type only",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?type=MAISON"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-filter-empty-results",
+          "title": "Search with no matches returns empty page, not 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Search for a nonexistent city",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?search=ZzzNonexistentCityXyz"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "totalElements",
+              "value": 0
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-dual-listing",
+          "title": "Bien 3 has both achat and location (dual listing)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Get detail for bien 3 (Maison Vincennes — dual listed)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens/3"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "achat"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "location"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-pagination",
+          "title": "Pagination params work correctly",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Request page 0, size 2",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?page=0&size=2"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalElements"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalPages"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "number"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-filter-forsale",
+          "title": "Filter properties for sale only",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Filter for sale properties",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?forSale=true"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-search-sql-inject",
+          "title": "Search with SQL injection is safe (200)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Search with SQL injection",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?search=';DROP TABLE Bien;--"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-read-negative-page",
+          "title": "Negative page number handled gracefully",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Request page -1",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?page=-1"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ],
+          "status": "failing",
+          "lastResult": "Expected HTTP 200 but got 400. Spring rejected page=-1 with error: Page index must not be less than zero. The API does not handle negative page values gracefully."
+        },
+        {
+          "id": "be-bien-read-huge-page",
+          "title": "Huge page number returns empty (not error)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Request page 999999",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?page=999999"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-bien-write",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-bien-write-create-superadmin",
+          "title": "SUPER_ADMIN can create a property",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a new property",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "rue": "99 Rue de Test",
+                "ville": "Paris",
+                "codePostal": "75001",
+                "ecoScore": 5,
+                "superficie": 50,
+                "description": "Test property for QA",
+                "type": "APPARTEMENT",
+                "agenceId": 1
+              },
+              "extract": "id from id"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "type",
+              "value": "APPARTEMENT"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-write-create-agent",
+          "title": "AGENT can create a property in own agency",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a new property",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "rue": "88 Rue Agent Test",
+                "ville": "Paris",
+                "codePostal": "75002",
+                "ecoScore": 6,
+                "superficie": 45,
+                "description": "Agent test property",
+                "type": "STUDIO"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-write-create-unauthenticated",
+          "title": "Unauthenticated property creation returns 401/403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to create property without auth",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "rue": "77 Rue Unauth",
+                "ville": "Paris",
+                "codePostal": "75001",
+                "type": "APPARTEMENT"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-write-update-existing",
+          "title": "ADMIN_AGENCY can update a property in own agency",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Update bien 1 description",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/1",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "rue": "15 Boulevard Haussmann",
+                "ville": "Paris",
+                "codePostal": "75009",
+                "ecoScore": 7,
+                "superficie": 95,
+                "description": "Magnifique appartement haussmannien avec moulures, parquet et cheminee. Lumineux, au 3eme etage avec ascenseur. Vue degagee sur le boulevard.",
+                "type": "APPARTEMENT"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-write-delete-not-found",
+          "title": "Delete nonexistent property returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to delete nonexistent bien",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/99999",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-write-subresource-caracteristique",
+          "title": "Add and remove caracteristique on a property",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Add caracteristique 3 (Parking) to bien 2 (which does not have it)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens/2/caracteristiques?caracteristiqueId=3&valeur=1&unite=places",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-bien-write-agent-cross-agency",
+          "title": "AGENT cannot create bien for other agency (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create bien with agency 2",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "rue": "1 Rue Cross",
+                "ville": "Lyon",
+                "codePostal": "69001",
+                "type": "APPARTEMENT",
+                "agenceId": 2
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "failing",
+          "lastResult": "Expected status 403 but got 201. Backend ignores agenceId=2 and silently assigns the agent own agency (id=1) instead of rejecting the request. Cross-agency write protection does not return 403 � it silently overrides the submitted agenceId."
+        }
+      ]
+    },
+    {
+      "featureId": "be-listing",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-listing-location-list",
+          "title": "List all locations (authenticated)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List all locations",
+              "method": "GET",
+              "url": "http://localhost:8080/api/locations",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            }
+          ]
+        },
+        {
+          "id": "be-listing-achat-list",
+          "title": "List all achats (authenticated)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List all achats",
+              "method": "GET",
+              "url": "http://localhost:8080/api/achats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            }
+          ]
+        },
+        {
+          "id": "be-listing-location-unauthenticated",
+          "status": "passing",
+          "lastResult": null,
+          "title": "Unauthenticated access to locations returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List locations without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/locations"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-listing-achat-unauthenticated",
+          "status": "passing",
+          "lastResult": null,
+          "title": "Unauthenticated access to achats returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List achats without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/achats"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-listing-location-detail",
+          "title": "Get location detail by ID",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get location 1 (Studio Marais)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/locations/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "mensualite"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bienId"
+            }
+          ]
+        },
+        {
+          "id": "be-listing-achat-detail",
+          "title": "Get achat detail by ID",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get achat 1 (Bien 1 sale)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/achats/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "prix"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bienId"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "be-agence",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-agence-list-public",
+          "title": "GET /api/agences is public and returns array",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "List agencies without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/agences"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "$root",
+              "value": 2
+            }
+          ]
+        },
+        {
+          "id": "be-agence-detail-public",
+          "title": "GET /api/agences/{id} is public and returns agency detail",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Get agency 1 detail without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/agences/1"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "nom",
+              "value": "Horoazhon France"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "siret"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "email"
+            }
+          ]
+        },
+        {
+          "id": "be-agence-detail-not-found",
+          "title": "GET /api/agences/{id} for nonexistent ID returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Get nonexistent agency",
+              "method": "GET",
+              "url": "http://localhost:8080/api/agences/99999"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-create-superadmin",
+          "title": "SUPER_ADMIN can create an agency",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a new agency",
+              "method": "POST",
+              "url": "http://localhost:8080/api/agences",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "siret": "11111111111111",
+                "nom": "QA Test Agency",
+                "rue": "1 Rue Test",
+                "ville": "Paris",
+                "codePostal": "75001",
+                "telephone": "0100000000",
+                "email": "qa-test-agency@test.com"
+              },
+              "extract": "createdId from id"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "nom",
+              "value": "QA Test Agency"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-create-forbidden-admin",
+          "title": "ADMIN_AGENCY cannot create an agency (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to create agency as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/agences",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "siret": "22222222222222",
+                "nom": "Forbidden Agency",
+                "rue": "1 Rue Forbidden",
+                "ville": "Lyon",
+                "codePostal": "69001",
+                "telephone": "0400000000",
+                "email": "forbidden@test.com"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-create-forbidden-agent",
+          "title": "AGENT cannot create an agency (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to create agency as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/agences",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "siret": "33333333333333",
+                "nom": "Agent Forbidden Agency",
+                "rue": "1 Rue Agent",
+                "ville": "Lyon",
+                "codePostal": "69001"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-create-unauthenticated",
+          "title": "Unauthenticated agency creation returns 401/403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to create agency without auth",
+              "method": "POST",
+              "url": "http://localhost:8080/api/agences",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "siret": "44444444444444",
+                "nom": "Unauth Agency"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-update-own-agency",
+          "title": "ADMIN_AGENCY can update own agency",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Update own agency (id=1) with same data (idempotent)",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/agences/1",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "siret": "12345678901234",
+                "nom": "Horoazhon France",
+                "rue": "10 Rue de la Paix",
+                "ville": "Paris",
+                "codePostal": "75001",
+                "telephone": "0145678900",
+                "email": "contact@horoazhon.fr"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "nom",
+              "value": "Horoazhon France"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-update-other-forbidden",
+          "title": "ADMIN_AGENCY cannot update another agency (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to update agency 2 (not own)",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/agences/2",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "nom": "Hacked Name"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-biens-authenticated",
+          "title": "GET /api/agences/{id}/biens requires authentication",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to get agency biens without auth",
+              "method": "GET",
+              "url": "http://localhost:8080/api/agences/1/biens"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-agence-delete-forbidden-admin",
+          "title": "ADMIN_AGENCY cannot delete agency (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to delete agency 2",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/agences/2",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-contrat-read",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-contrat-read-list-superadmin",
+          "title": "SUPER_ADMIN can list all contracts",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List all contracts",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalElements"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-detail",
+          "title": "Contract detail returns cosigners and nested data",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get contract 1 detail",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "statut"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "cosigners"
+            },
+            {
+              "type": "json_field_type",
+              "field": "cosigners",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "cosigners",
+              "value": 2
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-detail-not-found",
+          "title": "Contract detail for nonexistent ID returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get nonexistent contract",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/99999",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-unauthenticated",
+          "title": "Unauthenticated contract access returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List contracts without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-admin-agency",
+          "title": "ADMIN_AGENCY can list contracts (scoped to own agency)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List contracts as ADMIN_AGENCY",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-agent",
+          "title": "AGENT can list contracts (scoped to own agency)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List contracts as AGENT",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-contrat-create",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-contrat-create-valid-achat",
+          "title": "Create a valid sale contract with cosigners",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create sale contract on achat 1 (bien 1)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "achatId": 1,
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 16,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "EN_COURS"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-valid-location",
+          "title": "Create a valid rental contract with cosigners",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create rental contract on location 1 (bien 2)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "locationId": 1,
+                "cosigners": [
+                  {
+                    "personneId": 4,
+                    "typeSignataire": "OWNER"
+                  },
+                  {
+                    "personneId": 16,
+                    "typeSignataire": "RENTER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "EN_COURS"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-both-ids",
+          "title": "Create contract with both locationId and achatId returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create contract with both IDs",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "achatId": 1,
+                "locationId": 1,
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 14,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-neither-id",
+          "title": "Create contract with neither locationId nor achatId returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create contract with no listing ID",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 14,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-too-few-cosigners",
+          "title": "Create contract with fewer than 2 cosigners returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create contract with only 1 cosigner",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "achatId": 1,
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-unauthenticated",
+          "title": "Unauthenticated contract creation returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to create contract without auth",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "achatId": 1,
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 14,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-zero-cosigners",
+          "title": "Empty cosigners array returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create with empty cosigners",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "achatId": 1,
+                "cosigners": []
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-invalid-personne",
+          "title": "Cosigner with nonexistent personneId returns 400/404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create with invalid personneId",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "achatId": 1,
+                "cosigners": [
+                  {
+                    "personneId": 99999,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "failing",
+          "lastResult": "Expected HTTP 400 but got 404. Backend returns 404 (Personne not found) instead of 400 for nonexistent personneId in cosigners."
+        }
+      ]
+    },
+    {
+      "featureId": "be-contrat-lifecycle",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-contrat-lifecycle-cancel",
+          "title": "Cancel an EN_COURS contract",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Cancel contract 5 (one of the competing contracts on bien 5)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/5/cancel",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "ANNULE"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-lifecycle-pdf",
+          "title": "Generate PDF for an existing contract",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Generate PDF for contract 1",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/1/pdf",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-lifecycle-pdf-not-found",
+          "title": "PDF for nonexistent contract returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Generate PDF for nonexistent contract",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/99999/pdf",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-lifecycle-download-signed-no-doc",
+          "title": "Download signed document when none uploaded returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to download signed doc for contract 1 (none uploaded)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/1/document-signe",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-lifecycle-unauthenticated",
+          "title": "Unauthenticated lifecycle operations return 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to cancel contract without auth",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/cancel"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-lifecycle-expire-check-superadmin",
+          "title": "SUPER_ADMIN can trigger expiration check",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Trigger expiration check",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/expire-check",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-lifecycle-expire-check-forbidden",
+          "title": "Non-SUPER_ADMIN cannot trigger expiration check (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to trigger expiration check as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/expire-check",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-personne",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-personne-list-superadmin",
+          "title": "SUPER_ADMIN can list all personnes",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List all personnes",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "$root",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-detail",
+          "title": "Get personne detail by ID",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get personne 3 (Martin Pierre)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/3",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "nom",
+              "value": "Martin"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "prenom",
+              "value": "Pierre"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-detail-not-found",
+          "title": "Get nonexistent personne returns 404",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get nonexistent personne",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/99999",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-search",
+          "title": "Search personnes by name",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Search for personnes matching 'Martin'",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/search?q=Martin",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "$root",
+              "value": 1
+            }
+          ],
+          "status": "failing",
+          "lastResult": "ADMIN_AGENCY search for Martin returns empty array. The search endpoint is agency-scoped, and personne 3 (Martin Pierre) is not directly associated with agency 1. SUPER_ADMIN search returns correct results. Test should use SUPER_ADMIN or the assertion needs adjusting for agency scoping."
+        },
+        {
+          "id": "be-personne-search-no-results",
+          "title": "Search with no matches returns empty array",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Search for nonexistent name",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/search?q=ZzzNoMatchXyz",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-unauthenticated",
+          "title": "Unauthenticated personne access returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List personnes without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-account-status-with-account",
+          "title": "Account status for personne with an active account",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Check account status for personne 1 (admin has account)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/1/account-status",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "hasAccount",
+              "value": true
+            },
+            {
+              "type": "json_field_exists",
+              "field": "status"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "email"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-account-status-no-account",
+          "title": "Account status for personne without an account",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Check account status for personne 3 (property owner, no account)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/3/account-status",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "hasAccount",
+              "value": false
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-biens",
+          "title": "Get biens owned by a personne",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get biens for personne 3 (Martin Pierre, owns bien 1)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/3/biens",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "$root",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-personne-create-minimal",
+          "title": "Create personne with required fields only (201)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create personne with minimal fields",
+              "method": "POST",
+              "url": "http://localhost:8080/api/personnes",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "nom": "QAMinimal",
+                "prenom": "Test"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            }
+          ],
+          "status": "failing",
+          "lastResult": "Got 409 instead of 201. Duplicate entry from previous test run (QAMinimal already exists). Test is not idempotent - needs unique name per run or DB reset between runs."
+        },
+        {
+          "id": "be-personne-contrats",
+          "title": "Get contracts for a cosigner personne",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get contracts for personne 3 (cosigner on contracts)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/personnes/3/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-user",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-user-list-superadmin",
+          "title": "SUPER_ADMIN can list all users",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List all users",
+              "method": "GET",
+              "url": "http://localhost:8080/api/users",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-list-admin-agency",
+          "title": "ADMIN_AGENCY lists users scoped to own agency",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY of agency 1",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List users as ADMIN_AGENCY",
+              "method": "GET",
+              "url": "http://localhost:8080/api/users",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-create-superadmin",
+          "title": "SUPER_ADMIN can create user with agenceId",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a new AGENT user",
+              "method": "POST",
+              "url": "http://localhost:8080/api/users",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "email": "qa-newagent@test.com",
+                "nom": "QATest",
+                "prenom": "Agent",
+                "role": "AGENT",
+                "agenceId": "1"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "activationToken"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "role",
+              "value": "AGENT"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-create-superadmin-no-agence",
+          "title": "SUPER_ADMIN create without agenceId returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create user without agenceId",
+              "method": "POST",
+              "url": "http://localhost:8080/api/users",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "email": "qa-noagence@test.com",
+                "nom": "QATest",
+                "prenom": "NoAgence",
+                "role": "AGENT"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            },
+            {
+              "type": "json_field_exists",
+              "field": "error"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-create-equal-role-forbidden",
+          "title": "ADMIN_AGENCY cannot create ADMIN_AGENCY (equal role, 403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to create ADMIN_AGENCY (equal role)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/users",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "email": "qa-equalrole@test.com",
+                "nom": "QATest",
+                "prenom": "EqualRole",
+                "role": "ADMIN_AGENCY"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-create-duplicate-email",
+          "title": "Create user with existing email returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create user with already-existing email",
+              "method": "POST",
+              "url": "http://localhost:8080/api/users",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "nom": "Duplicate",
+                "prenom": "Email",
+                "role": "AGENT",
+                "agenceId": "1"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            },
+            {
+              "type": "json_field_exists",
+              "field": "error"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-unauthenticated",
+          "title": "Unauthenticated user access returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List users without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/users"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-agent-forbidden",
+          "title": "AGENT cannot access user management (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to list users as AGENT",
+              "method": "GET",
+              "url": "http://localhost:8080/api/users",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-create-higher-role",
+          "title": "ADMIN_AGENCY cannot create SUPER_ADMIN (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create SUPER_ADMIN user",
+              "method": "POST",
+              "url": "http://localhost:8080/api/users",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "email": "qa-higherrole@test.com",
+                "nom": "QATest",
+                "prenom": "Higher",
+                "role": "SUPER_ADMIN"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-user-create-admin-creates-agent",
+          "title": "ADMIN_AGENCY can create AGENT (201)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create AGENT user",
+              "method": "POST",
+              "url": "http://localhost:8080/api/users",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "email": "qa-adminagent@test.com",
+                "nom": "QATest",
+                "prenom": "AdminAgent",
+                "role": "AGENT"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-reference",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-reference-carac-list-public",
+          "title": "GET /api/caracteristiques is public",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List caracteristiques without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/caracteristiques"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "$root",
+              "value": 3
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-carac-detail-public",
+          "title": "GET /api/caracteristiques/{id} is public",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Get caracteristique 1 (Chambres) without auth",
+              "method": "GET",
+              "url": "http://localhost:8080/api/caracteristiques/1"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "lib"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-lieux-list-public",
+          "title": "GET /api/lieux is public",
+          "type": "http",
+          "steps": [
+            {
+              "description": "List lieux without authentication",
+              "method": "GET",
+              "url": "http://localhost:8080/api/lieux"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_type",
+              "field": "$root",
+              "value": "array"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "$root",
+              "value": 3
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-lieux-detail-public",
+          "title": "GET /api/lieux/{id} is public",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Get lieu 1 (Metro) without auth",
+              "method": "GET",
+              "url": "http://localhost:8080/api/lieux/1"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "lib"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-carac-create-superadmin",
+          "title": "SUPER_ADMIN can create a caracteristique",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a new caracteristique",
+              "method": "POST",
+              "url": "http://localhost:8080/api/caracteristiques",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "lib": "QA Test Carac"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "lib",
+              "value": "QA Test Carac"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-carac-create-forbidden-admin",
+          "title": "ADMIN_AGENCY cannot create a caracteristique (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to create caracteristique as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/caracteristiques",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "lib": "Forbidden Carac"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-carac-create-forbidden-agent",
+          "title": "AGENT cannot create a caracteristique (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to create caracteristique as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/caracteristiques",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "lib": "Agent Forbidden Carac"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-carac-create-unauthenticated",
+          "title": "Unauthenticated caracteristique creation returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to create caracteristique without auth",
+              "method": "POST",
+              "url": "http://localhost:8080/api/caracteristiques",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "lib": "Unauth Carac"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        },
+        {
+          "id": "be-reference-lieux-create-superadmin",
+          "title": "SUPER_ADMIN can create a lieu",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a new lieu",
+              "method": "POST",
+              "url": "http://localhost:8080/api/lieux",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "lib": "QA Test Lieu"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "lib",
+              "value": "QA Test Lieu"
+            }
+          ],
+          "status": "passing",
+          "lastResult": null
+        }
+      ]
+    },
+    {
+      "featureId": "be-client-dashboard",
+      "writtenBy": "role-4-qa",
+      "suites": [
+        {
+          "id": "be-client-dashboard-forbidden-superadmin",
+          "title": "SUPER_ADMIN cannot access client dashboard (403)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to access client dashboard",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/dashboard",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-client-dashboard-forbidden-admin-agency",
+          "title": "ADMIN_AGENCY cannot access client dashboard (403)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to access client dashboard",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/dashboard",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-client-dashboard-forbidden-agent",
+          "title": "AGENT cannot access client dashboard (403)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to access client dashboard",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/dashboard",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-client-dashboard-unauthenticated",
+          "title": "Unauthenticated client dashboard access returns 403",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Attempt to access client dashboard without auth",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/dashboard"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-client-contrats-forbidden-superadmin",
+          "title": "SUPER_ADMIN cannot access client contrats (403)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to access client contrats",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-client-biens-forbidden-agent",
+          "title": "AGENT cannot access client biens (403)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as AGENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "agent@horoazhon.fr",
+                "password": "Agent"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to access client biens",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/biens",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

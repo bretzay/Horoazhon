@@ -16,5 +16,6 @@ public class AuthenticationResponse {
     private String prenom;
     private Long agenceId;
     private String agenceNom;
+    private String agenceLogo;
     private Long personneId; // nullable — only set for CLIENT accounts
 }

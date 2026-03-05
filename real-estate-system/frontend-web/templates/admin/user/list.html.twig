@@ -27,7 +27,7 @@
             <td>{{ u.prenom }} {{ u.nom }}</td>
             <td>{{ u.email }}</td>
             <td>
-                {% if u.role == 'SUPER_ADMIN' %}<span class="badge" style="background:#fef3c7;color:#92400e;">Super Admin</span>
+                {% if u.role == 'SUPER_ADMIN' %}<span class="badge" style="background:#eff6ff;color:#334155;">Super Admin</span>
                 {% elseif u.role == 'ADMIN_AGENCY' %}<span class="badge badge-signe">Admin</span>
                 {% elseif u.role == 'AGENT' %}<span class="badge badge-sale">Agent</span>
                 {% else %}<span class="badge badge-rent">Client</span>

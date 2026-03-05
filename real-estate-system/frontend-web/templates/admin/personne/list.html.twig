@@ -41,4 +41,16 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if totalPages is defined and totalPages > 1 %}
+<div class="pagination">
+    {% for i in 0..totalPages-1 %}
+        {% if i == currentPage %}
+            <span class="current">{{ i + 1 }}</span>
+        {% else %}
+            <a href="{{ path('admin_personnes', {page: i}) }}">{{ i + 1 }}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

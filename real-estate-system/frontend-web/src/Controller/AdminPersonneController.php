@@ -33,10 +33,25 @@ class AdminPersonneController extends AbstractController
     public function list(Request $request): Response
     {
         $q = $request->query->get('q');
-        $personnes = $q ? $this->api->searchPersonnes($q) : $this->api->getPersonnes();
+        $page = (int) $request->query->get('page', 0);
+        $size = 20;
+
+        if ($q) {
+            $personnes = $this->api->searchPersonnes($q);
+            $totalPages = 0;
+            $currentPage = 0;
+        } else {
+            $data = $this->api->getPersonnesPaginated($page, $size);
+            $personnes = $data['content'] ?? $data;
+            $totalPages = $data['totalPages'] ?? 0;
+            $currentPage = $data['number'] ?? 0;
+        }
+
         return $this->render('admin/personne/list.html.twig', [
             'personnes' => $personnes,
             'search' => $q,
+            'totalPages' => $totalPages,
+            'currentPage' => $currentPage,
         ]);
     }
 

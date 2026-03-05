@@ -17,6 +17,14 @@ public interface ContratRepository extends JpaRepository<Contrat, Long> {
     @Query("SELECT c FROM Contrat c LEFT JOIN FETCH c.cosigners cs LEFT JOIN FETCH cs.personne LEFT JOIN FETCH c.location l LEFT JOIN FETCH l.bien LEFT JOIN FETCH c.achat a LEFT JOIN FETCH a.bien WHERE c.id = :id")
     Optional<Contrat> findByIdWithDetails(@Param("id") Long id);
     
+    // Find all contracts linked to a property (via Location or Achat)
+    @Query("SELECT DISTINCT c FROM Contrat c " +
+           "LEFT JOIN FETCH c.cosigners cs LEFT JOIN FETCH cs.personne " +
+           "LEFT JOIN c.location l LEFT JOIN c.achat a " +
+           "WHERE l.bien.id = :bienId OR a.bien.id = :bienId " +
+           "ORDER BY c.dateCreation DESC")
+    List<Contrat> findByBienId(@Param("bienId") Long bienId);
+
     // Find contracts by location
     List<Contrat> findByLocationId(Long locationId);
     

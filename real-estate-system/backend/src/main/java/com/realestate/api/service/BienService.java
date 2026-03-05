@@ -4,14 +4,19 @@ import com.realestate.api.dto.*;
 import com.realestate.api.entity.*;
 import com.realestate.api.repository.*;
 import com.realestate.api.security.SecurityUtils;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,10 +34,12 @@ public class BienService {
     private final PersonneRepository personneRepository;
     private final PossederRepository possederRepository;
     private final PhotoRepository photoRepository;
+    private final ContratRepository contratRepository;
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public Page<BienDTO> findAll(
-            String ville,
+            String search,
             String type,
             BigDecimal prixMin,
             BigDecimal prixMax,
@@ -43,26 +50,175 @@ public class BienService {
             Long lieuId,
             Integer maxMinutes,
             String locomotion,
+            Map<String, String> allParams,
             Pageable pageable
     ) {
-        Long agenceId = securityUtils.getCurrentAgenceId();
-        if (agenceId != null) {
-            return bienRepository.findByFiltersAndAgence(
-                agenceId, ville, type, forSale, forRent, prixMin, prixMax,
-                caracId, caracMin, lieuId, maxMinutes, locomotion,
-                pageable
-            ).map(this::convertToDTO);
+        // Extract multi-characteristic filters: caracMin_1, caracMin_2, etc.
+        Map<Long, Integer> caracFilters = new LinkedHashMap<>();
+        // Legacy single filter
+        if (caracId != null) {
+            caracFilters.put(caracId, caracMin);
         }
-        return bienRepository.findByFilters(
-            ville, type, forSale, forRent, prixMin, prixMax,
-            caracId, caracMin, lieuId, maxMinutes, locomotion,
-            pageable
-        ).map(this::convertToDTO);
+        // New per-characteristic filters
+        for (Map.Entry<String, String> entry : allParams.entrySet()) {
+            if (entry.getKey().startsWith("caracMin_") && entry.getValue() != null && !entry.getValue().isBlank()) {
+                try {
+                    Long cId = Long.parseLong(entry.getKey().substring("caracMin_".length()));
+                    Integer cMin = Integer.parseInt(entry.getValue());
+                    caracFilters.put(cId, cMin);
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        // Extract multi-lieu filters: lieuMax_ID=minutes, lieuLoco_ID=locomotion
+        // Each entry: lieuId -> (maxMinutes, locomotion)
+        Map<Long, int[]> lieuMinutesMap = new LinkedHashMap<>();
+        Map<Long, String> lieuLocoMap = new LinkedHashMap<>();
+        // Legacy single filter
+        if (lieuId != null) {
+            lieuMinutesMap.put(lieuId, new int[]{maxMinutes != null ? maxMinutes : Integer.MAX_VALUE});
+            if (locomotion != null && !locomotion.isBlank()) {
+                lieuLocoMap.put(lieuId, locomotion);
+            }
+        }
+        // New per-lieu filters
+        for (Map.Entry<String, String> entry : allParams.entrySet()) {
+            if (entry.getKey().startsWith("lieuMax_") && entry.getValue() != null && !entry.getValue().isBlank()) {
+                try {
+                    Long lId = Long.parseLong(entry.getKey().substring("lieuMax_".length()));
+                    Integer lMax = Integer.parseInt(entry.getValue());
+                    lieuMinutesMap.put(lId, new int[]{lMax});
+                } catch (NumberFormatException ignored) {}
+            }
+            if (entry.getKey().startsWith("lieuLoco_") && entry.getValue() != null && !entry.getValue().isBlank()) {
+                try {
+                    Long lId = Long.parseLong(entry.getKey().substring("lieuLoco_".length()));
+                    lieuLocoMap.put(lId, entry.getValue());
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        // Build dynamic JPQL
+        StringBuilder jpql = new StringBuilder();
+        jpql.append("SELECT DISTINCT b FROM Bien b ");
+        jpql.append("LEFT JOIN b.achat a ");
+        jpql.append("LEFT JOIN b.location l ");
+        jpql.append("WHERE 1=1 ");
+
+        Map<String, Object> params = new HashMap<>();
+
+        // Agency filter (skip for unauthenticated public access)
+        Long agenceId = securityUtils.isAuthenticated() ? securityUtils.getCurrentAgenceId() : null;
+        if (agenceId != null) {
+            jpql.append("AND b.agence.id = :agenceId ");
+            params.put("agenceId", agenceId);
+        }
+
+        // Search terms
+        if (search != null && !search.isBlank()) {
+            String[] words = search.trim().toLowerCase().split("\\s+");
+            for (int i = 0; i < Math.min(words.length, 5); i++) {
+                String paramName = "s" + i;
+                jpql.append("AND LOWER(CONCAT(COALESCE(b.ville,''),' ',COALESCE(b.rue,''),' ',COALESCE(b.codePostal,''),' ',COALESCE(b.description,''))) LIKE :").append(paramName).append(" ");
+                params.put(paramName, "%" + words[i] + "%");
+            }
+        }
+
+        // Type filter
+        if (type != null && !type.isBlank()) {
+            jpql.append("AND b.type = :type ");
+            params.put("type", type);
+        }
+
+        // Sale/Rent
+        if (forSale != null && forSale) {
+            jpql.append("AND a IS NOT NULL ");
+        }
+        if (forRent != null && forRent) {
+            jpql.append("AND l IS NOT NULL ");
+        }
+
+        // Price
+        if (prixMin != null) {
+            jpql.append("AND (a.prix >= :prixMin OR l.mensualite >= :prixMin) ");
+            params.put("prixMin", prixMin);
+        }
+        if (prixMax != null) {
+            jpql.append("AND (a.prix <= :prixMax OR l.mensualite <= :prixMax) ");
+            params.put("prixMax", prixMax);
+        }
+
+        // Characteristic filters (AND logic: all must match)
+        int ci = 0;
+        for (Map.Entry<Long, Integer> cf : caracFilters.entrySet()) {
+            String idParam = "cId" + ci;
+            String minParam = "cMin" + ci;
+            jpql.append("AND EXISTS (SELECT ct").append(ci).append(" FROM Contenir ct").append(ci)
+                .append(" WHERE ct").append(ci).append(".bien = b AND ct").append(ci)
+                .append(".caracteristique.id = :").append(idParam);
+            params.put(idParam, cf.getKey());
+            if (cf.getValue() != null) {
+                jpql.append(" AND CAST(ct").append(ci).append(".valeur AS Integer) >= :").append(minParam);
+                params.put(minParam, cf.getValue());
+            }
+            jpql.append(") ");
+            ci++;
+        }
+
+        // Lieu filters (AND logic: all must match)
+        // Speed ranking: slower modes that meet the time constraint imply faster modes also do
+        // MARCHE/A_PIED (slowest) < VELO < TRANSPORT_PUBLIC < VOITURE (fastest)
+        int li = 0;
+        for (Map.Entry<Long, int[]> lf : lieuMinutesMap.entrySet()) {
+            Long lId = lf.getKey();
+            int lMax = lf.getValue()[0];
+            String loco = lieuLocoMap.get(lId);
+
+            String idParam = "lId" + li;
+            String maxParam = "lMax" + li;
+            jpql.append("AND EXISTS (SELECT d").append(li).append(" FROM Deplacer d").append(li)
+                .append(" WHERE d").append(li).append(".bien = b AND d").append(li)
+                .append(".lieu.id = :").append(idParam);
+            params.put(idParam, lId);
+
+            if (lMax < Integer.MAX_VALUE) {
+                jpql.append(" AND d").append(li).append(".minutes <= :").append(maxParam);
+                params.put(maxParam, lMax);
+            }
+
+            if (loco != null && !loco.isBlank()) {
+                // Include the selected mode and all slower modes
+                List<String> acceptable = getAcceptableLocomotions(loco);
+                String locoParam = "lLocos" + li;
+                jpql.append(" AND d").append(li).append(".typeLocomotion IN :").append(locoParam);
+                params.put(locoParam, acceptable);
+            }
+
+            jpql.append(") ");
+            li++;
+        }
+
+        // Count query
+        String countJpql = jpql.toString().replace("SELECT DISTINCT b", "SELECT COUNT(DISTINCT b)");
+        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
+        params.forEach(countQuery::setParameter);
+        long total = countQuery.getSingleResult();
+
+        // Data query with sorting and pagination
+        jpql.append("ORDER BY b.dateCreation DESC");
+        TypedQuery<Bien> dataQuery = entityManager.createQuery(jpql.toString(), Bien.class);
+        params.forEach(dataQuery::setParameter);
+        dataQuery.setFirstResult((int) pageable.getOffset());
+        dataQuery.setMaxResults(pageable.getPageSize());
+
+        List<Bien> results = dataQuery.getResultList();
+        List<BienDTO> dtos = results.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return new PageImpl<>(dtos, pageable, total);
     }
 
     @Transactional(readOnly = true)
     public BienDetailDTO findById(Long id) {
-        Bien bien = bienRepository.findById(id)
+        Bien bien = bienRepository.findByIdWithDetails(id)
             .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + id));
         return convertToDetailDTO(bien);
     }
@@ -97,6 +253,8 @@ public class BienService {
         Bien bien = bienRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + id));
 
+        verifyAgencyAccess(bien);
+
         if (request.getRue() != null) bien.setRue(request.getRue());
         if (request.getVille() != null) bien.setVille(request.getVille());
         if (request.getCodePostal() != null) bien.setCodePostal(request.getCodePostal());
@@ -109,11 +267,28 @@ public class BienService {
         return convertToDTO(saved);
     }
 
+    @Transactional(readOnly = true)
+    public Page<BienDTO> findByAgenceId(Long agenceId, Pageable pageable) {
+        return bienRepository.findByAgenceId(agenceId, pageable).map(this::convertToDTO);
+    }
+
     public void delete(Long id) {
-        if (!bienRepository.existsById(id)) {
-            throw new EntityNotFoundException("Bien not found with id: " + id);
-        }
+        Bien bien = bienRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + id));
+        verifyAgencyAccess(bien);
         bienRepository.deleteById(id);
+    }
+
+    /**
+     * Verify the current user has access to modify this property.
+     * SUPER_ADMIN can modify any property. Others can only modify properties in their agency.
+     */
+    private void verifyAgencyAccess(Bien bien) {
+        Long currentAgenceId = securityUtils.getCurrentAgenceId();
+        if (currentAgenceId != null && bien.getAgence() != null
+                && !bien.getAgence().getId().equals(currentAgenceId)) {
+            throw new AccessDeniedException("Vous n'avez pas acces aux biens d'une autre agence.");
+        }
     }
 
     // ===== Caracteristiques associations =====
@@ -121,6 +296,7 @@ public class BienService {
     public void addCaracteristique(Long bienId, Long caracteristiqueId, String valeur, String unite) {
         Bien bien = bienRepository.findById(bienId)
             .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         Caracteristiques carac = caracteristiquesRepository.findById(caracteristiqueId)
             .orElseThrow(() -> new EntityNotFoundException("Caracteristique not found with id: " + caracteristiqueId));
 
@@ -139,6 +315,9 @@ public class BienService {
     }
 
     public void removeCaracteristique(Long bienId, Long caracteristiqueId) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         Contenir.ContenirId id = new Contenir.ContenirId(bienId, caracteristiqueId);
         if (!contenirRepository.existsById(id)) {
             throw new EntityNotFoundException("Association not found.");
@@ -151,6 +330,7 @@ public class BienService {
     public void addLieu(Long bienId, Long lieuId, Integer minutes, String typeLocomotion) {
         Bien bien = bienRepository.findById(bienId)
             .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         Lieux lieu = lieuxRepository.findById(lieuId)
             .orElseThrow(() -> new EntityNotFoundException("Lieu not found with id: " + lieuId));
 
@@ -169,6 +349,9 @@ public class BienService {
     }
 
     public void removeLieu(Long bienId, Long lieuId) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         Deplacer.DeplacerId id = new Deplacer.DeplacerId(bienId, lieuId);
         if (!deplacerRepository.existsById(id)) {
             throw new EntityNotFoundException("Association not found.");
@@ -181,6 +364,7 @@ public class BienService {
     public void setProprietaire(Long bienId, Long personneId) {
         Bien bien = bienRepository.findById(bienId)
             .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         Personne personne = personneRepository.findById(personneId)
             .orElseThrow(() -> new EntityNotFoundException("Personne not found with id: " + personneId));
 
@@ -196,6 +380,9 @@ public class BienService {
     }
 
     public void removeProprietaire(Long bienId) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         possederRepository.deleteByBienId(bienId);
     }
 
@@ -204,6 +391,7 @@ public class BienService {
     public PhotoDTO addPhoto(Long bienId, String chemin, Integer ordre) {
         Bien bien = bienRepository.findById(bienId)
             .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
 
         Photo photo = new Photo();
         photo.setBien(bien);
@@ -221,12 +409,65 @@ public class BienService {
     }
 
     public void removePhoto(Long bienId, Long photoId) {
+        Bien bien = bienRepository.findById(bienId)
+            .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + bienId));
+        verifyAgencyAccess(bien);
         Photo photo = photoRepository.findById(photoId)
             .orElseThrow(() -> new EntityNotFoundException("Photo not found with id: " + photoId));
         if (!photo.getBien().getId().equals(bienId)) {
             throw new IllegalArgumentException("Photo does not belong to this bien.");
         }
         photoRepository.deleteById(photoId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ContratDTO> findContratsByBien(Long bienId) {
+        if (!bienRepository.existsById(bienId)) {
+            throw new EntityNotFoundException("Bien not found with id: " + bienId);
+        }
+        return contratRepository.findByBienId(bienId).stream()
+                .map(this::convertContratToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ContratDTO convertContratToDTO(Contrat c) {
+        ContratDTO dto = new ContratDTO();
+        dto.setId(c.getId());
+        dto.setDateCreation(c.getDateCreation());
+        dto.setDateModification(c.getDateModification());
+        dto.setStatut(c.getStatut().name());
+        dto.setType(c.getType() != null ? c.getType().name() : null);
+        dto.setHasSignedDocument(c.getDocumentSigne() != null && !c.getDocumentSigne().isBlank());
+
+        if (c.getCosigners() != null) {
+            dto.setCosigners(c.getCosigners().stream().map(cs -> {
+                CosignerDTO csDTO = new CosignerDTO();
+                csDTO.setPersonneId(cs.getPersonne().getId());
+                csDTO.setNom(cs.getPersonne().getNom());
+                csDTO.setPrenom(cs.getPersonne().getPrenom());
+                csDTO.setTypeSignataire(cs.getTypeSignataire().name());
+                csDTO.setDateSignature(cs.getDateSignature());
+                return csDTO;
+            }).collect(Collectors.toList()));
+        }
+
+        return dto;
+    }
+
+    /**
+     * Returns the selected locomotion and all slower modes.
+     * Speed: VOITURE > TRANSPORT_PUBLIC > VELO > MARCHE/A_PIED
+     * If the user asks for VOITURE <= 5min, a property reachable A_PIED in 3min also qualifies.
+     */
+    private List<String> getAcceptableLocomotions(String selected) {
+        // Ordered slowest to fastest
+        List<String> ordered = List.of("A_PIED", "MARCHE", "VELO", "TRANSPORT_PUBLIC", "VOITURE");
+        int selectedRank = ordered.indexOf(selected);
+        if (selectedRank < 0) {
+            return List.of(selected); // unknown value, match exactly
+        }
+        // Include everything from rank 0 up to and including the selected rank
+        return ordered.subList(0, selectedRank + 1);
     }
 
     private BienDTO convertToDTO(Bien bien) {
@@ -261,6 +502,14 @@ public class BienService {
         Photo principal = bien.getPrincipalPhoto();
         if (principal != null) {
             dto.setPrincipalPhotoUrl(principal.getChemin());
+        }
+        if (bien.getPhotos() != null) {
+            dto.setPhotoUrls(bien.getPhotos().stream()
+                    .sorted((a, b) -> Integer.compare(
+                            a.getOrdre() != null ? a.getOrdre() : Integer.MAX_VALUE,
+                            b.getOrdre() != null ? b.getOrdre() : Integer.MAX_VALUE))
+                    .map(Photo::getChemin)
+                    .collect(Collectors.toList()));
         }
 
         if (bien.getAchat() != null) {

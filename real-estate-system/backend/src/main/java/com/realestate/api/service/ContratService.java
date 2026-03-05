@@ -57,8 +57,8 @@ public class ContratService {
     }
 
     public ContratDTO create(CreateContratRequest request) {
-        if (request.getCosigners() == null || request.getCosigners().size() != 2) {
-            throw new IllegalArgumentException("A contract must have exactly 2 cosigners");
+        if (request.getCosigners() == null || request.getCosigners().size() < 2) {
+            throw new IllegalArgumentException("A contract must have at least 2 cosigners");
         }
 
         if ((request.getLocationId() == null && request.getAchatId() == null) ||
@@ -141,10 +141,10 @@ public class ContratService {
     /**
      * When a purchase contract is completed (TERMINE):
      * 1. Transfer property ownership from seller to buyer
-     * 2. Terminate any active (SIGNE) rental contracts on this property early
-     * 3. Create reconduction rental contracts with the new owner
-     * 4. Delete the rental offer (Location) on the property
-     * 5. Cancel any EN_COURS rental contracts on this property
+     * 2. Terminate any active (SIGNE) rental contracts and create reconduction contracts with the new owner
+     * 3. If no active rental was running, unlink the rental offer (Location) from the property
+     * 4. Cancel any other EN_COURS purchase contracts on the same sale offer
+     * 5. Unlink the sale offer (Achat) from the property
      */
     private void handlePurchaseCompletion(Contrat purchaseContrat) {
         Bien bien = purchaseContrat.getAchat().getBien();
@@ -179,11 +179,15 @@ public class ContratService {
 
         // 2 & 3. Handle active rental contracts on this property
         Location location = bien.getLocation();
+        boolean hasActiveRental = false;
+
         if (location != null) {
             List<Contrat> rentalContracts = contratRepository.findByLocationId(location.getId());
 
             for (Contrat rentalContrat : rentalContracts) {
                 if (rentalContrat.getStatut() == Contrat.StatutContrat.SIGNE) {
+                    hasActiveRental = true;
+
                     // Terminate early
                     rentalContrat.setStatut(Contrat.StatutContrat.TERMINE);
                     contratRepository.save(rentalContrat);
@@ -214,20 +218,35 @@ public class ContratService {
                 }
             }
 
-            // 4. Unlink the rental offer from the property (keep the Location entity
-            //    because existing contracts reference it via foreign key)
-            bien.setLocation(null);
-            bienRepository.save(bien);
+            // Only unlink the rental offer if there was no active rental running.
+            // If a reconduction contract was created, keep the Location linked so the
+            // new owner's rental continues working.
+            if (!hasActiveRental) {
+                bien.setLocation(null);
+                bienRepository.save(bien);
 
-            log.info("Rental offer (location #{}) unlinked from bien #{} after sale",
-                    location.getId(), bien.getId());
+                log.info("Rental offer (location #{}) unlinked from bien #{} after sale (no active rental)",
+                        location.getId(), bien.getId());
+            }
         }
 
-        // Also delete the sale offer (Achat) since the sale is complete
+        // 4. Cancel any other EN_COURS purchase contracts on the same sale offer
         Achat achat = purchaseContrat.getAchat();
+        List<Contrat> purchaseContracts = contratRepository.findByAchatId(achat.getId());
+        for (Contrat sibling : purchaseContracts) {
+            if (!sibling.getId().equals(purchaseContrat.getId())
+                    && sibling.getStatut() == Contrat.StatutContrat.EN_COURS) {
+                sibling.setStatut(Contrat.StatutContrat.ANNULE);
+                contratRepository.save(sibling);
+
+                log.info("Purchase contrat #{} (EN_COURS) cancelled due to sale completion of bien #{}",
+                        sibling.getId(), bien.getId());
+            }
+        }
+
+        // 5. Unlink the sale offer from the property
         bien.setAchat(null);
         bienRepository.save(bien);
-        // Don't delete the achat entity since existing contracts reference it
     }
 
     /**

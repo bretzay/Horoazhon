@@ -42,6 +42,12 @@ public class Agence {
     @Column
     private String email;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String description;
+
+    @Column(length = 255)
+    private String logo;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime dateCreation;
 

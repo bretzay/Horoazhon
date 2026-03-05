@@ -1,0 +1,327 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ agence.nom }} - Agence immobiliere{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .agency-hero {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+    .agency-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 16px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        flex-shrink: 0;
+    }
+    .agency-logo-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 16px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        flex-shrink: 0;
+    }
+    .agency-info { flex: 1; min-width: 0; }
+    .agency-info h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.5rem;
+    }
+    .agency-description {
+        color: #334155;
+        font-size: 0.875rem;
+        line-height: 1.7;
+        margin-bottom: 1rem;
+    }
+    .agency-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    .agency-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+    .agency-detail svg { color: #94a3b8; flex-shrink: 0; }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    .section-header h2 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .section-header .count {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+        grid-column: 1 / -1;
+    }
+    .empty-state svg { margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state p { font-size: 0.875rem; }
+
+    /* Photo slider */
+    .card-slider {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 16px 16px 0 0;
+        background: #e2e8f0;
+    }
+    .card-slider img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .card-slider .slider-badges {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 2;
+    }
+    .card-slider .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.85);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        color: #0f172a;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 0.2s;
+        box-shadow: 0 1px 4px rgba(15,23,42,0.10);
+    }
+    .card-slider .slider-arrow:hover { background: #fff; }
+    .card-slider:hover .slider-arrow { opacity: 1; }
+    .card-slider .slider-prev { left: 0.5rem; }
+    .card-slider .slider-next { right: 0.5rem; }
+    .card-slider .slider-dots {
+        position: absolute;
+        bottom: 0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 4px;
+        z-index: 2;
+    }
+    .card-slider .slider-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.5);
+        transition: background 0.2s;
+    }
+    .card-slider .slider-dot.active { background: #fff; }
+
+    @media (max-width: 768px) {
+        .agency-hero { flex-direction: column; align-items: center; text-align: center; }
+        .agency-details { justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="breadcrumb">
+    <a href="{{ path('biens_list') }}">Biens</a>
+    <span class="sep">/</span>
+    <span>{{ agence.nom }}</span>
+</div>
+
+<div class="agency-hero">
+    {% if agence.logo is defined and agence.logo %}
+        <img class="agency-logo" src="{{ agence.logo }}" alt="{{ agence.nom }}">
+    {% else %}
+        <div class="agency-logo-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>
+        </div>
+    {% endif %}
+    <div class="agency-info">
+        <h1>{{ agence.nom }}</h1>
+        {% if agence.description is defined and agence.description %}
+            <p class="agency-description">{{ agence.description|nl2br }}</p>
+        {% endif %}
+        <div class="agency-details">
+            <span class="agency-detail">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ agence.rue }}, {{ agence.codePostal }} {{ agence.ville }}
+            </span>
+            {% if agence.telephone %}
+            <span class="agency-detail">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                {{ agence.telephone }}
+            </span>
+            {% endif %}
+            {% if agence.email %}
+            <span class="agency-detail">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                {{ agence.email }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="section-header">
+    <h2>Biens de l'agence</h2>
+    {% if biens|length > 0 %}
+        <span class="count">{{ biens|length }} bien{{ biens|length > 1 ? 's' }}</span>
+    {% endif %}
+</div>
+
+<div class="property-grid">
+    {% for bien in biens %}
+    {% set isSale = bien.availableForSale is defined and bien.availableForSale %}
+    {% set isRent = bien.availableForRent is defined and bien.availableForRent %}
+    {% set headerClass = (isSale and isRent) ? 'header-both' : (isSale ? 'header-sale' : 'header-rent') %}
+    {% set iconClass = (isSale and isRent) ? 'icon-both' : (isSale ? 'icon-sale' : 'icon-rent') %}
+    <a href="{{ path('biens_detail', {id: bien.id}) }}" class="property-card" style="color: inherit; text-decoration: none;">
+        {% if bien.photoUrls is defined and bien.photoUrls|length > 0 %}
+        <div class="card-slider" data-index="0">
+            <img src="{{ bien.photoUrls[0] }}" alt="{{ bien.type ?? 'Bien' }} - {{ bien.ville }}">
+            <div class="slider-badges">
+                {% if isSale and isRent %}
+                    <span class="badge badge-sale">Vente</span>
+                    <span class="badge badge-rent">Location</span>
+                {% elseif isSale %}
+                    <span class="badge badge-sale">Vente</span>
+                {% elseif isRent %}
+                    <span class="badge badge-rent">Location</span>
+                {% endif %}
+            </div>
+            {% if bien.photoUrls|length > 1 %}
+                <button class="slider-arrow slider-prev" onclick="slideCard(event, this, -1)">&lsaquo;</button>
+                <button class="slider-arrow slider-next" onclick="slideCard(event, this, 1)">&rsaquo;</button>
+                <div class="slider-dots">
+                    {% for url in bien.photoUrls %}
+                        <div class="slider-dot{{ loop.first ? ' active' : '' }}"></div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <script type="application/json" class="slider-urls">{{ bien.photoUrls|json_encode|raw }}</script>
+        </div>
+        {% else %}
+        <div class="card-header {{ headerClass }}">
+            <div class="card-header-icon {{ iconClass }}">
+                {% if bien.type == 'APPARTEMENT' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                {% elseif bien.type == 'MAISON' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {% elseif bien.type == 'STUDIO' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+                {% elseif bien.type == 'TERRAIN' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12L17 14"/><path d="M3 22h18"/><path d="M17 2l4 4-4 4"/></svg>
+                {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                {% endif %}
+            </div>
+            <div class="card-header-text">
+                <h3>{{ bien.type ?? 'Bien' }} &mdash; {{ bien.ville }}</h3>
+            </div>
+            {% if isSale and isRent %}
+                <span class="badge badge-sale">Vente</span>
+                <span class="badge badge-rent">Location</span>
+            {% elseif isSale %}
+                <span class="badge badge-sale">Vente</span>
+            {% elseif isRent %}
+                <span class="badge badge-rent">Location</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="card-body">
+            <div class="card-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ bien.rue }}, {{ bien.codePostal }} {{ bien.ville }}
+            </div>
+            <div class="card-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                {{ bien.superficie }} m&sup2;{% if bien.ecoScore %} &middot; Eco {{ bien.ecoScore }}/10{% endif %}
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="card-price">
+                {% if isSale %}
+                    {{ bien.salePrice|number_format(0, ',', ' ') }} &euro;
+                {% elseif isRent %}
+                    {{ bien.monthlyRent|number_format(0, ',', ' ') }} &euro;/mois
+                {% endif %}
+            </div>
+        </div>
+    </a>
+    {% else %}
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/></svg>
+        <p>Aucun bien disponible pour cette agence.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if totalPages > 1 %}
+<div class="pagination">
+    {% for i in 0..totalPages-1 %}
+        {% if i == currentPage %}
+            <span class="current">{{ i + 1 }}</span>
+        {% else %}
+            <a href="{{ path('agence_profile', {id: agence.id, page: i}) }}">{{ i + 1 }}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+function slideCard(event, btn, dir) {
+    event.preventDefault();
+    event.stopPropagation();
+    var slider = btn.closest('.card-slider');
+    var urls = JSON.parse(slider.querySelector('.slider-urls').textContent);
+    var idx = parseInt(slider.dataset.index) + dir;
+    if (idx < 0) idx = urls.length - 1;
+    if (idx >= urls.length) idx = 0;
+    slider.dataset.index = idx;
+    slider.querySelector('img').src = urls[idx];
+    var dots = slider.querySelectorAll('.slider-dot');
+    for (var i = 0; i < dots.length; i++) {
+        dots[i].classList.toggle('active', i === idx);
+    }
+}
+</script>
+{% endblock %}

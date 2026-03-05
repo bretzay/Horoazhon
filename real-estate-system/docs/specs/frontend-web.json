@@ -1,0 +1,174 @@
+{
+  "$schema": "spec-v2",
+  "role": "frontend-web",
+  "lastUpdated": "2026-03-05T05:19:13Z",
+  "features": [
+    {
+      "title": "Login page",
+      "description": "Route /login - public page for user authentication.",
+      "category": "auth",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T05:15:58Z",
+      "lastTestedBy": "testing-agent",
+      "id": "fe-auth-login"
+    },
+    {
+      "id": "fe-auth-logout",
+      "title": "Logout",
+      "description": "Route /logout — destroys session and redirects.\n\nPages:\n- GET /logout\n\nAccess:\n- Any authenticated user\n- Unauthenticated: redirect to /login\n\nFunctional:\n- Clears JWT token from session (jwt_token, user_role, user)\n- Invalidates PHP session\n- Redirects to /login\n\nEdge cases:\n- Calling /logout when not logged in: redirect to /login (no error)\n- Session expired: same behavior as unauthenticated\n- After logout, navigating to /admin must redirect to /login (no cached page served)",
+      "category": "auth",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T18:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-auth-activate",
+      "title": "Account activation page",
+      "description": "Route /activate?token=xxx — public page for first-time account activation.\n\nPages:\n- GET /activate?token=xxx\n\nAccess:\n- Public (no auth required)\n\nFunctional:\n- On load: call GET /api/auth/activation-status?token=xxx\n- Valid token: show password creation form (password + confirmation)\n- Invalid/expired token: show error message with link to contact admin\n- On submit: POST /api/auth/activate with {token, password}\n- Success: show success message with link to /login\n- Failure: show error message\n- Password minimum 6 characters (validated client-side)\n\nUI elements:\n- Same full-page centered card layout as login\n- Horoazhon branding\n- Password field: 'Nouveau mot de passe'\n- Confirmation field: 'Confirmer le mot de passe'\n- Submit button: 'Activer mon compte'\n- Password strength indicator (visual meter showing weak/medium/strong)\n\nBusiness rules:\n- Password confirmation must match (client-side validation)\n- Token is single-use: refreshing after activation shows invalid token\n\nEdge cases:\n- No token parameter: show error\n- Already-used token: show invalid token message\n- Password mismatch: client-side error before submission\n- Bookmarked URL visited after token expires: clear error message with 'Contactez votre administrateur' guidance",
+      "category": "auth",
+      "status": "passing",
+      "lastTestedAt": "2026-03-04T22:30:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-auth-password-reset",
+      "title": "Password reset flow (forgot + reset pages)",
+      "description": "Routes /forgot-password and /reset-password?token=xxx — public pages for password recovery.\n\nPages:\n- GET /forgot-password\n- GET /reset-password?token=xxx\n\nAccess:\n- Both pages are public (no auth required)\n- If user is already authenticated: redirect to /profil (they can change password there instead)\n\nForgot password page:\n- Form with email field\n- Submits POST /api/auth/forgot-password via API client\n- On success: show confirmation message ('Email envoyé si le compte existe')\n- Anti-enumeration: same success message whether email exists or not\n\nReset password page:\n- On load: validate token via GET /api/auth/reset-status?token=xxx\n- Valid token: show password + confirmation form\n- Invalid/expired token: show error with link to /forgot-password\n- On submit: POST /api/auth/reset-password with {token, password}\n- Success: show confirmation with link to /login\n\nUI elements:\n- Same full-page centered card layout as login/activate\n- Forgot: email field 'Adresse e-mail', submit 'Envoyer le lien', back link to /login\n- Reset: password fields + submit 'Réinitialiser'\n- Success/error messages should use role='alert' for accessibility\n\nEdge cases:\n- Reset with expired token: error page with link to /forgot-password\n- Reset with already-used token: error page with link to /forgot-password\n- Multiple forgot-password requests: each invalidates previous token, only the last link works\n- Authenticated user visiting these pages: redirect to /profil",
+      "category": "auth",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T06:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-public-homepage",
+      "title": "Public homepage",
+      "description": "Route / — public landing page of the application.\n\nPages:\n- GET /\n\nAccess:\n- Public (no auth required)\n- Authenticated users also see this page (sidebar shows logged-in state)\n\nFunctional:\n- Hero section with search form for properties\n- Search form: type tabs (Acheter/Louer), location, property type, price range\n- Featured/recent properties section showing 6 latest listings (page=0, size=6)\n- Search redirects to /biens with query parameters (selected tab maps to forSale/forRent param)\n\nUI elements:\n- Sidebar with Horoazhon logo, nav links (Accueil, Biens, Agences), login/dashboard button\n- Hero: title 'Trouvez votre bien idéal', subtitle, search form with pill tabs\n- Property cards: image, price, title, location, badges (type, surface)\n- Footer with contact info, links, copyright\n\nEdge cases:\n- No properties in database: featured section handles empty gracefully (no broken cards)\n- Very long property titles: truncated in cards\n- Search tab selection (Acheter/Louer) must carry over correctly to /biens filter params",
+      "category": "public",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-public-property",
+      "title": "Public property listing and detail",
+      "description": "Routes /biens and /biens/{id} — public pages for browsing properties.\n\nPages:\n- GET /biens (list with filters)\n- GET /biens/{id} (detail)\n\nAccess:\n- Both pages are public (no auth required)\n\nList page:\n- Paginated property grid (12 per page) from GET /api/biens\n- Filter bar: search text, type (vente/location via annonce param), price range, property type\n- Per-characteristic filters: caracMin_{id}, lieuMax_{id}, lieuLoco_{id} query params\n- Pagination controls\n- Property cards with image, price, title, location, surface, type badge\n\nDetail page:\n- Full property info from GET /api/biens/{id}\n- Photo gallery with all uploaded images (fallback placeholder if none)\n- Property details: price, surface, description, address, eco score\n- Characteristics list and proximity locations from API\n- Agency info with contact details\n- Contracts section visible only for admin/agent roles (hidden for CLIENT and unauthenticated)\n- Back to list link\n\nUI elements:\n- List: filter bar, result count, responsive grid (3 cols desktop, 2 tablet, 1 mobile)\n- Detail: breadcrumb, image gallery, info sections, agency card\n\nEdge cases:\n- No results matching filters: 'Aucun bien trouvé' message\n- Nonexistent property ID: 404 page or redirect\n- Property with no photos: placeholder image (no broken img tag)\n- Pagination: empty last page handled gracefully\n- Multiple filters simultaneously: AND logic works correctly (type + price + annonce)\n- Responsive: grid adapts from 3 → 2 → 1 columns",
+      "category": "public",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-public-agence",
+      "title": "Public agency listing and detail",
+      "description": "Routes /agences and /agences/{id} — public pages for browsing agencies.\n\nPages:\n- GET /agences (list) — MUST BE IMPLEMENTED (currently missing)\n- GET /agences/{id} (detail with agency properties) — exists\n\nAccess:\n- Both pages are public (no auth required)\n\nList page (TO IMPLEMENT):\n- Controller: AgencePublicController needs agences_list route\n- Template: templates/agence/list.html.twig (does not exist yet)\n- All agencies from GET /api/agences\n- Agency cards in grid layout with logo, name, address, contact info\n- Each card links to /agences/{id}\n- Agency with no logo: placeholder image\n- Responsive: 3 cols desktop, 2 tablet, 1 mobile\n\nDetail page (exists):\n- Agency info from GET /api/agences/{id}\n- Agency properties from GET /api/agences/{id}/biens (paginated, 12 per page)\n- Contact information section\n- Agency with no logo: placeholder image\n\nUI elements:\n- List: agency cards in grid layout, consistent with property card style\n- Detail: agency header (logo, name, address), property listing, contact info\n\nKnown gaps:\n- /agences list page is referenced in sidebar navigation but does not exist — clicking link will 404\n- AgencePublicController currently has only 1 route (agence_profile), needs agences_list route added\n\nEdge cases:\n- Agency with no properties: show agency info, empty property section with message\n- Nonexistent agency ID: 404 page or redirect\n- Agency with no logo: placeholder image\n- No agencies in database: empty state message",
+      "category": "public",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "fe-layout",
+      "title": "Base layout (navbar, footer, responsive)",
+      "description": "base.html.twig — shared layout inherited by all pages.\n\nComponents:\n- Fixed 240px sidebar (left), main content area (right)\n- Footer inside main content area\n- Flash messages: success/error/info alerts with dismiss buttons\n- Responsive breakpoints\n\nSidebar structure:\n- Brand header: Horoazhon logo + name\n- Agency badge (if user belongs to an agency with logo)\n- Role-adaptive navigation sections with active link highlighting (border-left: 3px solid #2563eb)\n- User footer: avatar initial, name, role label, logout button\n- Login button for unauthenticated users\n\nSidebar sections by role:\n- Unauthenticated: Accueil, Biens, Agences + 'Se connecter' button\n- CLIENT: + Tableau de bord, Mes contrats, Mes biens, Mon profil\n- AGENT: + Admin section (Tableau de bord, Biens, Contrats, Personnes, Mon profil)\n- ADMIN_AGENCY: + Utilisateurs, Paramètres agence\n- SUPER_ADMIN: + Agences, Données de référence\n\nActive link detection: Twig route matching with 'starts with' for prefix groups\n\nFooter:\n- '© {year} Horoazhon. Tous droits réservés.'\n- Navigation links\n\nResponsive:\n- Desktop (>=768px): sidebar always visible, main content offset\n- Mobile (<768px): sidebar hidden, hamburger toggle (fixed top-left), slide-out drawer with dark overlay, Escape key closes, body scroll locked when open\n\nEdge cases:\n- Very long user name in sidebar footer: must truncate (verify ellipsis)\n- Very long agency name in sidebar badge: must wrap or truncate\n- Flash messages: dismissible with animation, stacked vertically if multiple\n- Hamburger button must have aria-label, sidebar should use <nav> landmark\n- Auth pages override sidebar/footer visibility (full-page centered card)",
+      "category": "layout",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-admin-dashboard",
+      "title": "Admin dashboard",
+      "description": "Route /admin — main dashboard for administrative users.\n\nPages:\n- GET /admin\n\nAccess:\n- SUPER_ADMIN: full dashboard with all stats\n- ADMIN_AGENCY: dashboard scoped to own agency\n- AGENT: dashboard scoped to own agency\n- CLIENT: redirect to /client\n- Unauthenticated: redirect to /login\n\nFunctional:\n- Statistics cards: biens count, agences count, personnes count, contrats count\n- Data fetching: lightweight (page=0, size=1 to get totalElements counts only)\n- Stat cards with colored left borders (4 color variants)\n- Quick access links to admin sections\n- Sidebar navigation to all admin sections (inherited from base.html.twig)\n\nUI elements:\n- Stat cards in grid layout with colored left borders\n- Quick access links as buttons/cards\n- No recent activity tables (stat cards only for now)\n\nEdge cases:\n- New agency with zero data: all stat cards show 0, not errors\n- SUPER_ADMIN with multiple agencies: aggregate stats\n- Verify totalElements from size=1 queries is accurate",
+      "category": "admin",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-05T05:17:31Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "fe-admin-bien",
+      "title": "Admin property pages (list, create, edit)",
+      "description": "Routes /admin/biens, /admin/biens/new, /admin/biens/{id}/edit — property CRUD for admin users.\n\nPages:\n- GET /admin/biens (list)\n- GET /admin/biens/new (create form)\n- POST /admin/biens/new (create submit)\n- GET /admin/biens/{id}/edit (edit form with multi-tab management)\n- POST /admin/biens/{id}/edit (edit submit — uses _action parameter for routing)\n- POST /admin/biens/{id}/delete (delete action)\n\nAccess:\n- SUPER_ADMIN: all operations on all properties\n- ADMIN_AGENCY: all operations on own agency properties\n- AGENT: read own agency, create, edit own properties\n- CLIENT: can only edit properties they own\n- Unauthenticated: redirect to /login\n\nList page:\n- Table with summary stat cards at top\n- Search/filter bar\n- Pagination (20 per page)\n- Action buttons: view, edit, delete (based on permissions)\n- 'Ajouter un bien' button\n\nCreate form:\n- Fields: basic property info + agency dropdown (SUPER_ADMIN only)\n- Agency auto-assigned for non-SUPER_ADMIN from session\n- Two-step: create bien first, then redirect to edit page for sub-resources\n\nEdit form (multi-tab):\n- Tab 1: Info (rue, ville, codePostal, type, superficie, ecoScore, description)\n- Tab 2: Sales listing (Achat — prix, dateDispo) — inline add/edit/delete\n- Tab 3: Rental listing (Location — caution, mensualite, dureeMois, dateDispo) — inline add/edit/delete\n- Tab 4: Characteristics — add/remove from reference list (unite, valeur)\n- Tab 5: Proximity — add/remove lieux (minutes, typeLocomotion)\n- Tab 6: Owner — assign/remove proprietaire from personne dropdown\n- Tab 7: Photos — upload/remove (stored to /public/uploads/photos)\n- Uses _action POST parameter to route to correct handler per tab\n\nBusiness rules:\n- ADMIN_AGENCY/AGENT: agency auto-assigned from session\n- SUPER_ADMIN: must select agency from dropdown\n- Photos: JPEG/PNG, auto-generated filenames, stored in /public/uploads/photos\n\nEdge cases:\n- No properties: 'Aucun bien trouvé' message with add button\n- Delete confirmation dialog\n- Delete property with active contracts: must show error message (backend rejects)\n- Form validation errors: fields highlighted, messages shown\n- Multi-tab _action routing: each tab action must work independently without conflicting\n- Create → immediate redirect to edit page with tabs must work cleanly",
+      "category": "admin",
+      "status": "failing",
+      "lastTestedAt": "2026-03-05T12:30:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-admin-agence",
+      "title": "Admin agency pages (list, create, edit, settings)",
+      "description": "Routes /admin/agences, /admin/agences/new, /admin/agences/{id}/edit, /admin/agences/{id}/settings — agency management.\n\nPages:\n- GET /admin/agences (list)\n- GET /admin/agences/new (create form, SUPER_ADMIN only)\n- POST /admin/agences/new (create submit)\n- GET /admin/agences/{id}/edit (edit form)\n- POST /admin/agences/{id}/edit (edit submit)\n- POST /admin/agences/{id}/delete (delete action, SUPER_ADMIN only)\n- GET /admin/agences/{id}/settings (agency settings page)\n\nAccess:\n- SUPER_ADMIN: all operations on all agencies\n- ADMIN_AGENCY: edit own agency, view settings for own agency (no create, no delete, no other agencies)\n- AGENT: read only (no forms, no actions)\n- CLIENT: no access\n- Unauthenticated: redirect to /login",
+      "category": "admin",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T05:20:00Z",
+      "lastTestedBy": "testing-agent"
+    },
+    {
+      "id": "fe-admin-contrat",
+      "title": "Admin contract pages (list, create, detail)",
+      "description": "Routes /admin/contrats, /admin/contrats/new, /admin/contrats/{id} — contract management.\n\nPages:\n- GET /admin/contrats (list)\n- GET /admin/contrats/new (create form)\n- POST /admin/contrats/new (create submit)\n- GET /admin/contrats/{id} (detail view)\n- Various POST actions: statut, confirm, cancel, upload/delete signed doc\n\nAccess:\n- SUPER_ADMIN: all operations on all contracts\n- ADMIN_AGENCY: all operations on own agency contracts\n- AGENT: read own agency contracts, create contracts\n- CLIENT: no access to admin contract pages (sees own contracts in /client). Shows 'Vous n'avez pas les droits...' on restricted actions.\n- Unauthenticated: redirect to /login\n\nList page:\n- Table: ID (CTR-{id}), type, bien, cosigners, dates, statut badge, montant\n- Pagination (20 per page)\n- TO IMPLEMENT: Filter controls for type (LOCATION/ACHAT), status (EN_COURS/SIGNE/ANNULE/TERMINE), date range. Currently missing.\n- TO FIX: Some places show raw IDs instead of formatted CTR-{id} — must use convention consistently.\n\nCreate form:\n- Type selection: choose from existing Location or Achat listings (via ?achatId=X or ?locationId=X preselection)\n- Auto-resolves property owner from selected listing\n- Cosigners: array of personneId + typeSignataire (OWNER, SELLER, RENTER, BUYER)\n- Minimum 2 cosigners required\n\nDetail page:\n- Full contract information with cosigners table\n- Status badge: EN_COURS, SIGNE, ANNULE, TERMINE\n- PDF generation/download button\n- Signed document: upload (multipart), download, delete\n- Confirm action (EN_COURS → SIGNE): requires signed document uploaded first\n- Cancel action (EN_COURS → ANNULE)\n- Status badges should use aria-labels for accessibility\n\nBusiness rules:\n- Confirm requires signed document uploaded first\n- Confirming auto-cancels sibling EN_COURS contracts on same offer\n- Cannot upload/delete signed document when status is SIGNE or TERMINE\n- Montant formatted as currency (EUR)\n\nEdge cases:\n- Confirm with sibling EN_COURS contracts: verify auto-cancellation feedback\n- Upload to already-SIGNE contract: blocked with error\n- No contracts: empty table with message\n- Delete confirmation required",
+      "category": "admin",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-admin-personne",
+      "title": "Admin person pages (list, create, edit)",
+      "lastTestedAt": "2026-03-05T06:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "description": "Routes /admin/personnes, /admin/personnes/new, /admin/personnes/{id}/edit — person management.\n\nPages:\n- GET /admin/personnes (list)\n- GET /admin/personnes/search.json?q=... (JSON autocomplete endpoint)\n- GET /admin/personnes/new (create form)\n- POST /admin/personnes/new (create submit)\n- GET /admin/personnes/{id}/edit (edit form)\n- POST /admin/personnes/{id}/edit (edit submit)\n- POST /admin/personnes/{id}/invite (send activation email)\n- POST /admin/personnes/{id}/delete (delete action)\n\nAccess:\n- SUPER_ADMIN: all operations\n- ADMIN_AGENCY: all operations on personnes linked to own agency\n- AGENT: read own agency personnes\n- CLIENT: no access\n- Unauthenticated: redirect to /login\n\nList page:\n- Table: nom, prenom, email, telephone columns\n- Search by name/email\n- TO IMPLEMENT: Pagination — currently all personnes loaded at once. Must add paginated loading to avoid performance issues with large datasets.\n- Action buttons: edit, delete, invite\n\nJSON search endpoint:\n- /admin/personnes/search.json?q=... for autocomplete in contract creation\n- Requires q >= 1 character\n- Accent-insensitive search (e, é, è, ê all match)\n\nForm page:\n- Fields: nom, prenom, dateNais, rue, ville, codePostal, rib\n- No explicit type dropdown — person type determined by relationships (proprietaire, cosigner, etc.)\n\nEdit page enrichments:\n- Shows owned properties (from getPersonneBiens)\n- Shows signed contracts (from getPersonneContrats)\n- Shows account status (from getPersonneAccountStatus): hasAccount, status (ACTIVE/PENDING/EXPIRED), email\n- Invite button: sends activation email, shows /activate?token=X in flash message\n\nBusiness rules:\n- Personnes linked to active contracts cannot be deleted\n- Account status check is optional (gracefully skips if endpoint fails)\n\nEdge cases:\n- No personnes: empty table with add button\n- Delete personne with contracts: error message explaining why blocked\n- Search with accents/special characters: verify accent-insensitive matching works\n- Invite to already-activated person: verify appropriate feedback",
+      "category": "admin",
+      "status": "passing",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-admin-user",
+      "title": "Admin user pages (list, create, edit)",
+      "description": "Routes /admin/utilisateurs, /admin/utilisateurs/new - user account management.\n\nPages:\n- GET /admin/utilisateurs (list)\n- GET /admin/utilisateurs/new (create/invite form)\n- POST /admin/utilisateurs/new (invite submit)\n- POST /admin/utilisateurs/{id}/deactivate (soft-disable)\n- POST /admin/utilisateurs/{id}/reactivate (re-enable)\n\nNote: No edit form for existing users - only create, deactivate, reactivate.\n\nAccess:\n- SUPER_ADMIN: all operations on all users\n- ADMIN_AGENCY: manage users in own agency (create AGENT/CLIENT only)\n- AGENT: no access\n- CLIENT: no access\n- Unauthenticated: redirect to /login\n\nList page:\n- Paginated table (20 per page): email, nom, prenom, role (badge), status (actif/inactif)\n- Deactivate/reactivate action buttons per user\n- 'Inviter un utilisateur' button\n\nCreate/invite form:\n- Fields: email, nom, prenom, dateNais, role (dropdown)\n- SUPER_ADMIN: can assign agenceId via dropdown\n- ADMIN_AGENCY: agency auto-assigned, role limited to AGENT and CLIENT\n- On submit: creates Personne + Compte with activation token\n- Activation URL shown in flash message (needs 'Copy' button for usability)\n\nBusiness rules:\n- Email must be unique (400 on duplicate)\n- Role hierarchy: ADMIN_AGENCY cannot create ADMIN_AGENCY or SUPER_ADMIN accounts (403)\n- Deactivation is soft (sets actif=false), reversible via reactivate\n- Cannot deactivate the last SUPER_ADMIN\n\nEdge cases:\n- No users: empty table\n- Invite with existing email: error message shown\n- Role hierarchy enforcement: ADMIN_AGENCY attempting to create equal/higher role gets 403\n- Activation URL in flash: must remain visible long enough to copy (or provide copy-to-clipboard button)\n- Deactivating self: should be forbidden",
+      "category": "admin",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-admin-reference",
+      "title": "Admin reference data page",
+      "description": "Route /admin/references — manage Caractéristiques and Lieux reference data.\n\nPages:\n- GET /admin/references\n\nAccess:\n- SUPER_ADMIN: full CRUD on all reference data (guarded by requireSuperAdmin() check)\n- ADMIN_AGENCY: read only (page loads but no add/edit/delete buttons)\n- AGENT: read only\n- CLIENT: no access\n- Unauthenticated: redirect to /login\n\nFunctional:\n- Single page with two sections: Caractéristiques and Lieux\n- Inline CRUD: add/edit/delete without leaving the page\n- Simple field per item: lib (libellé/label)\n- SUPER_ADMIN only sees action buttons (add, edit, delete)\n\nUI elements:\n- Two-section layout on single page\n- Each section: table of items sorted alphabetically, inline action buttons\n- Add button per section (SUPER_ADMIN only)\n\nBusiness rules:\n- Reference data used in property dropdowns across the app\n- Cannot delete reference data in use by existing properties (backend rejects)\n\nEdge cases:\n- Empty reference category: show empty table with add button\n- Delete characteristic/lieu in use by properties: error message from backend\n- Empty lib field: validation prevents empty reference data creation\n- Very long lib value: verify display doesn't break layout",
+      "category": "admin",
+      "status": "passing",
+      "lastTestedAt": "2026-03-05T06:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-user-profile",
+      "title": "User profile page",
+      "description": "Route /profil — authenticated user's profile and settings.\n\nPages:\n- GET /profil\n- POST /profil (update personal info)\n- POST /profil/change-password (change password)\n\nAccess:\n- Any authenticated user\n- Unauthenticated: redirect to /login\n- User without personneId in session: redirect to dashboard (CLIENT → /client, others → /admin)\n\nFunctional:\n- Section 1 — Account info (read-only display): email, role, agency name\n- Section 2 — Personal info (editable): nom, prenom, dateNais, rue, ville, codePostal, rib\n- Section 3 — Password change: current password + new password + confirmation\n- Session sync: updates nom/prenom in session after save (sidebar reflects changes)\n\nTO IMPLEMENT:\n- Password change section: API client needs changePassword(currentPassword, newPassword) method calling POST /api/auth/change-password. Backend DTO (ChangePasswordRequest.java) exists but frontend integration is missing.\n- Account info display: email, role, and agency must be shown as read-only fields. Currently only personal info (Personne entity fields) is shown.\n\nUI elements:\n- Account info card showing email, role badge, agency name (all read-only)\n- Edit form for personal details (Personne fields)\n- Separate password change section with three fields\n- Save buttons per section\n\nBusiness rules:\n- Email cannot be changed (display only)\n- Role and agency cannot be changed by user (display only)\n- Current password required for password change (BCrypt verified on backend)\n- New password minimum 6 characters, confirmation must match\n\nEdge cases:\n- Wrong current password: error message from backend\n- Password change success: show confirmation flash, stay on page\n- No changes submitted: no error, no update\n- User without personneId: redirect to dashboard instead of error page\n- Session sync after profile update: sidebar must show updated name",
+      "category": "profil",
+      "status": "failing",
+      "lastTestedAt": "2026-03-05T12:00:00Z",
+      "lastTestedBy": "testing-agent",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fe-client-dashboard",
+      "title": "Client dashboard",
+      "description": "Routes /client, /client/contrats, /client/biens — dashboard for CLIENT role users.\n\nPages:\n- GET /client (dashboard with summary stats)\n- GET /client/contrats (paginated contracts list)\n- GET /client/biens (paginated properties list)\n\nAccess:\n- CLIENT: full access\n- SUPER_ADMIN/ADMIN_AGENCY/AGENT: currently get 403 (see note below)\n- Unauthenticated: redirect to /login\n\nFunctional:\n- Dashboard: welcome message with user name, summary stats (totalProperties, totalContracts, activeContracts, totalRevenue, monthlyRevenue)\n- Contracts page: paginated list (10 per page) of client's own contracts with status badges\n- Properties page: paginated list (10 per page) of client's associated properties\n- Uses dedicated /api/client/* endpoints (not generic endpoints with filters)\n- Graceful error handling: flash message on API failure, empty data fallback\n\nUI elements:\n- Uses same sidebar layout as all pages\n- Dashboard stat cards, contract/property tables\n- Navigation between dashboard/contrats/biens via sidebar links\n\nBusiness rules:\n- Client sees only own contracts (filtered by personneId from JWT on server side)\n- No edit/delete capabilities on contracts (read-only)\n- Revenue calculated from signed contracts\n\nTest data requirement:\n- No CLIENT test account exists in V2 seed data. A CLIENT account must be added to V3 migration for testing.\n\nEdge cases:\n- New client with zero contracts/properties: show empty state messages, not errors\n- Expired contracts: shown with status badge\n- Client not linked to any personne: empty dashboard with message",
+      "category": "client",
+      "status": "passing",
+      "proposedBy": "orchestrator",
+      "lastTestedAt": "2026-03-05T05:17:33Z",
+      "lastTestedBy": "testing-agent"
+    }
+  ]
+}

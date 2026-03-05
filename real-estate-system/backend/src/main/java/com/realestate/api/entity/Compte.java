@@ -43,6 +43,12 @@ public class Compte {
     @Column(name = "token_expiration")
     private LocalDateTime tokenExpiration;
 
+    @Column(name = "token_reset", length = 255)
+    private String tokenReset;
+
+    @Column(name = "token_reset_expiration")
+    private LocalDateTime tokenResetExpiration;
+
     @Column(nullable = false)
     private Boolean actif = true;
 
@@ -65,6 +71,12 @@ public class Compte {
         return tokenActivation != null
                 && tokenExpiration != null
                 && tokenExpiration.isAfter(LocalDateTime.now());
+    }
+
+    public boolean isResetTokenValid() {
+        return tokenReset != null
+                && tokenResetExpiration != null
+                && tokenResetExpiration.isAfter(LocalDateTime.now());
     }
 
     // Convenience: name comes from the linked Personne

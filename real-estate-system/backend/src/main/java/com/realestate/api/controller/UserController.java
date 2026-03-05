@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY')")
 public class UserController {
 
     private final CompteRepository compteRepository;
@@ -59,6 +62,36 @@ public class UserController {
         });
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Long id) {
+        Compte currentCompte = securityUtils.getCurrentCompteOrThrow();
+        Compte compte = compteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Agency check: non-SUPER_ADMIN can only see users from their agency
+        if (!currentCompte.isSuperAdmin()) {
+            if (compte.getAgence() == null || currentCompte.getAgence() == null
+                    || !compte.getAgence().getId().equals(currentCompte.getAgence().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", compte.getId());
+        map.put("email", compte.getEmail());
+        map.put("nom", compte.getNom());
+        map.put("prenom", compte.getPrenom());
+        map.put("role", compte.getRole().name());
+        map.put("actif", compte.getActif());
+        map.put("activated", compte.isActivated());
+        map.put("dateCreation", compte.getDateCreation());
+        if (compte.getPersonne() != null) {
+            map.put("personneId", compte.getPersonne().getId());
+            map.put("dateNais", compte.getPersonne().getDateNais());
+        }
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping
@@ -100,6 +133,9 @@ public class UserController {
                     .orElseThrow(() -> new RuntimeException("Agence not found"));
         } else {
             agence = currentCompte.getAgence();
+            if (agence == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Votre compte n'est associe a aucune agence"));
+            }
         }
 
         // Create account with activation token (no password)

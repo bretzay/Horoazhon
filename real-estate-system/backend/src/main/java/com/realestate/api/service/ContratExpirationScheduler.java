@@ -9,7 +9,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.PostConstruct;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -22,9 +23,9 @@ public class ContratExpirationScheduler {
     private final ContratRepository contratRepository;
 
     /**
-     * Run expiration check on application startup as well.
+     * Run expiration check on application startup (after Flyway migrations complete).
      */
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void onStartup() {
         expireContracts();
     }

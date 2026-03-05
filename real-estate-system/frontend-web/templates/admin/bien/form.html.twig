@@ -6,21 +6,21 @@
 <style>
     .compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .compact-grid .section { margin-bottom: 0; }
-    .compact-grid .section h4 { font-size: 0.9rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.35rem; }
+    .compact-grid .section h4 { font-size: 0.875rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem; }
     .compact-grid .form-group { margin-bottom: 0.5rem; }
-    .compact-grid .form-group label { font-size: 0.8rem; margin-bottom: 0.15rem; }
+    .compact-grid .form-group label { font-size: 0.75rem; margin-bottom: 0.25rem; }
     .compact-grid .form-group input,
     .compact-grid .form-group select,
-    .compact-grid .form-group textarea { padding: 0.35rem 0.5rem; font-size: 0.85rem; }
-    .compact-grid .form-inline { gap: 0.35rem; flex-wrap: wrap; }
-    .compact-grid .section-item { padding: 0.35rem 0; font-size: 0.85rem; }
-    .field-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; margin-bottom: 0.35rem; }
+    .compact-grid .form-group textarea { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+    .compact-grid .form-inline { gap: 0.25rem; flex-wrap: wrap; }
+    .compact-grid .section-item { padding: 0.25rem 0; font-size: 0.875rem; }
+    .field-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; margin-bottom: 0.25rem; }
     .field-row .form-group { margin-bottom: 0; flex: 0 0 auto; }
     .full-width { grid-column: 1 / -1; }
     .autocomplete-wrapper { position: relative; }
-    .autocomplete-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .autocomplete-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 4px 6px rgba(15,23,42,0.10); }
     .autocomplete-results.active { display: block; }
-    .autocomplete-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.85rem; }
+    .autocomplete-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; }
     .autocomplete-item:hover { background: #f1f5f9; }
     .autocomplete-item .sub { font-size: 0.75rem; color: #94a3b8; }
     @media (max-width: 768px) {
@@ -258,13 +258,13 @@
             </div>
         {% endfor %}
     {% else %}
-        <p style="color: #94a3b8; font-size: 0.8rem;">Aucune photo.</p>
+        <p style="color: #94a3b8; font-size: 0.75rem;">Aucune photo.</p>
     {% endif %}
     <form method="POST" enctype="multipart/form-data" style="margin-top: 0.25rem;">
         <input type="hidden" name="_action" value="add_photo">
         <div class="field-row">
             <div class="form-group" style="flex: 1; min-width: 100px;">
-                <input type="file" name="photo_file" accept="image/*" id="photo_file_input" style="font-size: 0.8rem;">
+                <input type="file" name="photo_file" accept="image/*" id="photo_file_input" style="font-size: 0.75rem;">
             </div>
             <div class="form-group" style="flex: 1; min-width: 100px;">
                 <input type="text" name="chemin" placeholder="ou URL de la photo" id="photo_url_input">
@@ -301,7 +301,7 @@
             </div>
         {% endfor %}
     {% else %}
-        <p style="color: #94a3b8; font-size: 0.8rem;">Aucune.</p>
+        <p style="color: #94a3b8; font-size: 0.75rem;">Aucune.</p>
     {% endif %}
     <form method="POST" style="margin-top: 0.25rem;">
         <input type="hidden" name="_action" value="add_caracteristique">
@@ -342,7 +342,7 @@
             </div>
         {% endfor %}
     {% else %}
-        <p style="color: #94a3b8; font-size: 0.8rem;">Aucun.</p>
+        <p style="color: #94a3b8; font-size: 0.75rem;">Aucun.</p>
     {% endif %}
     <form method="POST" style="margin-top: 0.25rem;">
         <input type="hidden" name="_action" value="add_lieu">

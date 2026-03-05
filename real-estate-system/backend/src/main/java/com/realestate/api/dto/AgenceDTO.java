@@ -17,4 +17,6 @@ public class AgenceDTO {
     private String codePostal;
     private String telephone;
     private String email;
+    private String description;
+    private String logo;
 }

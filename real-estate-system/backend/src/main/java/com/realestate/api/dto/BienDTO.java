@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,6 +26,7 @@ public class BienDTO {
     private AgenceDTO agence;
     private String principalPhotoUrl;
     private int photoCount;
+    private List<String> photoUrls = new ArrayList<>();
 
     // Availability info
     private boolean availableForSale;
