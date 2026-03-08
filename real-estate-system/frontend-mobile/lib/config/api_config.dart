@@ -1,11 +1,18 @@
+import 'dart:io' show Platform;
+
 class ApiConfig {
-  // Change this to your computer's IP address for testing on physical devices
-  // Use 'localhost' for emulator/simulator
-  static const String baseUrl = 'http://localhost:8080/api';
-  
-  // For production, this will be replaced with remote server URL
-  // static const String baseUrl = 'https://your-domain.com/api';
-  
+  // Android emulator uses 10.0.2.2 to reach host machine's localhost.
+  // Override with --dart-define=API_HOST=<ip> for physical devices or custom setups.
+  static const String _hostOverride = String.fromEnvironment('API_HOST');
+
+  static String get baseUrl {
+    if (_hostOverride.isNotEmpty) {
+      return 'http://$_hostOverride:8080/api';
+    }
+    final host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+    return 'http://$host:8080/api';
+  }
+
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
 }
