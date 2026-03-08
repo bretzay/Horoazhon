@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:real_estate_app/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  const storage = FlutterSecureStorage();
 
   // ---------------------------------------------------------------------------
   // Helper: login as SUPER_ADMIN and navigate to Données de référence via drawer
   // Note: Reference data is SUPER_ADMIN only — admin@horoazhon.fr won't see it
   // ---------------------------------------------------------------------------
   Future<void> loginAsSuperAdmin(WidgetTester tester) async {
+    await storage.deleteAll();
     app.main();
     await tester.pumpAndSettle(const Duration(seconds: 5));
 

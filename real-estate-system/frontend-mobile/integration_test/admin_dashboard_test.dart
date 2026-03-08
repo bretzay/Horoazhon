@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:real_estate_app/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  const storage = FlutterSecureStorage();
 
   // ---------------------------------------------------------------------------
   // Helper: login as admin and land on the admin dashboard
   // ---------------------------------------------------------------------------
   Future<void> loginAsAdmin(WidgetTester tester) async {
+    await storage.deleteAll();
     app.main();
     await tester.pumpAndSettle(const Duration(seconds: 5));
 

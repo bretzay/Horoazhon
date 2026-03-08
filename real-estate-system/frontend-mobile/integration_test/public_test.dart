@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:real_estate_app/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  const storage = FlutterSecureStorage();
 
   // ============================================================
   // fm-public-homepage: Home screen
   // ============================================================
   group('fm-public-homepage', () {
     testWidgets('Home screen loads with branding and tagline', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -21,6 +24,7 @@ void main() {
     });
 
     testWidgets('Featured properties section loads', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -31,6 +35,7 @@ void main() {
     });
 
     testWidgets('Agency showcase section loads', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -44,6 +49,7 @@ void main() {
     });
 
     testWidgets('Search bar is visible', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -54,6 +60,7 @@ void main() {
     });
 
     testWidgets('Quick action cards are visible', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -76,6 +83,7 @@ void main() {
   // ============================================================
   group('fm-public-property', () {
     testWidgets('Property list screen loads via bottom nav', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -89,6 +97,7 @@ void main() {
 
     testWidgets('Filter bar with search and type chip is visible',
         (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -108,6 +117,7 @@ void main() {
 
     testWidgets('Property cards display with price and location info',
         (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -127,6 +137,7 @@ void main() {
 
     testWidgets('Tapping a property navigates to detail screen',
         (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -152,6 +163,7 @@ void main() {
   // ============================================================
   group('fm-public-agence', () {
     testWidgets('Agency list screen loads via bottom nav', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -164,6 +176,7 @@ void main() {
     });
 
     testWidgets('Search bar is visible on agency list', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -178,6 +191,7 @@ void main() {
 
     testWidgets('Agency cards display with name and contact info',
         (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -197,6 +211,7 @@ void main() {
 
     testWidgets('Tapping an agency navigates to detail screen',
         (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 

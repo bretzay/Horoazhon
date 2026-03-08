@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:real_estate_app/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  const storage = FlutterSecureStorage();
 
   // ---------------------------------------------------------------------------
   // Helper: navigate to login screen and perform login
   // ---------------------------------------------------------------------------
   Future<void> loginAs(WidgetTester tester, String email, String password) async {
+    await storage.deleteAll();
     app.main();
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -34,6 +37,7 @@ void main() {
   group('fm-layout: Public bottom navigation', () {
     testWidgets('Public nav has 4 tabs: Accueil, Biens, Agences, Connexion',
         (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -44,6 +48,7 @@ void main() {
     });
 
     testWidgets('AppBar shows Horoazhon title', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -51,6 +56,7 @@ void main() {
     });
 
     testWidgets('Tapping Biens tab switches to property list', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -66,6 +72,7 @@ void main() {
     });
 
     testWidgets('Tapping Agences tab switches to agency list', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -77,6 +84,7 @@ void main() {
     });
 
     testWidgets('Tapping Connexion tab shows login screen', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -88,6 +96,7 @@ void main() {
     });
 
     testWidgets('Tapping Accueil tab returns to home screen', (tester) async {
+      await storage.deleteAll();
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
