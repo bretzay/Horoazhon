@@ -342,8 +342,7 @@ class _PropertyListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final photos = bien['photos'] as List? ?? [];
-    final hasPhoto = photos.isNotEmpty;
+    final photoUrl = bien['principalPhotoUrl'] as String?;
     final prix = bien['prixVente'] ?? bien['loyerMensuel'];
     final isForSale = bien['prixVente'] != null;
     final ville = bien['ville'] ?? '';
@@ -361,9 +360,9 @@ class _PropertyListCard extends StatelessWidget {
               width: 120,
               height: 100,
               color: AppColors.slate100,
-              child: hasPhoto
+              child: photoUrl != null
                   ? Image.network(
-                      (photos[0] as Map<String, dynamic>)['chemin'] ?? '',
+                      photoUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) =>
                           const Center(child: Icon(Icons.image_outlined, color: AppColors.slate400)),
