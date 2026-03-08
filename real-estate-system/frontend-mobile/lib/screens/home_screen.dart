@@ -208,8 +208,9 @@ class _PropertyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final photoUrl = bien['principalPhotoUrl'] as String?;
-    final prix = bien['prixVente'] ?? bien['loyerMensuel'];
-    final isForSale = bien['prixVente'] != null;
+    final isForSale = bien['availableForSale'] == true;
+    final isForRent = bien['availableForRent'] == true;
+    final prix = bien['salePrice'] ?? bien['monthlyRent'];
     final ville = bien['ville'] ?? '';
     final superficie = bien['superficie'];
 
@@ -239,20 +240,23 @@ class _PropertyCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.space2,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isForSale ? AppColors.blue500 : AppColors.slate900,
-                      borderRadius: AppRadius.fullAll,
-                    ),
-                    child: Text(
-                      isForSale ? 'Vente' : 'Location',
-                      style: AppTextStyles.textSm.w600.withColor(AppColors.white),
-                    ),
+                  // Badges
+                  Row(
+                    children: [
+                      if (isForSale)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space2, vertical: 2),
+                          margin: const EdgeInsets.only(right: 4),
+                          decoration: BoxDecoration(color: AppColors.blue500, borderRadius: AppRadius.fullAll),
+                          child: Text('Vente', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
+                        ),
+                      if (isForRent)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space2, vertical: 2),
+                          decoration: BoxDecoration(color: AppColors.slate900, borderRadius: AppRadius.fullAll),
+                          child: Text('Location', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: AppSpacing.space1),
                   if (prix != null)

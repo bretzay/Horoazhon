@@ -66,8 +66,10 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final photos = bien['photos'] as List? ?? [];
     final caracs = bien['caracteristiques'] as List? ?? [];
     final lieux = bien['lieux'] as List? ?? [];
-    final prixVente = bien['prixVente'];
-    final loyerMensuel = bien['loyerMensuel'];
+    final isForSale = bien['availableForSale'] == true;
+    final isForRent = bien['availableForRent'] == true;
+    final prixVente = bien['salePrice'];
+    final loyerMensuel = bien['monthlyRent'];
 
     return RefreshIndicator(
       onRefresh: _loadData,
@@ -109,18 +111,21 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 // Type badge + ID
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: prixVente != null ? AppColors.blue500 : AppColors.slate900,
-                        borderRadius: AppRadius.fullAll,
+                    if (isForSale)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(color: AppColors.blue500, borderRadius: AppRadius.fullAll),
+                        child: Text('Vente', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                       ),
-                      child: Text(
-                        prixVente != null ? 'Vente' : 'Location',
-                        style: AppTextStyles.textSm.w600.withColor(AppColors.white),
+                    if (isForRent)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(color: AppColors.slate900, borderRadius: AppRadius.fullAll),
+                        child: Text('Location', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.space2),
+                    const SizedBox(width: AppSpacing.space1),
                     Text(
                       bien['type'] ?? '',
                       style: AppTextStyles.textSm.w500.withColor(AppColors.slate500),
