@@ -12,6 +12,10 @@ import '../screens/client_dashboard_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_biens_screen.dart';
 import '../screens/admin/admin_contrats_screen.dart';
+import '../screens/admin/admin_personnes_screen.dart';
+import '../screens/admin/admin_users_screen.dart';
+import '../screens/admin/admin_agences_screen.dart';
+import '../screens/admin/admin_references_screen.dart';
 import 'admin_drawer.dart';
 
 class AppShell extends StatefulWidget {
@@ -173,17 +177,17 @@ class _AppShellState extends State<AppShell> {
   Widget _getDrawerScreen(String route) {
     switch (route) {
       case '/admin/personnes':
-        return const _PlaceholderScreen(title: 'Personnes');
+        return const AdminPersonnesScreen();
       case '/admin/utilisateurs':
-        return const _PlaceholderScreen(title: 'Utilisateurs');
+        return const AdminUsersScreen();
       case '/admin/agences':
-        return const _PlaceholderScreen(title: 'Agences');
+        return const AdminAgencesScreen();
       case '/admin/references':
-        return const _PlaceholderScreen(title: 'Données de référence');
+        return const AdminReferencesScreen();
       case '/profil':
         return const ProfileScreen();
       default:
-        return const _PlaceholderScreen(title: 'Page non trouvée');
+        return const Center(child: Text('Page non trouvée'));
     }
   }
 
