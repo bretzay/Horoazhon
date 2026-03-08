@@ -54,10 +54,10 @@ void main() {
       await loginAndGoToBiens(tester);
 
       // PopupMenuButton (more_vert icon) should be visible on cards
-      expect(find.byType(PopupMenuButton), findsWidgets);
+      expect(find.byType(PopupMenuButton<String>), findsWidgets);
 
       // Tap the first popup menu to see options
-      await tester.tap(find.byType(PopupMenuButton).first);
+      await tester.tap(find.byType(PopupMenuButton<String>).first);
       await tester.pumpAndSettle();
 
       // Menu items

@@ -153,8 +153,8 @@ void main() {
 
       // On detail screen: should see "Vente" or "Location" badge
       // and the property type (e.g., APPARTEMENT, MAISON)
-      // The AppBar title should show the property ID format "BI-X"
-      expect(find.textContaining('BI-'), findsOneWidget);
+      // The property ID format "BI-X" appears in AppBar and/or body
+      expect(find.textContaining('BI-'), findsWidgets);
     });
   });
 

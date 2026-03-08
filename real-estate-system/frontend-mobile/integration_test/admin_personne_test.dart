@@ -68,7 +68,7 @@ void main() {
       expect(find.byType(Card), findsAtLeastNWidgets(1));
 
       // Each card has a PopupMenuButton for actions
-      expect(find.byType(PopupMenuButton), findsAtLeastNWidgets(1));
+      expect(find.byType(PopupMenuButton<String>), findsAtLeastNWidgets(1));
     });
 
     testWidgets('FAB add button is visible', (tester) async {

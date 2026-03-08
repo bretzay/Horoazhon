@@ -52,7 +52,8 @@ void main() {
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Horoazhon'), findsOneWidget);
+      // "Horoazhon" appears in both AppBar and home hero — expect at least one
+      expect(find.text('Horoazhon'), findsWidgets);
     });
 
     testWidgets('Tapping Biens tab switches to property list', (tester) async {
@@ -68,7 +69,7 @@ void main() {
       // At minimum, the bottom nav "Biens" tab should be active
       expect(find.text('Biens'), findsOneWidget);
       // We're no longer on the home screen's main content
-      expect(find.text('Horoazhon'), findsOneWidget); // AppBar still shows title
+      expect(find.text('Horoazhon'), findsWidgets); // AppBar still shows title
     });
 
     testWidgets('Tapping Agences tab switches to agency list', (tester) async {
@@ -80,7 +81,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Agences'), findsOneWidget);
-      expect(find.text('Horoazhon'), findsOneWidget);
+      expect(find.text('Horoazhon'), findsWidgets);
     });
 
     testWidgets('Tapping Connexion tab shows login screen', (tester) async {
@@ -131,7 +132,7 @@ void main() {
         (tester) async {
       await loginAs(tester, 'admin@horoazhon.fr', 'Admin');
 
-      expect(find.text('Horoazhon'), findsOneWidget);
+      expect(find.text('Horoazhon'), findsWidgets);
     });
 
     testWidgets('AppBar shows role chip after admin login', (tester) async {
@@ -196,8 +197,9 @@ void main() {
       await loginAs(tester, 'client@horoazhon.fr', 'Client');
 
       // Client stays in public shell — tab label changes to "Profil"
+      // "Biens" also appears as a stat card label on client dashboard
       expect(find.text('Accueil'), findsOneWidget);
-      expect(find.text('Biens'), findsOneWidget);
+      expect(find.text('Biens'), findsWidgets);
       expect(find.text('Agences'), findsOneWidget);
       expect(find.text('Profil'), findsOneWidget);
 

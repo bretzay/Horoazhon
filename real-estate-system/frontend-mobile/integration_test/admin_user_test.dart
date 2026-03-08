@@ -82,7 +82,7 @@ void main() {
       await navigateToUtilisateurs(tester);
 
       // Each user card has a PopupMenuButton
-      expect(find.byType(PopupMenuButton), findsAtLeastNWidgets(1));
+      expect(find.byType(PopupMenuButton<String>), findsAtLeastNWidgets(1));
     });
 
     testWidgets('User list supports pull-to-refresh', (tester) async {

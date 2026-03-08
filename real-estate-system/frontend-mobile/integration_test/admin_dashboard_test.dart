@@ -29,6 +29,15 @@ void main() {
     await tester.enterText(textFields.at(1), 'Admin');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Se connecter'));
     await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    // After login, the dashboard's _loadData() may not complete during the
+    // initial widget tree transition. Wait for content to appear, giving
+    // the post-frame callback time to fire and API calls to complete.
+    for (int i = 0; i < 30; i++) {
+      await tester.pump(const Duration(seconds: 1));
+      if (find.textContaining('Bonjour').evaluate().isNotEmpty) break;
+      if (find.text('Erreur de chargement').evaluate().isNotEmpty) break;
+    }
   }
 
   // ===========================================================================

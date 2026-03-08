@@ -85,6 +85,14 @@ void main() {
       // and at least one badge (status or type)
       expect(find.byType(Card), findsWidgets);
 
+      // Scroll down to reveal cosigners section
+      await tester.scrollUntilVisible(
+        find.textContaining('Cosignataires'),
+        200.0,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
       // Person icon for cosigners
       expect(find.byIcon(Icons.person_outlined), findsWidgets);
     });
