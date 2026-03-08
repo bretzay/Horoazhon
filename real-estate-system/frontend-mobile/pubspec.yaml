@@ -24,7 +24,7 @@ dependencies:
   image_picker: ^1.0.7
   
   # UI Components
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.0.0
   shimmer: ^3.0.0
   
   # Utilities
