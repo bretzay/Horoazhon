@@ -5,6 +5,8 @@ import '../config/app_text_styles.dart';
 import '../config/app_spacing.dart';
 import '../config/app_radius.dart';
 import '../providers/auth_provider.dart';
+import 'forgot_password_screen.dart';
+import 'activate_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -197,9 +199,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     Center(
                       child: TextButton(
                         onPressed: () {
-                          // TODO: Navigate to forgot password screen
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (_) => const ForgotPasswordScreen(),
+                          ));
                         },
                         child: const Text('Mot de passe oublié ?'),
+                      ),
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (_) => const ActivateScreen(),
+                          ));
+                        },
+                        child: const Text('Activer un compte'),
                       ),
                     ),
                   ],
