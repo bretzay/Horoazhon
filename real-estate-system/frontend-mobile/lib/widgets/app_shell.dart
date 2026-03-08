@@ -28,6 +28,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
   String _drawerRoute = '';
+  bool _wasAdminShell = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -40,20 +41,21 @@ class _AppShellState extends State<AppShell> {
       );
     }
 
-    // Reset tab index if it becomes invalid after role change
-    final maxIndex = _getMaxTabIndex(auth);
-    if (_currentIndex > maxIndex) {
+    final isAdminShell = auth.hasAdminNav;
+
+    // Reset tab index when switching between public and admin shells
+    // (e.g., login from tab 3 in public shell → index 3 in admin shell
+    // would show SizedBox.shrink instead of the dashboard)
+    if (isAdminShell != _wasAdminShell) {
       _currentIndex = 0;
+      _drawerRoute = '';
+      _wasAdminShell = isAdminShell;
     }
 
-    if (auth.hasAdminNav) {
+    if (isAdminShell) {
       return _buildAdminShell(auth);
     }
     return _buildPublicShell(auth);
-  }
-
-  int _getMaxTabIndex(AuthProvider auth) {
-    return 3; // All layouts have 4 tabs (index 0-3)
   }
 
   // --- Public / Client layout ---
@@ -112,8 +114,6 @@ class _AppShellState extends State<AppShell> {
 
   // --- Admin / Agent layout ---
   Widget _buildAdminShell(AuthProvider auth) {
-    final screens = _getAdminScreens();
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: _buildAppBar(auth),
@@ -123,10 +123,7 @@ class _AppShellState extends State<AppShell> {
       ),
       body: _drawerRoute.isNotEmpty
           ? _getDrawerScreen(_drawerRoute)
-          : IndexedStack(
-              index: _currentIndex,
-              children: screens,
-            ),
+          : _getAdminScreenByIndex(_currentIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _drawerRoute.isNotEmpty ? 3 : _currentIndex,
         onTap: (index) {
@@ -165,13 +162,13 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  List<Widget> _getAdminScreens() {
-    return [
-      const AdminDashboardScreen(),
-      const AdminBiensScreen(),
-      const AdminContratsScreen(),
-      const SizedBox.shrink(), // "Plus" opens drawer
-    ];
+  Widget _getAdminScreenByIndex(int index) {
+    switch (index) {
+      case 0: return const AdminDashboardScreen();
+      case 1: return const AdminBiensScreen();
+      case 2: return const AdminContratsScreen();
+      default: return const SizedBox.shrink(); // "Plus" opens drawer
+    }
   }
 
   Widget _getDrawerScreen(String route) {
@@ -234,21 +231,5 @@ class _AppShellState extends State<AppShell> {
       default:
         return '';
     }
-  }
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-
-  const _PlaceholderScreen({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        title,
-        style: AppTextStyles.textLg.w600.withColor(AppColors.slate500),
-      ),
-    );
   }
 }

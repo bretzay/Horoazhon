@@ -40,20 +40,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     setState(() { _isLoading = true; _error = null; });
     try {
       final auth = context.read<AuthProvider>();
-      final futures = <Future>[
-        _api.getBiens(size: 5),
-        _api.getContrats(size: 5),
-        _api.getPersonnes(),
-      ];
+
+      // Sequential calls — concurrent requests via 10.0.2.2 bridge stall on emulator
+      final biensData = await _api.getBiens(size: 5);
+      final contratsData = await _api.getContrats(size: 5);
+      final personnes = await _api.getPersonnes();
+
+      List<dynamic>? agences;
       if (auth.isSuperAdmin) {
-        futures.add(_api.getAgences());
+        agences = await _api.getAgences();
       }
-
-      final results = await Future.wait(futures);
-
-      final biensData = results[0] as Map<String, dynamic>;
-      final contratsData = results[1] as Map<String, dynamic>;
-      final personnes = results[2] as List<dynamic>;
 
       if (mounted) {
         setState(() {
@@ -62,8 +58,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           _recentContrats = contratsData['content'] as List? ?? [];
           _contratCount = contratsData['totalElements'] as int? ?? _recentContrats.length;
           _personneCount = personnes.length;
-          if (auth.isSuperAdmin && results.length > 3) {
-            _agenceCount = (results[3] as List<dynamic>).length;
+          if (agences != null) {
+            _agenceCount = agences.length;
           }
           _isLoading = false;
         });
