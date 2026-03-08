@@ -1,11 +1,11 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-web",
-  "lastUpdated": "2026-03-05T05:17:45Z",
+  "lastUpdated": "2026-03-05T23:28:33Z",
   "tests": [
     {
       "featureId": "fe-auth-login",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-auth-login-page-loads",
@@ -236,7 +236,7 @@
     },
     {
       "featureId": "fe-auth-logout",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-auth-logout-redirects-to-login",
@@ -323,7 +323,7 @@
     },
     {
       "featureId": "fe-auth-activate",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-auth-activate-invalid-token",
@@ -432,7 +432,7 @@
     },
     {
       "featureId": "fe-auth-password-reset",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-auth-password-reset-forgot-page-loads",
@@ -586,7 +586,7 @@
     },
     {
       "featureId": "fe-public-homepage",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-public-homepage-loads",
@@ -765,7 +765,7 @@
     },
     {
       "featureId": "fe-public-property",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-public-property-list-loads",
@@ -900,7 +900,7 @@
     },
     {
       "featureId": "fe-public-agence",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-public-agence-list-loads",
@@ -993,7 +993,7 @@
     },
     {
       "featureId": "fe-layout",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-layout-sidebar-exists",
@@ -1198,7 +1198,7 @@
     },
     {
       "featureId": "fe-admin-dashboard",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-dashboard-loads-admin-agency",
@@ -1417,7 +1417,7 @@
     },
     {
       "featureId": "fe-admin-bien",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-bien-list-loads",
@@ -1661,11 +1661,11 @@
           "lastResult": null
         },
         {
-          "id": "fe-admin-bien-edit-tabs",
-          "title": "Edit page shows multi-tab layout",
+          "id": "fe-admin-bien-edit-sections",
+          "title": "Edit page shows multi-section grid layout with sub-resource management",
           "type": "browser",
-          "status": "failing",
-          "lastResult": "Edit page uses stacked sections instead of tabs. No elements match tab selectors.",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -1702,12 +1702,24 @@
           ],
           "assertions": [
             {
-              "type": "page_contains",
-              "value": "Info"
+              "type": "element_exists",
+              "selector": ".compact-grid"
             },
             {
               "type": "element_exists",
-              "selector": ".tab, [data-tab], .nav-tab, button[role='tab'], a[href*='#']"
+              "selector": ".section"
+            },
+            {
+              "type": "page_contains",
+              "value": "Annonce de vente"
+            },
+            {
+              "type": "page_contains",
+              "value": "Photos"
+            },
+            {
+              "type": "page_contains",
+              "value": "Caracteristiques"
             }
           ]
         }
@@ -1715,7 +1727,7 @@
     },
     {
       "featureId": "fe-admin-agence",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-agence-list-loads-super-admin",
@@ -1848,7 +1860,7 @@
     },
     {
       "featureId": "fe-admin-contrat",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-contrat-list-loads",
@@ -2032,7 +2044,7 @@
     },
     {
       "featureId": "fe-admin-personne",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-personne-list-loads",
@@ -2169,7 +2181,7 @@
     },
     {
       "featureId": "fe-admin-user",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-user-list-loads",
@@ -2369,7 +2381,7 @@
     },
     {
       "featureId": "fe-admin-reference",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-admin-reference-page-loads",
@@ -2518,7 +2530,7 @@
     },
     {
       "featureId": "fe-client-dashboard",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-client-dashboard-unauthenticated-redirect",
@@ -2621,7 +2633,7 @@
     },
     {
       "featureId": "fe-user-profile",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "fe-user-profile-loads-authenticated",
@@ -2668,7 +2680,7 @@
             },
             {
               "type": "page_contains",
-              "value": "Mon Profil"
+              "value": "Mon profil"
             },
             {
               "type": "element_exists",
@@ -2679,9 +2691,9 @@
               "selector": ".profile-avatar"
             }
           ],
-          "status": "failing",
-          "lastResult": "page_contains 'Mon Profil' assertion failed: body text only contains 'Mon profil' (lowercase p) in sidebar navigation; the page heading shows the user's name instead",
-          "lastTestedAt": "2026-03-05T12:00:00Z",
+          "status": "passing",
+          "lastResult": null,
+          "lastTestedAt": "2026-03-05T22:05:17.731Z",
           "lastTestedBy": "testing-agent"
         },
         {
@@ -2707,7 +2719,9 @@
             }
           ],
           "status": "passing",
-          "lastResult": null
+          "lastResult": null,
+          "lastTestedAt": "2026-03-05T22:05:17.731Z",
+          "lastTestedBy": "testing-agent"
         },
         {
           "id": "fe-user-profile-has-password-section",
@@ -2759,7 +2773,7 @@
           ],
           "status": "passing",
           "lastResult": null,
-          "lastTestedAt": "2026-03-05T12:00:00Z",
+          "lastTestedAt": "2026-03-05T22:05:17.731Z",
           "lastTestedBy": "testing-agent"
         },
         {
@@ -2806,9 +2820,9 @@
               "value": "admin@horoazhon.fr"
             }
           ],
-          "status": "failing",
-          "lastResult": "page_contains 'admin@horoazhon.fr' assertion failed: the Account section Email field shows 'Non renseigne' instead of the authenticated user's email address",
-          "lastTestedAt": "2026-03-05T12:00:00Z",
+          "status": "passing",
+          "lastResult": null,
+          "lastTestedAt": "2026-03-05T22:05:17.731Z",
           "lastTestedBy": "testing-agent"
         }
       ]

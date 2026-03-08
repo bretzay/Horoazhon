@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin - Contrat #{{ contrat.id }}{% endblock %}
+{% block title %}Admin - Contrat CTR-{{ contrat.id }}{% endblock %}
 
 {% block body %}
 {% set role = app.session.get('user_role') %}
@@ -13,7 +13,7 @@
 {% set siblingCount = contrat.siblingContratCount is defined ? contrat.siblingContratCount : 0 %}
 
 <div class="page-header">
-    <h1>Contrat #{{ contrat.id }}</h1>
+    <h1>Contrat CTR-{{ contrat.id }}</h1>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
         {% if isAgent %}
             {% if isEnCours %}

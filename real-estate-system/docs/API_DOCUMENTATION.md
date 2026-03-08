@@ -29,6 +29,7 @@ Authenticate a user and receive a JWT token.
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "type": "Bearer",
   "role": "ADMIN_AGENCY",
   "nom": "Dupont",
   "prenom": "Jean",
@@ -221,6 +222,93 @@ Delete a property. Requires authentication.
 
 ---
 
+## Personne Endpoints
+
+### GET /api/personnes
+
+List personnes. Agency-scoped for non-SUPER_ADMIN users (returns personnes linked to the user's agency via account, property ownership, or contract cosigning). SUPER_ADMIN sees all.
+
+**Auth:** SUPER_ADMIN, ADMIN_AGENCY, AGENT (class-level `@PreAuthorize`)
+
+**Response (200):** `List<PersonneDTO>`
+
+### GET /api/personnes/{id}
+
+Get personne detail by ID.
+
+**Response (200):** `PersonneDTO { id, nom, prenom, dateNais, rue, ville, codePostal, avoirs, rib }`
+
+### GET /api/personnes/search?q=...
+
+Search personnes by name (accent-insensitive). **Global search** — returns matches from all agencies regardless of the caller's agency. This allows ADMIN_AGENCY/AGENT users to find existing personnes to add as cosigners on contracts.
+
+**Auth:** SUPER_ADMIN, ADMIN_AGENCY, AGENT
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| q | string | Search term (matches nom or prenom, accent-insensitive) |
+
+**Response (200):** `List<PersonneDTO>`
+
+### POST /api/personnes
+
+Create a new personne. The personne is not linked to any agency until associated via Compte, Posseder, or Cosigner.
+
+**Request:**
+```json
+{
+  "nom": "Dupont",
+  "prenom": "Marie",
+  "dateNais": "1990-01-15",
+  "rue": "10 Rue de la Paix",
+  "ville": "Paris",
+  "codePostal": "75001",
+  "rib": "FR7630001007941234567890185"
+}
+```
+
+**Response (201):** `PersonneDTO`
+
+### PUT /api/personnes/{id}
+
+Update an existing personne. Partial updates supported (only non-null fields are updated).
+
+**Response (200):** `PersonneDTO`
+
+### DELETE /api/personnes/{id}
+
+Delete a personne. Fails if personne has contracts or owns properties (referential integrity).
+
+**Response (204):** No content
+
+### GET /api/personnes/{id}/account-status
+
+Check if a personne has a linked Compte.
+
+**Response (200):**
+```json
+{
+  "hasAccount": true,
+  "status": "ACTIVE",
+  "email": "user@example.com"
+}
+```
+
+### GET /api/personnes/{id}/biens
+
+Get properties owned by a personne (via Posseder table).
+
+**Response (200):** `List<BienDTO>`
+
+### GET /api/personnes/{id}/contrats
+
+Get contracts where personne is a cosigner.
+
+**Response (200):** `List<ContratDTO>`
+
+---
+
 ## User Roles
 
 | Role | Code | Access |
@@ -237,4 +325,4 @@ Delete a property. Requires authentication.
 | Version | Description |
 |---------|-------------|
 | V1 | Initial schema (all tables including Compte with token_reset/token_reset_expiration) |
-| V2 | Test data (2 agencies, 18 persons, 5 accounts, 10 properties, 10 contracts, reference data, photos) |
+| V2 | Test data (2 agencies, 18 persons, 6 accounts incl. client@horoazhon.fr/Client/CLIENT, 14 properties (7 per agency), 10 contracts, reference data, photos) |

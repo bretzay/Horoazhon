@@ -1,5 +1,5 @@
 # User profile page
-> Spec ID: fe-user-profile | Category: profil | Status: PARTIAL
+> Spec ID: fe-user-profile | Category: profil | Status: COMPLETE
 
 ## Implementation
 
@@ -15,9 +15,7 @@
 - Role-based redirect on no-personneId: CLIENT → `/client`, others → `/admin`
 
 ### What's Missing
-- **Password change section**: No `changePassword()` method in API client. Backend DTO (`ChangePasswordRequest.java`) exists but endpoint is not wired to frontend.
-- Email displayed as read-only (correct behavior, but not currently shown)
-- Role and agency shown as read-only (not currently displayed)
+Nothing — feature is complete. Password change section, account info display (email, role, agency) are all implemented.
 
 ## Remarks
 
@@ -27,8 +25,8 @@
 - This means email/password changes require separate Compte endpoints
 
 ### QA Remarks
-- **Gap (HIGH)**: Password change section is missing — backend DTO exists but no frontend integration. This is a Phase 1 completion gap. Must be wired before Phase 2 audit can pass.
-- **Gap (MEDIUM)**: Email, role, and agency not displayed as read-only — users have no way to see their account info on the profile page (only personal info from Personne entity).
+- ~~**Gap (HIGH)**: Password change section missing~~ — **RESOLVED**: `changePassword()` API method, controller route, and template form all exist.
+- ~~**Gap (MEDIUM)**: Email/role/agency not displayed~~ — **RESOLVED**: Account info card shows email, role badge, and agency. Email was missing from session — fixed by storing `$email` from login form input in AuthController.
 - **Test coverage**: Page loads for authenticated users, form shows personal info, edit and save works, unauthenticated redirect to /login
 - **Edge case**: User without linked personneId — verify redirect to dashboard instead of error page
 - **Edge case**: Session sync after profile update — verify sidebar shows updated name

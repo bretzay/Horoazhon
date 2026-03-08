@@ -36,6 +36,7 @@ class AuthController extends AbstractController
                 $session->set('jwt_token', $response['token']);
                 $session->set('user_role', $response['role']);
                 $session->set('user', [
+                    'email' => $email,
                     'nom' => $response['nom'],
                     'prenom' => $response['prenom'],
                     'role' => $response['role'],

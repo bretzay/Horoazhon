@@ -49,58 +49,64 @@
 | `deleteAgence` | DELETE | `/api/agences/{id}` | SUPER_ADMIN |
 
 ### ContratController — `/api/contrats`
+Class-level: `@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")`
 | Method | Verb | Path | Auth |
 |--------|------|------|------|
-| `getAll` | GET | `/api/contrats` | Authenticated |
-| `getById` | GET | `/api/contrats/{id}` | Authenticated |
-| `create` | POST | `/api/contrats` | Authenticated |
-| `updateStatut` | PATCH | `/api/contrats/{id}/statut` | Authenticated |
-| `confirmContrat` | POST | `/api/contrats/{id}/confirm` | Authenticated |
-| `cancelContrat` | POST | `/api/contrats/{id}/cancel` | Authenticated |
-| `downloadPdf` | GET | `/api/contrats/{id}/pdf` | Authenticated |
-| `uploadSignedDocument` | POST | `/api/contrats/{id}/document-signe` | Authenticated |
-| `deleteSignedDocument` | DELETE | `/api/contrats/{id}/document-signe` | Authenticated |
-| `downloadSignedDocument` | GET | `/api/contrats/{id}/document-signe` | Authenticated |
-| `triggerExpirationCheck` | POST | `/api/contrats/expire-check` | Authenticated |
+| `getAll` | GET | `/api/contrats` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getById` | GET | `/api/contrats/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `create` | POST | `/api/contrats` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `updateStatut` | PATCH | `/api/contrats/{id}/statut` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `confirmContrat` | POST | `/api/contrats/{id}/confirm` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `cancelContrat` | POST | `/api/contrats/{id}/cancel` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `downloadPdf` | GET | `/api/contrats/{id}/pdf` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `uploadSignedDocument` | POST | `/api/contrats/{id}/document-signe` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `deleteSignedDocument` | DELETE | `/api/contrats/{id}/document-signe` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `downloadSignedDocument` | GET | `/api/contrats/{id}/document-signe` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `triggerExpirationCheck` | POST | `/api/contrats/expire-check` | SUPER_ADMIN only |
 
 ### PersonneController — `/api/personnes`
+Class-level: `@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")`
 | Method | Verb | Path | Auth |
 |--------|------|------|------|
-| `getAllPersonnes` | GET | `/api/personnes` | Authenticated |
-| `getPersonneById` | GET | `/api/personnes/{id}` | Authenticated |
-| `searchPersonnes` | GET | `/api/personnes/search` | Authenticated |
-| `createPersonne` | POST | `/api/personnes` | Authenticated |
-| `updatePersonne` | PUT | `/api/personnes/{id}` | Authenticated |
-| `deletePersonne` | DELETE | `/api/personnes/{id}` | Authenticated |
-| `getAccountStatus` | GET | `/api/personnes/{id}/account-status` | Authenticated |
-| `getPersonneBiens` | GET | `/api/personnes/{id}/biens` | Authenticated |
-| `getPersonneContrats` | GET | `/api/personnes/{id}/contrats` | Authenticated |
+| `getAllPersonnes` | GET | `/api/personnes` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getPersonneById` | GET | `/api/personnes/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `searchPersonnes` | GET | `/api/personnes/search` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `createPersonne` | POST | `/api/personnes` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `updatePersonne` | PUT | `/api/personnes/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `deletePersonne` | DELETE | `/api/personnes/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getAccountStatus` | GET | `/api/personnes/{id}/account-status` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getPersonneBiens` | GET | `/api/personnes/{id}/biens` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getPersonneContrats` | GET | `/api/personnes/{id}/contrats` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
 
 ### UserController — `/api/users`
+Class-level: `@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY')")`
 | Method | Verb | Path | Auth |
 |--------|------|------|------|
-| `listUsers` | GET | `/api/users` | Authenticated |
-| `createUser` | POST | `/api/users` | Authenticated |
-| `deactivateUser` | DELETE | `/api/users/{id}` | Authenticated |
-| `reactivateUser` | PUT | `/api/users/{id}/reactivate` | Authenticated |
+| `listUsers` | GET | `/api/users` | SUPER_ADMIN, ADMIN_AGENCY |
+| `getUserById` | GET | `/api/users/{id}` | SUPER_ADMIN, ADMIN_AGENCY |
+| `createUser` | POST | `/api/users` | SUPER_ADMIN, ADMIN_AGENCY |
+| `deactivateUser` | DELETE | `/api/users/{id}` | SUPER_ADMIN, ADMIN_AGENCY |
+| `reactivateUser` | PUT | `/api/users/{id}/reactivate` | SUPER_ADMIN, ADMIN_AGENCY |
 
 ### LocationController — `/api/locations`
+Class-level: `@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")`
 | Method | Verb | Path | Auth |
 |--------|------|------|------|
-| `getAll` | GET | `/api/locations` | Authenticated |
-| `getById` | GET | `/api/locations/{id}` | Authenticated |
-| `create` | POST | `/api/locations` | Authenticated |
-| `update` | PUT | `/api/locations/{id}` | Authenticated |
-| `delete` | DELETE | `/api/locations/{id}` | Authenticated |
+| `getAll` | GET | `/api/locations` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getById` | GET | `/api/locations/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `create` | POST | `/api/locations` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `update` | PUT | `/api/locations/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `delete` | DELETE | `/api/locations/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
 
 ### AchatController — `/api/achats`
+Class-level: `@PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")`
 | Method | Verb | Path | Auth |
 |--------|------|------|------|
-| `getAll` | GET | `/api/achats` | Authenticated |
-| `getById` | GET | `/api/achats/{id}` | Authenticated |
-| `create` | POST | `/api/achats` | Authenticated |
-| `update` | PUT | `/api/achats/{id}` | Authenticated |
-| `delete` | DELETE | `/api/achats/{id}` | Authenticated |
+| `getAll` | GET | `/api/achats` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `getById` | GET | `/api/achats/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `create` | POST | `/api/achats` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `update` | PUT | `/api/achats/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `delete` | DELETE | `/api/achats/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
 
 ### CaracteristiquesController — `/api/caracteristiques`
 | Method | Verb | Path | Auth |
@@ -121,13 +127,14 @@
 | `delete` | DELETE | `/api/lieux/{id}` | SUPER_ADMIN |
 
 ### ClientDashboardController — `/api/client`
-| Method | Verb | Path | Auth |
-|--------|------|------|------|
-| `getDashboard` | GET | `/api/client/dashboard` | CLIENT |
-| `getContracts` | GET | `/api/client/contrats` | CLIENT |
-| `getProperties` | GET | `/api/client/biens` | CLIENT |
+Class-level: `@PreAuthorize("hasRole('CLIENT')")`
+| Method | Verb | Path | Auth | Return Type |
+|--------|------|------|------|-------------|
+| `getDashboard` | GET | `/api/client/dashboard` | CLIENT only | ClientDashboardDTO |
+| `getContracts` | GET | `/api/client/contrats` | CLIENT only | Page\<ContratDTO\> |
+| `getProperties` | GET | `/api/client/biens` | CLIENT only | Page\<BienDTO\> |
 
-**Total: ~80 endpoints across 11 controllers**
+**Total: ~81 endpoints across 11 controllers**
 
 ---
 
@@ -135,7 +142,7 @@
 
 | Entity | Table | Key Columns |
 |--------|-------|-------------|
-| `Compte` | `Compte` | id, email (UNIQUE), mot_de_passe, role (ENUM), agence_id (FK), personne_id (FK), token_activation, token_expiration, token_reset, token_reset_expiration, actif |
+| `Compte` | `Compte` | id, email (UNIQUE), password (BCrypt, NULL until activated), role (ENUM), agence_id (FK), personne_id (FK), token_activation, token_expiration, token_reset, token_reset_expiration, actif, date_creation |
 | `Agence` | `Agence` | id, siret (UNIQUE), nom, numero_tva, rue, ville, code_postal, telephone, email, description, logo |
 | `Bien` | `Bien` | id, rue, ville, code_postal, eco_score, superficie, description, type, agence_id (FK), compte_createur_id (FK) |
 | `Personne` | `Personne` | id, nom, prenom, date_nais, rue, ville, code_postal, rib, avoirs |
@@ -155,6 +162,7 @@
 |------|--------|
 | `Compte.Role` | CLIENT, AGENT, ADMIN_AGENCY, SUPER_ADMIN |
 | `Contrat.StatutContrat` | EN_COURS, SIGNE, ANNULE, TERMINE |
+| `Contrat.TypeContrat` | LOCATION, ACHAT |
 | `Cosigner.TypeSignataire` | BUYER, SELLER, RENTER, OWNER |
 
 ---
@@ -201,8 +209,8 @@
 ### Response DTOs
 | DTO | Key Fields |
 |-----|-----------|
-| `AuthenticationResponse` | token, role, nom, prenom, agenceId, agenceNom, agenceLogo, personneId |
-| `BienDTO` | id, rue, ville, codePostal, ecoScore, type, superficie, description, availableForSale, availableForRent, salePrice, monthlyRent, agence |
+| `AuthenticationResponse` | token, type ("Bearer"), role, nom, prenom, agenceId, agenceNom, agenceLogo, personneId |
+| `BienDTO` | id, rue, ville, codePostal, ecoScore, type, superficie, description, dateCreation, agence, principalPhotoUrl, photoCount, photoUrls, availableForSale, availableForRent, salePrice, monthlyRent |
 | `BienDetailDTO` | (extends BienDTO) + photos, caracteristiques, lieux, proprietaires, achat, location |
 | `PhotoDTO` | id, chemin, ordre, url |
 | `AgenceDTO` | id, siret, nom, numeroTva, rue, ville, codePostal, telephone, email, description, logo |
@@ -217,7 +225,7 @@
 | `LieuProximiteDTO` | lieuId, lib, minutes, typeLocomotion |
 | `CosignerDTO` | personneId, nom, prenom, typeSignataire, dateSignature |
 | `ProprietaireDTO` | personneId, nom, prenom, dateDebut |
-| `ClientDashboardDTO` | personneId, totalProperties, totalContracts, activeContracts, totalRevenue, monthlyRevenue, revenueByMonth |
+| `ClientDashboardDTO` | personneId, nom, prenom, totalProperties, totalContracts, activeContracts, totalRevenue, monthlyRevenue, properties (List\<BienDTO\>), recentContracts (List\<ContratDTO\>), revenueByMonth (Map) |
 | `PageResponse` | Generic pagination wrapper |
 | `ErrorResponse` | error, message, status |
 
@@ -231,7 +239,7 @@
 | `AgenceRepository` | Agence | `findBySiret`, `findByNomContainingIgnoreCase`, `findByVille` |
 | `BienRepository` | Bien | `findByFilters(...)` (dynamic JPQL), `findByFiltersAndAgence(...)`, `findByAgenceId`, `findByProprietaireId` |
 | `ContratRepository` | Contrat | `findByIdWithDetails`, `findByBienId`, `findByPersonneId`, `findSignedRentalContracts`, `findByAgence` |
-| `PersonneRepository` | Personne | `searchByNameIgnoreAccents` (native), `findProprietaires`, `findByAgence`, `searchByAgence` |
+| `PersonneRepository` | Personne | `searchByNameIgnoreAccents` (native), `findProprietaires`, `findByAgence` (native UNION: Compte+Posseder+Cosigner paths), `searchByAgence` (native UNION + accent-insensitive filter) |
 | `LocationRepository` | Location | Standard CRUD |
 | `AchatRepository` | Achat | Standard CRUD |
 | `PhotoRepository` | Photo | Standard CRUD |
@@ -249,7 +257,7 @@
 | Version | File | Description |
 |---------|------|-------------|
 | V1 | `V1__create_initial_schema.sql` | All 14 tables, constraints, indexes |
-| V2 | `V2__create_test_data.sql` | 2 agencies, 18 persons, 6 accounts, 10 properties, 10 contracts, reference data, photos |
+| V2 | `V2__create_test_data.sql` | 2 agencies, 18 persons, 6 accounts (incl. client@horoazhon.fr CLIENT), 14 properties (7 per agency), 10 contracts, reference data, photos |
 
 **Next migration number: V3**
 
@@ -261,10 +269,14 @@
 - JWT auth via `JwtUtil` + Spring Security `AuthenticationManager`
 - `@Transactional(readOnly = true)` on query services
 - Entity-to-DTO conversion in service layer
-- `@PreAuthorize` for role-based access control (AgenceController, BienController write ops, CaracteristiquesController, LieuxController, ClientDashboardController)
-- SecurityConfig public endpoints: GET /api/biens/*, GET /api/agences/*, GET /api/caracteristiques/*, GET /api/lieux/*
+- `@PreAuthorize` for role-based access control:
+  - Class-level on ContratController, PersonneController, LocationController, AchatController (SUPER_ADMIN, ADMIN_AGENCY, AGENT)
+  - Class-level on UserController (SUPER_ADMIN, ADMIN_AGENCY)
+  - Class-level on ClientDashboardController (CLIENT only via hasRole)
+  - Method-level on AgenceController, BienController write ops, CaracteristiquesController, LieuxController
+- SecurityConfig public endpoints: GET /api/biens/*, GET /api/agences/*, GET /api/agences/*/biens, GET /api/caracteristiques/*, GET /api/lieux/*
 - BienService agency scoping: write operations verify `bien.agence.id == currentAgenceId` for non-SUPER_ADMIN
-- PersonneService agency isolation: list/search filtered by agency for non-SUPER_ADMIN users
+- PersonneService agency isolation: list filtered by agency for non-SUPER_ADMIN users; search is global (allows cross-agency person lookup for contract creation)
 - Apache PDFBox for contract PDF generation
 - `@Scheduled` cron for auto-expiring rental contracts
 - `@Async` email sending via `EmailService`

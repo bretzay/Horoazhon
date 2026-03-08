@@ -201,7 +201,7 @@ Edge cases:
   "tests": [
     {
       "featureId": "be-agence",
-      "writtenBy": "role-4-qa",
+      "writtenBy": "role-4",
       "suites": [
         {
           "id": "be-agence-crud-valid",

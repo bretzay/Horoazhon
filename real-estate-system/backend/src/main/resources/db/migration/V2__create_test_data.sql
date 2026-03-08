@@ -304,6 +304,80 @@ INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images
 INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=800&h=600&fit=crop', 3, 10, GETDATE());
 
 -- ============================================================
+-- ADDITIONAL PROPERTIES — AGENCY 1 (Horoazhon France)
+-- ============================================================
+
+-- Bien 11: Appartement Montmartre (for rent) — owned by Martin Pierre (Personne 3)
+INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
+VALUES ('42 Rue Lepic', 'Paris', '75018', 5, 45,
+        'Charmant 2 pieces au pied de la Butte Montmartre. Vue sur les toits de Paris depuis le balcon. Parquet massif, cuisine ouverte amenagee.',
+        'APPARTEMENT', 1, 2);
+
+INSERT INTO Location (caution, dateDispo, mensualite, dureeMois, bien_id) VALUES (2000.00, '2026-05-01', 1050.00, 12, 11);
+INSERT INTO Posseder (bien_id, personne_id) VALUES (11, 3);
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (11, 1, '2', 'pieces');
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (11, 2, '1', 'pieces');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (11, 1, 6, 'A_PIED');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (11, 3, 8, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop', 1, 11, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop', 2, 11, GETDATE());
+
+-- Bien 12: Maison Saint-Germain-en-Laye (for sale) — owned by Durand Marie (Personne 4)
+INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
+VALUES ('7 Rue de la Salle', 'Saint-Germain-en-Laye', '78100', 9, 185,
+        'Maison bourgeoise proche du chateau. 5 chambres, grand jardin paysager de 400m2, dependance amenageable. Cave voutee, double garage. Quartier residentiel calme.',
+        'MAISON', 1, 1);
+
+INSERT INTO Achat (prix, dateDispo, bien_id) VALUES (920000.00, '2026-08-01', 12);
+INSERT INTO Posseder (bien_id, personne_id) VALUES (12, 4);
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (12, 1, '5', 'pieces');
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (12, 2, '3', 'pieces');
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (12, 3, '2', 'places');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (12, 2, 5, 'A_PIED');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (12, 3, 10, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop', 1, 12, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&h=600&fit=crop', 2, 12, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop', 3, 12, GETDATE());
+
+-- ============================================================
+-- ADDITIONAL PROPERTIES — AGENCY 2 (Immobilier du Sud)
+-- ============================================================
+
+-- Bien 13: Studio Croix-Rousse (for rent) — owned by Fournier Camille (Personne 11)
+INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
+VALUES ('18 Montee de la Grande Cote', 'Lyon', '69001', 6, 30,
+        'Studio lumineux sur les pentes de la Croix-Rousse. Poutres apparentes, cachet ancien. Ideal premier logement. Proche commerces et transports.',
+        'STUDIO', 2, 5);
+
+INSERT INTO Location (caution, dateDispo, mensualite, dureeMois, bien_id) VALUES (1200.00, '2026-04-15', 620.00, 12, 13);
+INSERT INTO Posseder (bien_id, personne_id) VALUES (13, 11);
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (13, 1, '1', 'pieces');
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (13, 2, '1', 'pieces');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (13, 1, 4, 'A_PIED');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (13, 2, 7, 'A_PIED');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (13, 3, 5, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop', 1, 13, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', 2, 13, GETDATE());
+
+-- Bien 14: Appartement Tete d'Or (for sale) — owned by Lambert Nicolas (Personne 12)
+INSERT INTO Bien (rue, ville, codePostal, ecoScore, superficie, description, type, agence_id, compte_createur_id)
+VALUES ('3 Boulevard des Belges', 'Lyon', '69006', 8, 120,
+        'Grand appartement familial face au Parc de la Tete d''Or. 4 chambres, double sejour traversant, balcon filant. Standing eleve, gardien, parking.',
+        'APPARTEMENT', 2, 4);
+
+INSERT INTO Achat (prix, dateDispo, bien_id) VALUES (550000.00, '2026-06-15', 14);
+INSERT INTO Posseder (bien_id, personne_id) VALUES (14, 12);
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (14, 1, '4', 'pieces');
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (14, 2, '2', 'pieces');
+INSERT INTO Contenir (bien_id, caracteristique_id, valeur, unite) VALUES (14, 3, '1', 'places');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (14, 1, 7, 'A_PIED');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (14, 2, 3, 'A_PIED');
+INSERT INTO Deplacer (bien_id, lieu_id, minutes, typeLocomotion) VALUES (14, 3, 5, 'A_PIED');
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&h=600&fit=crop', 1, 14, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=800&h=600&fit=crop', 2, 14, GETDATE());
+INSERT INTO Photo (chemin, ordre, bien_id, dateCreation) VALUES ('https://images.unsplash.com/photo-1615529328331-f8917597711f?w=800&h=600&fit=crop', 3, 14, GETDATE());
+
+-- ============================================================
 -- DUAL LISTING: Add a Location to Bien 3 (Maison Vincennes)
 -- Already has Achat (id 2, prix 780,000). Now also available for rent.
 -- This tests a property with BOTH a sale contract and a rent contract.

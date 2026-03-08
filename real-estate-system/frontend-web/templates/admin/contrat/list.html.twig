@@ -40,7 +40,7 @@
     <tbody>
         {% for c in contrats %}
         <tr>
-            <td>{{ c.id }}</td>
+            <td>CTR-{{ c.id }}</td>
             <td><span class="badge {{ c.type == 'ACHAT' ? 'badge-sale' : 'badge-rent' }}">{{ c.type }}</span></td>
             <td>{% if c.bien %}{{ c.bien.type ?? '' }} - {{ c.bien.rue ?? '' }}, {{ c.bien.ville ?? '' }}{% else %}-{% endif %}</td>
             <td><span class="badge badge-{{ c.statut|lower }}">{{ c.statut }}</span></td>

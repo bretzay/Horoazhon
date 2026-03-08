@@ -1,8 +1,6 @@
 package com.realestate.api.repository;
 
 import com.realestate.api.entity.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,17 +29,46 @@ public interface PersonneRepository extends JpaRepository<Personne, Long> {
     @Query("SELECT DISTINCT p FROM Personne p JOIN p.contrats")
     List<Personne> findPersonsWithContracts();
 
-    // Agency-filtered queries using Compte table (personne linked to compte with agence_id)
-    @Query("SELECT DISTINCT p FROM Personne p " +
-           "JOIN Compte c ON c.personne.id = p.id " +
-           "WHERE c.agence.id = :agenceId")
-    Page<Personne> findByAgence(@Param("agenceId") Long agenceId, Pageable pageable);
-
+    // Agency-filtered queries: UNION of account holders, property owners, and contract cosigners
     @Query(value = "SELECT DISTINCT p.* FROM Personne p " +
            "JOIN Compte c ON c.personne_id = p.id " +
            "WHERE c.agence_id = :agenceId " +
-           "AND (p.nom COLLATE Latin1_General_CI_AI LIKE '%' + :searchTerm + '%' " +
-           "OR p.prenom COLLATE Latin1_General_CI_AI LIKE '%' + :searchTerm + '%')",
+           "UNION " +
+           "SELECT DISTINCT p.* FROM Personne p " +
+           "JOIN Posseder pos ON pos.personne_id = p.id " +
+           "JOIN Bien b ON pos.bien_id = b.id " +
+           "WHERE b.agence_id = :agenceId " +
+           "UNION " +
+           "SELECT DISTINCT p.* FROM Personne p " +
+           "JOIN Cosigner cos ON cos.personne_id = p.id " +
+           "JOIN Contrat ct ON cos.contrat_id = ct.id " +
+           "LEFT JOIN Location loc ON ct.location_id = loc.id " +
+           "LEFT JOIN Achat ach ON ct.achat_id = ach.id " +
+           "JOIN Bien b ON COALESCE(loc.bien_id, ach.bien_id) = b.id " +
+           "WHERE b.agence_id = :agenceId",
+           nativeQuery = true)
+    List<Personne> findByAgence(@Param("agenceId") Long agenceId);
+
+    @Query(value = "SELECT * FROM (" +
+           "SELECT p.* FROM Personne p " +
+           "JOIN Compte c ON c.personne_id = p.id " +
+           "WHERE c.agence_id = :agenceId " +
+           "UNION " +
+           "SELECT p.* FROM Personne p " +
+           "JOIN Posseder pos ON pos.personne_id = p.id " +
+           "JOIN Bien b ON pos.bien_id = b.id " +
+           "WHERE b.agence_id = :agenceId " +
+           "UNION " +
+           "SELECT p.* FROM Personne p " +
+           "JOIN Cosigner cos ON cos.personne_id = p.id " +
+           "JOIN Contrat ct ON cos.contrat_id = ct.id " +
+           "LEFT JOIN Location loc ON ct.location_id = loc.id " +
+           "LEFT JOIN Achat ach ON ct.achat_id = ach.id " +
+           "JOIN Bien b ON COALESCE(loc.bien_id, ach.bien_id) = b.id " +
+           "WHERE b.agence_id = :agenceId" +
+           ") AS result " +
+           "WHERE result.nom COLLATE Latin1_General_CI_AI LIKE '%' + :searchTerm + '%' " +
+           "OR result.prenom COLLATE Latin1_General_CI_AI LIKE '%' + :searchTerm + '%'",
            nativeQuery = true)
     List<Personne> searchByAgence(@Param("agenceId") Long agenceId,
                                    @Param("searchTerm") String searchTerm);

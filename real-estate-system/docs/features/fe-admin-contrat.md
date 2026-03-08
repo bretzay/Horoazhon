@@ -17,8 +17,7 @@
 - CLIENT role blocked from confirm/cancel/delete actions
 
 ### What's Missing
-- List page lacks filter controls (type, status, date range)
-- List shows raw IDs instead of formatted CTR-{id} in some places
+- ~~List shows raw IDs instead of formatted CTR-{id}~~ — **RESOLVED**: all contract ID displays now use `CTR-{{ id }}` format (list, detail, client contrats, personne form).
 
 ## Remarks
 
@@ -29,8 +28,8 @@
 - Role enforcement: CLIENT sees error "Vous n'avez pas les droits..." on restricted actions
 
 ### QA Remarks
-- **UX gap (HIGH)**: List page lacks filter controls (type, status, date range) — noted as missing. Users managing many contracts will struggle without filters. Propose implementation.
-- **UX gap (MEDIUM)**: Raw IDs shown instead of formatted CTR-{id} — inconsistent with convention documented in CLAUDE.md.
+- ~~**UX gap (HIGH)**: List page lacks filter controls~~ — **RESOLVED**: filter controls for type and statut are now implemented in the list template.
+- ~~**UX gap (MEDIUM)**: Raw IDs shown instead of formatted CTR-{id}~~ — **RESOLVED**: all contract displays now use `CTR-{id}` format.
 - **Test coverage**: Create flow with cosigners, confirm/cancel status transitions, PDF generation, signed document upload/download/delete
 - **Edge case**: What happens when confirming a contract that has sibling EN_COURS contracts on same offer? Must verify auto-cancellation works.
 - **Edge case**: Upload signed PDF to already-SIGNE contract should be blocked — verify error handling.

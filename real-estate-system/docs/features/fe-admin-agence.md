@@ -18,7 +18,7 @@
 - Delete action available
 
 ### What's Missing
-- New/delete buttons are not restricted to SUPER_ADMIN in the template — any admin role can see them (should be role-gated in Twig)
+Nothing — feature is complete. New/delete buttons are already SUPER_ADMIN-gated in the template.
 
 ## Remarks
 
@@ -28,7 +28,7 @@
 - SUPER_ADMIN restriction on create/delete should be enforced in template with `{% if user.role == 'SUPER_ADMIN' %}`
 
 ### QA Remarks
-- **Bug (HIGH)**: New/delete buttons not restricted to SUPER_ADMIN in template — any admin role can see them. Backend enforces permission but UI should hide these buttons for non-SUPER_ADMIN. Needs template fix with `{% if user.role == 'SUPER_ADMIN' %}`.
+- ~~**Bug (HIGH)**: New/delete buttons not restricted to SUPER_ADMIN~~ — **RESOLVED**: template already uses `{% if app.session.get('user_role') == 'SUPER_ADMIN' %}` guards on both buttons.
 - **Test coverage**: List page, create form (SUPER_ADMIN), edit form, settings page, delete, role restrictions
 - **Edge case**: ADMIN_AGENCY accessing another agency's edit page — verify 403 or redirect
 - **Edge case**: Logo upload with non-image file — verify server-side validation and error message

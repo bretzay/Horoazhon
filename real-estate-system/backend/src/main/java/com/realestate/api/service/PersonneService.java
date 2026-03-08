@@ -8,7 +8,6 @@ import com.realestate.api.repository.PossederRepository;
 import com.realestate.api.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +26,6 @@ public class PersonneService {
 
     @Transactional(readOnly = true)
     public List<PersonneDTO> findAll() {
-        Long agenceId = securityUtils.isAuthenticated() ? securityUtils.getCurrentAgenceId() : null;
-        if (agenceId != null) {
-            return personneRepository.findByAgence(agenceId, Pageable.unpaged()).stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-        }
         return personneRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -47,11 +40,8 @@ public class PersonneService {
 
     @Transactional(readOnly = true)
     public List<PersonneDTO> search(String query) {
-        Long agenceId = securityUtils.isAuthenticated() ? securityUtils.getCurrentAgenceId() : null;
-        if (agenceId != null) {
-            return personneRepository.searchByAgence(agenceId, query)
-                    .stream().map(this::convertToDTO).collect(Collectors.toList());
-        }
+        // Global search regardless of agency — allows finding any personne
+        // (e.g., to add as cosigner on a contract for a different agency)
         return personneRepository.searchByNameIgnoreAccents(query)
                 .stream().map(this::convertToDTO).collect(Collectors.toList());
     }

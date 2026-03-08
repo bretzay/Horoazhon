@@ -108,7 +108,7 @@
                 <tbody>
                     {% for c in contrats %}
                     <tr>
-                        <td>#{{ c.id }}</td>
+                        <td>CTR-{{ c.id }}</td>
                         <td>{{ c.type == 'LOCATION' ? 'Location' : 'Achat' }}</td>
                         <td>{% if c.bien %}{{ c.bien.type ?? '' }} - {{ c.bien.rue ?? '' }}, {{ c.bien.ville ?? '' }}{% else %}-{% endif %}</td>
                         <td>
