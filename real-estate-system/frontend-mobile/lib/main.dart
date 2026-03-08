@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'config/app_theme.dart';
+import 'providers/auth_provider.dart';
+import 'widgets/app_shell.dart';
 
 void main() {
-  runApp(const RealEstateApp());
+  runApp(const HoroazhonApp());
 }
 
-class RealEstateApp extends StatelessWidget {
-  const RealEstateApp({super.key});
+class HoroazhonApp extends StatelessWidget {
+  const HoroazhonApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Real Estate',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Real Estate Mobile App'),
-        ),
+    return ChangeNotifierProvider(
+      create: (_) => AuthProvider()..init(),
+      child: MaterialApp(
+        title: 'Horoazhon',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.build(),
+        home: const AppShell(),
       ),
     );
   }
