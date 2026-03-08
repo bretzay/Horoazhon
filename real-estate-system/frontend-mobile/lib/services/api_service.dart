@@ -243,22 +243,23 @@ class ApiService {
   // --- Utilisateurs ---
 
   Future<List<dynamic>> getUtilisateurs() async {
-    final response = await _dio.get('/utilisateurs');
-    return response.data as List<dynamic>;
+    final response = await _dio.get('/users');
+    final data = response.data as Map<String, dynamic>;
+    return data['content'] as List<dynamic>;
   }
 
   Future<Map<String, dynamic>> getUtilisateurById(int id) async {
-    final response = await _dio.get('/utilisateurs/$id');
+    final response = await _dio.get('/users/$id');
     return response.data as Map<String, dynamic>;
   }
 
   Future<Map<String, dynamic>> updateUtilisateurRole(int id, String role) async {
-    final response = await _dio.put('/utilisateurs/$id/role', data: {'role': role});
+    final response = await _dio.put('/users/$id/role', data: {'role': role});
     return response.data as Map<String, dynamic>;
   }
 
   Future<void> deleteUtilisateur(int id) async {
-    await _dio.delete('/utilisateurs/$id');
+    await _dio.delete('/users/$id');
   }
 
   // --- Locations ---
