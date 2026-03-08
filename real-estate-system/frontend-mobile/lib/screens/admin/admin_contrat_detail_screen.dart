@@ -111,10 +111,10 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
                 children: [
                   Text('Dates', style: AppTextStyles.textMd.w600),
                   const SizedBox(height: AppSpacing.space2),
-                  if (contrat['dateDebut'] != null)
-                    _InfoRow('Début', contrat['dateDebut']),
-                  if (contrat['dateFin'] != null)
-                    _InfoRow('Fin', contrat['dateFin']),
+                  if (contrat['dateCreation'] != null)
+                    _InfoRow('Création', contrat['dateCreation']),
+                  if (contrat['dateModification'] != null)
+                    _InfoRow('Modification', contrat['dateModification']),
                 ],
               ),
             ),
@@ -127,7 +127,6 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
           const SizedBox(height: AppSpacing.space2),
           ...cosigners.map((c) {
             final cos = c as Map<String, dynamic>;
-            final personne = cos['personne'] as Map<String, dynamic>? ?? {};
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.space2),
               child: Card(
@@ -141,7 +140,7 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${personne['prenom'] ?? ''} ${personne['nom'] ?? ''}',
+                            Text('${cos['prenom'] ?? ''} ${cos['nom'] ?? ''}',
                                 style: AppTextStyles.textMd.w500),
                             Text(cos['typeSignataire'] ?? '', style: AppTextStyles.textSm.w400),
                           ],

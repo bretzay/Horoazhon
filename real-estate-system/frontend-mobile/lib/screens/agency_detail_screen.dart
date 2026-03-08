@@ -117,8 +117,8 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                 children: [
                   Text('Contact', style: AppTextStyles.textMd.w600),
                   const SizedBox(height: AppSpacing.space3),
-                  if (agence['adresse'] != null)
-                    _InfoRow(Icons.location_on_outlined, agence['adresse']),
+                  if (agence['rue'] != null || agence['ville'] != null)
+                    _InfoRow(Icons.location_on_outlined, '${agence['rue'] ?? ''}, ${agence['codePostal'] ?? ''} ${agence['ville'] ?? ''}'.trim()),
                   if (agence['ville'] != null)
                     _InfoRow(Icons.location_city, '${agence['codePostal'] ?? ''} ${agence['ville']}'),
                   if (agence['telephone'] != null)
@@ -131,8 +131,8 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                     }),
                   if (agence['siret'] != null)
                     _InfoRow(Icons.badge_outlined, 'SIRET: ${agence['siret']}'),
-                  if (agence['tva'] != null)
-                    _InfoRow(Icons.receipt_outlined, 'TVA: ${agence['tva']}'),
+                  if (agence['numeroTva'] != null)
+                    _InfoRow(Icons.receipt_outlined, 'TVA: ${agence['numeroTva']}'),
                 ],
               ),
             ),
@@ -159,8 +159,9 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
           else
             ..._biens.map((b) {
               final bien = b as Map<String, dynamic>;
-              final prix = bien['prixVente'] ?? bien['loyerMensuel'];
-              final isForSale = bien['prixVente'] != null;
+              final isForSale = bien['availableForSale'] == true;
+              final isForRent = bien['availableForRent'] == true;
+              final prix = bien['salePrice'] ?? bien['monthlyRent'];
               return Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.space3),
                 child: Card(
@@ -176,17 +177,25 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                       padding: const EdgeInsets.all(AppSpacing.space3),
                       child: Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: isForSale ? AppColors.blue500 : AppColors.slate900,
-                              borderRadius: AppRadius.fullAll,
+                          if (isForSale)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              margin: const EdgeInsets.only(right: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.blue500,
+                                borderRadius: AppRadius.fullAll,
+                              ),
+                              child: Text('V', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                             ),
-                            child: Text(
-                              isForSale ? 'V' : 'L',
-                              style: AppTextStyles.textSm.w600.withColor(AppColors.white),
+                          if (isForRent)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.slate900,
+                                borderRadius: AppRadius.fullAll,
+                              ),
+                              child: Text('L', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                             ),
-                          ),
                           const SizedBox(width: AppSpacing.space3),
                           Expanded(
                             child: Column(

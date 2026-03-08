@@ -206,9 +206,9 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
                                 AppFormatters.formatContratId(contrat['id'] as int),
                                 style: AppTextStyles.textMd.w600,
                               ),
-                              if (contrat['dateDebut'] != null)
+                              if (contrat['dateCreation'] != null)
                                 Text(
-                                  'Début: ${contrat['dateDebut']}',
+                                  'Créé: ${contrat['dateCreation']}',
                                   style: AppTextStyles.textSm.w400,
                                 ),
                             ],

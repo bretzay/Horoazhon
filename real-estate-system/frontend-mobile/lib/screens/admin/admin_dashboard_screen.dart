@@ -10,6 +10,8 @@ import '../../services/api_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
 import '../property_detail_screen.dart';
+import 'admin_bien_form_screen.dart';
+import 'admin_personne_form_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -120,11 +122,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           const SizedBox(height: AppSpacing.space3),
           Row(
             children: [
-              _QuickAction(icon: Icons.add_home_outlined, label: 'Nouveau bien', onTap: () {}),
+              _QuickAction(icon: Icons.add_home_outlined, label: 'Nouveau bien', onTap: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminBienFormScreen()));
+                _loadData();
+              }),
               const SizedBox(width: AppSpacing.space3),
-              _QuickAction(icon: Icons.note_add_outlined, label: 'Nouveau contrat', onTap: () {}),
+              // TODO: Wire to contract form when AdminContratFormScreen is created
+              _QuickAction(icon: Icons.note_add_outlined, label: 'Nouveau contrat', onTap: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPersonneFormScreen()));
+                _loadData();
+              }),
               const SizedBox(width: AppSpacing.space3),
-              _QuickAction(icon: Icons.person_add_outlined, label: 'Nouvelle personne', onTap: () {}),
+              _QuickAction(icon: Icons.person_add_outlined, label: 'Nouvelle personne', onTap: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPersonneFormScreen()));
+                _loadData();
+              }),
             ],
           ),
 
@@ -202,8 +214,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         ),
                       ),
                       const Spacer(),
-                      if (contrat['dateDebut'] != null)
-                        Text(contrat['dateDebut'], style: AppTextStyles.textSm.w400),
+                      if (contrat['dateCreation'] != null)
+                        Text(contrat['dateCreation'], style: AppTextStyles.textSm.w400),
                     ],
                   ),
                 ),

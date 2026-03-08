@@ -202,8 +202,9 @@ class _AdminBienCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final prix = bien['prixVente'] ?? bien['loyerMensuel'];
-    final isForSale = bien['prixVente'] != null;
+    final isForSale = bien['availableForSale'] == true;
+    final isForRent = bien['availableForRent'] == true;
+    final prix = bien['salePrice'] ?? bien['monthlyRent'];
 
     return Card(
       child: InkWell(
@@ -222,15 +223,27 @@ class _AdminBienCard extends StatelessWidget {
                         Text(AppFormatters.formatBienId(bien['id'] as int),
                             style: AppTextStyles.textSm.w600.withColor(AppColors.slate400)),
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isForSale ? AppColors.blue500 : AppColors.slate900,
-                            borderRadius: AppRadius.fullAll,
+                        if (isForSale)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            margin: const EdgeInsets.only(right: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.blue500,
+                              borderRadius: AppRadius.fullAll,
+                            ),
+                            child: Text('Vente',
+                                style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                           ),
-                          child: Text(isForSale ? 'Vente' : 'Location',
-                              style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
-                        ),
+                        if (isForRent)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.slate900,
+                              borderRadius: AppRadius.fullAll,
+                            ),
+                            child: Text('Location',
+                                style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 4),

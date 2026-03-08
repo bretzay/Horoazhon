@@ -151,8 +151,8 @@ class _ContratCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(type, style: AppTextStyles.textSm.w400),
-                    if (contrat['dateDebut'] != null)
-                      Text('Début: ${contrat['dateDebut']}', style: AppTextStyles.textSm.w400.withColor(AppColors.slate400)),
+                    if (contrat['dateCreation'] != null)
+                      Text('Créé: ${contrat['dateCreation']}', style: AppTextStyles.textSm.w400.withColor(AppColors.slate400)),
                   ],
                 ),
               ),

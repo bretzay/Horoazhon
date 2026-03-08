@@ -55,7 +55,7 @@ class _AdminBienFormScreenState extends State<AdminBienFormScreen> {
       _villeController.text = bien['ville'] ?? '';
       _codePostalController.text = bien['codePostal'] ?? '';
       _superficieController.text = '${bien['superficie'] ?? ''}';
-      _ecoScoreController.text = '${bien['scoreEco'] ?? ''}';
+      _ecoScoreController.text = '${bien['ecoScore'] ?? ''}';
       _descriptionController.text = bien['description'] ?? '';
       _selectedType = bien['type'] ?? 'APPARTEMENT';
     } catch (_) {
@@ -76,7 +76,7 @@ class _AdminBienFormScreenState extends State<AdminBienFormScreen> {
       'codePostal': _codePostalController.text,
       'type': _selectedType,
       'superficie': double.tryParse(_superficieController.text),
-      'scoreEco': double.tryParse(_ecoScoreController.text),
+      'ecoScore': double.tryParse(_ecoScoreController.text),
       'description': _descriptionController.text,
     };
 

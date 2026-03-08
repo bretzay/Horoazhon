@@ -180,14 +180,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     ],
                   ),
                 ],
-                if (bien['scoreEco'] != null) ...[
+                if (bien['ecoScore'] != null) ...[
                   const SizedBox(height: AppSpacing.space2),
                   Row(
                     children: [
                       const Icon(Icons.eco, size: 18, color: AppColors.slate500),
                       const SizedBox(width: 4),
                       Text(
-                        'Score éco: ${bien['scoreEco']}',
+                        'Score éco: ${bien['ecoScore']}',
                         style: AppTextStyles.textMd.w400,
                       ),
                     ],
@@ -214,7 +214,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(carac['nom'] ?? '', style: AppTextStyles.textMd.w400),
+                          Text(carac['lib'] ?? '', style: AppTextStyles.textMd.w400),
                           Text('${carac['valeur'] ?? ''}', style: AppTextStyles.textMd.w600),
                         ],
                       ),
@@ -233,14 +233,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         children: [
-                          Expanded(child: Text(lieu['nom'] ?? '', style: AppTextStyles.textMd.w400)),
+                          Expanded(child: Text(lieu['lib'] ?? '', style: AppTextStyles.textMd.w400)),
                           Text(
                             '${lieu['minutes'] ?? ''} min',
                             style: AppTextStyles.textMd.w500.withColor(AppColors.blue500),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            _locomotionLabel(lieu['locomotion'] as String? ?? ''),
+                            _locomotionLabel(lieu['typeLocomotion'] as String? ?? ''),
                             style: AppTextStyles.textSm.w400,
                           ),
                         ],
