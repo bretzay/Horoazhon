@@ -79,10 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.space4),
         children: [
-          // Hero
-          _buildHero(),
-          const SizedBox(height: AppSpacing.space6),
-
           // Search bar
           _buildSearchBar(),
           const SizedBox(height: AppSpacing.space8),
@@ -110,30 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
           // Quick actions
           _buildQuickActions(),
           const SizedBox(height: AppSpacing.space4),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHero() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.space6),
-      decoration: BoxDecoration(
-        gradient: AppColors.brandGradient,
-        borderRadius: AppRadius.lgAll,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Horoazhon',
-            style: AppTextStyles.textXl.w800.withColor(AppColors.white),
-          ),
-          const SizedBox(height: AppSpacing.space2),
-          Text(
-            'Gestion immobilière simplifiée',
-            style: AppTextStyles.textMd.w400.withColor(AppColors.blue100),
-          ),
         ],
       ),
     );
