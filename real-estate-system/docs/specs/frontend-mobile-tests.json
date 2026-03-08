@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-mobile",
-  "lastUpdated": "2026-03-08T17:52:35Z",
+  "lastUpdated": "2026-03-08T17:56:23Z",
   "tests": [
     {
       "featureId": "fm-public-homepage",
@@ -523,6 +523,693 @@
           "assertions": [
             "Instructional text 'Saisissez votre email pour recevoir un lien de réinitialisation' is displayed",
             "Email icon (Icons.email_outlined) is present"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-personne",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-personne-list-load",
+          "title": "Person list loads from drawer navigation with search bar and cards",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Tap 'Plus' in bottom nav to open drawer",
+            "Tap 'Personnes' in drawer",
+            "Wait for data to load"
+          ],
+          "assertions": [
+            "Search bar with hint 'Rechercher une personne...' is visible",
+            "At least one Card widget is displayed",
+            "Person icons (Icons.person_outlined) are present"
+          ]
+        },
+        {
+          "id": "fm-admin-personne-card-display",
+          "title": "Person cards display name, city, and action menu",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Navigate to Personnes via drawer",
+            "Inspect card content"
+          ],
+          "assertions": [
+            "Person icons are visible on cards",
+            "At least one Card is displayed",
+            "PopupMenuButton is present on each card for edit/delete actions"
+          ]
+        },
+        {
+          "id": "fm-admin-personne-fab-visible",
+          "title": "FAB add button is visible on person list",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Navigate to Personnes via drawer"
+          ],
+          "assertions": [
+            "FloatingActionButton is visible",
+            "Add icon (Icons.add) is present"
+          ]
+        },
+        {
+          "id": "fm-admin-personne-form-fields",
+          "title": "Person form loads with all required and optional fields",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Navigate to Personnes via drawer",
+            "Tap FloatingActionButton to open create form"
+          ],
+          "assertions": [
+            "Title 'Nouvelle personne' is displayed",
+            "Fields Nom, Prénom, Date de naissance, Rue, Ville, Code postal, RIB are visible",
+            "Date picker shows 'Sélectionner...' placeholder",
+            "Create button ('Créer') is present"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-user",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-user-list-load",
+          "title": "User list loads from drawer navigation with cards",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Tap 'Plus' in bottom nav to open drawer",
+            "Tap 'Utilisateurs' in drawer",
+            "Wait for data to load"
+          ],
+          "assertions": [
+            "At least one Card widget is displayed",
+            "Person icons (Icons.person_outlined) are present"
+          ]
+        },
+        {
+          "id": "fm-admin-user-card-email-role",
+          "title": "User cards display email and role badges",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Navigate to Utilisateurs via drawer",
+            "Inspect card content"
+          ],
+          "assertions": [
+            "At least one email address (containing '@') is visible",
+            "At least one role badge (SUPER_ADMIN, ADMIN_AGENCY, AGENT, or CLIENT) is visible"
+          ]
+        },
+        {
+          "id": "fm-admin-user-action-menu",
+          "title": "User cards have action menu with deactivate option",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Navigate to Utilisateurs via drawer",
+            "Inspect card actions"
+          ],
+          "assertions": [
+            "PopupMenuButton is present on each user card"
+          ]
+        },
+        {
+          "id": "fm-admin-user-pull-refresh",
+          "title": "User list supports pull-to-refresh",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Navigate to Utilisateurs via drawer",
+            "Check for RefreshIndicator"
+          ],
+          "assertions": [
+            "RefreshIndicator widget wraps the user list"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-reference",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-reference-tabs-load",
+          "title": "Reference screen loads with Caractéristiques and Lieux tabs",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as superadmin@horoazhon.fr / Admin (SUPER_ADMIN required)",
+            "Tap 'Plus' in bottom nav to open drawer",
+            "Tap 'Données de référence' in drawer",
+            "Wait for data to load"
+          ],
+          "assertions": [
+            "TabBar is present",
+            "Tab 'Caractéristiques' is visible",
+            "Tab 'Lieux' is visible"
+          ]
+        },
+        {
+          "id": "fm-admin-reference-carac-tab",
+          "title": "Caractéristiques tab shows items with add field",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as superadmin@horoazhon.fr / Admin",
+            "Navigate to Données de référence via drawer",
+            "Verify Caractéristiques tab content (default tab)"
+          ],
+          "assertions": [
+            "Add field with hint 'Ajouter une caractéristique...' is visible",
+            "Ajouter button is present"
+          ]
+        },
+        {
+          "id": "fm-admin-reference-lieux-tab",
+          "title": "Lieux tab shows items with add field",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as superadmin@horoazhon.fr / Admin",
+            "Navigate to Données de référence via drawer",
+            "Tap 'Lieux' tab to switch"
+          ],
+          "assertions": [
+            "Add field with hint 'Ajouter un lieu...' is visible",
+            "Ajouter button is present"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-dashboard",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-dashboard-loads",
+          "title": "Dashboard loads after admin login with welcome header and role badge",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch app and login as admin@horoazhon.fr / Admin",
+            "Wait for admin shell to load"
+          ],
+          "assertions": [
+            "Bottom nav shows 'Tableau de bord'",
+            "Welcome header contains 'Bonjour'",
+            "Role chip shows 'Admin'"
+          ]
+        },
+        {
+          "id": "fm-admin-dashboard-stat-cards",
+          "title": "Stat cards display counts for Biens, Contrats, Personnes",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and land on dashboard",
+            "Verify stat card labels"
+          ],
+          "assertions": [
+            "Stat card 'Biens' is visible",
+            "Stat card 'Contrats' is visible",
+            "Stat card 'Personnes' is visible"
+          ]
+        },
+        {
+          "id": "fm-admin-dashboard-quick-actions",
+          "title": "Quick action buttons visible: Nouveau bien, Nouveau contrat, Nouvelle personne",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and land on dashboard",
+            "Verify quick action section"
+          ],
+          "assertions": [
+            "'Actions rapides' header visible",
+            "'Nouveau bien' button visible",
+            "'Nouveau contrat' button visible",
+            "'Nouvelle personne' button visible"
+          ]
+        },
+        {
+          "id": "fm-admin-dashboard-recent-activity",
+          "title": "Recent activity sections visible (Biens recents, Contrats recents)",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and land on dashboard",
+            "Scroll down to recent activity sections"
+          ],
+          "assertions": [
+            "'Biens récents' section header visible",
+            "'Contrats récents' section header visible"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-bien",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-bien-list-loads",
+          "title": "Property list loads in admin view with search and property cards",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Wait for property list to load"
+          ],
+          "assertions": [
+            "Search field 'Rechercher un bien...' is visible",
+            "Property cards with BI- prefix are visible"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-card-actions",
+          "title": "Property cards show popup menu with Modifier and Supprimer options",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Tap popup menu on first property card"
+          ],
+          "assertions": [
+            "PopupMenuButton is visible on cards",
+            "'Modifier' menu item appears",
+            "'Supprimer' menu item appears"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-fab",
+          "title": "Add property FAB is visible with add icon",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab"
+          ],
+          "assertions": [
+            "FloatingActionButton is visible",
+            "Add icon is visible"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-form-fields",
+          "title": "Property create form loads with Type, Rue, Ville, Code postal fields",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Biens tab",
+            "Tap FAB to open create form"
+          ],
+          "assertions": [
+            "Title 'Nouveau bien' visible",
+            "Type dropdown visible",
+            "Rue, Ville, Code postal labels visible",
+            "'Créer' submit button visible"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-form-optional",
+          "title": "Property form shows optional fields: Superficie, Score eco, Description",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Biens tab",
+            "Tap FAB, scroll down in form"
+          ],
+          "assertions": [
+            "'Superficie (m²)' label visible",
+            "'Score éco' label visible",
+            "'Description' label visible"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-agence",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-agence-list-loads",
+          "title": "Agency list loads from drawer navigation with agency cards",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, open drawer via Plus tab",
+            "Tap Agences in drawer",
+            "Wait for list to load"
+          ],
+          "assertions": [
+            "At least one Card widget is visible"
+          ]
+        },
+        {
+          "id": "fm-admin-agence-card-display",
+          "title": "Agency card displays name and business icon",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Agences via drawer"
+          ],
+          "assertions": [
+            "'Horoazhon France' agency name visible",
+            "Business icon visible on card"
+          ]
+        },
+        {
+          "id": "fm-admin-agence-edit-form",
+          "title": "Tapping agency card opens edit form with Modifier title",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Agences",
+            "Tap the first agency card"
+          ],
+          "assertions": [
+            "Title contains 'Modifier'",
+            "'Nom' field visible",
+            "'SIRET' field visible",
+            "'Ville' field visible"
+          ]
+        },
+        {
+          "id": "fm-admin-agence-form-fields",
+          "title": "Agency form has all expected fields including Telephone, Email, Logo",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Agences",
+            "Tap first agency card, scroll through form"
+          ],
+          "assertions": [
+            "'Nom' field visible",
+            "'SIRET' field visible",
+            "'Téléphone' field visible",
+            "'Email' field visible",
+            "'Description' field visible",
+            "'Logo (URL)' field visible",
+            "'Enregistrer' button visible"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-admin-contrat",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-admin-contrat-list-loads",
+          "title": "Contract list loads with CTR- prefixed contract cards",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Contrats tab",
+            "Wait for list to load"
+          ],
+          "assertions": [
+            "Contract cards with CTR- prefix are visible"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-card-display",
+          "title": "Contract cards display status badge and chevron icon",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Contrats tab"
+          ],
+          "assertions": [
+            "Card widgets visible",
+            "Chevron right icons visible indicating tappable cards"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-detail-loads",
+          "title": "Contract detail screen loads with Dates and Cosignataires sections",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Contrats tab",
+            "Tap the first contract card"
+          ],
+          "assertions": [
+            "CTR- ID visible in detail screen",
+            "'Dates' section visible",
+            "'Cosignataires' section visible"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-detail-badges",
+          "title": "Contract detail shows status/type badges and cosigner person icons",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Contrats tab",
+            "Tap first contract card to open detail"
+          ],
+          "assertions": [
+            "Card widgets visible in detail view",
+            "Person outlined icons visible for cosigners"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-layout",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-layout-public-nav",
+          "title": "Public bottom navigation has 4 tabs and tab switching works",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch app (unauthenticated)",
+            "Verify 4 bottom nav tabs: Accueil, Biens, Agences, Connexion",
+            "Verify AppBar shows 'Horoazhon' title",
+            "Tap each tab and verify screen content switches",
+            "Tap Connexion tab and verify login screen appears"
+          ],
+          "assertions": [
+            "Bottom nav has Accueil, Biens, Agences, Connexion tabs",
+            "AppBar displays 'Horoazhon'",
+            "Tapping Biens switches to property list screen",
+            "Tapping Agences switches to agency list screen",
+            "Tapping Connexion shows login form with 'Se connecter' button",
+            "Tapping Accueil returns to home screen"
+          ]
+        },
+        {
+          "id": "fm-layout-admin-nav",
+          "title": "Admin login switches to admin bottom nav with drawer",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Verify admin bottom nav: Tableau de bord, Biens, Contrats, Plus",
+            "Verify AppBar shows 'Horoazhon' and role chip",
+            "Tap Plus to open admin drawer",
+            "Verify drawer items: Personnes, Utilisateurs, Agences, Profil, Deconnexion",
+            "Verify drawer header shows user name and role label",
+            "Tap Biens and Contrats tabs to verify screen switching"
+          ],
+          "assertions": [
+            "Admin nav shows Tableau de bord, Biens, Contrats, Plus",
+            "AppBar shows 'Horoazhon' and 'Admin' chip",
+            "Plus tab opens drawer with Personnes, Utilisateurs, Agences, Profil, Deconnexion",
+            "Drawer header shows 'Administrateur Agence'",
+            "Tapping Biens and Contrats switches screen content"
+          ]
+        },
+        {
+          "id": "fm-layout-client-nav",
+          "title": "Client login shows public nav with client dashboard on Profil tab",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as client@horoazhon.fr / Client",
+            "Verify public nav tabs: Accueil, Biens, Agences, Profil",
+            "Verify admin-only tabs (Tableau de bord, Plus) are absent",
+            "Verify Profil tab shows client dashboard ('Votre espace client')",
+            "Verify role chip shows 'Client'"
+          ],
+          "assertions": [
+            "Public nav shows Accueil, Biens, Agences, Profil",
+            "Tableau de bord and Plus tabs are not present",
+            "Profil tab shows ClientDashboardScreen with 'Votre espace client'",
+            "Role chip shows 'Client'"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-client-dashboard",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-client-dashboard-content",
+          "title": "Client dashboard loads with welcome message, stat cards, and data sections",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as client@horoazhon.fr / Client",
+            "Verify welcome header 'Bonjour, {prenom}' and 'Votre espace client'",
+            "Verify stat cards: Biens, Contrats, Actifs",
+            "Scroll to 'Mes biens recents' section",
+            "Verify biens section shows data or 'Aucun bien' empty state",
+            "Scroll to 'Mes contrats recents' section",
+            "Verify contrats section shows data or 'Aucun contrat' empty state"
+          ],
+          "assertions": [
+            "Welcome header contains 'Bonjour,'",
+            "'Votre espace client' subtitle is visible",
+            "Stat cards for Biens, Contrats, Actifs are present",
+            "'Mes biens recents' section header is visible",
+            "Biens section shows property cards or 'Aucun bien'",
+            "'Mes contrats recents' section header is visible",
+            "Contrats section shows contract cards or 'Aucun contrat'"
+          ]
+        },
+        {
+          "id": "fm-client-dashboard-nav-context",
+          "title": "Client dashboard uses public nav and supports tab switching",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as client@horoazhon.fr / Client",
+            "Verify public nav tabs (Accueil, Biens, Agences, Profil)",
+            "Verify admin tabs (Tableau de bord, Plus) are absent",
+            "Switch to Accueil tab",
+            "Verify client dashboard content is no longer visible",
+            "Switch back to Profil tab",
+            "Verify client dashboard reloads"
+          ],
+          "assertions": [
+            "Public nav shows Accueil, Biens, Agences, Profil",
+            "Admin-only tabs are not present",
+            "Switching to Accueil hides 'Votre espace client'",
+            "Switching back to Profil shows 'Votre espace client' again"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-user-profile",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-user-profile-content",
+          "title": "Profile screen shows user info, email, role badge, and initials avatar",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr / Admin",
+            "Open drawer via Plus tab and navigate to Profil",
+            "Verify profile card shows email 'admin@horoazhon.fr'",
+            "Verify role badge shows 'Administrateur Agence'",
+            "Verify initials avatar (Chip widget present)"
+          ],
+          "assertions": [
+            "Email 'admin@horoazhon.fr' is displayed",
+            "Role badge shows 'Administrateur Agence'",
+            "At least one Chip widget exists (role badge)"
+          ]
+        },
+        {
+          "id": "fm-user-profile-password-change",
+          "title": "Password change section expands/collapses with correct fields",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to profile",
+            "Verify 'Changer le mot de passe' header is visible",
+            "Tap header to expand password section",
+            "Verify 3 TextField fields: Mot de passe actuel, Nouveau mot de passe, Confirmer le mot de passe",
+            "Verify 'Modifier' button is visible",
+            "Tap header again to collapse",
+            "Verify password fields are hidden",
+            "Verify expand_more/expand_less icon toggles"
+          ],
+          "assertions": [
+            "'Changer le mot de passe' header visible",
+            "Expanded section shows 3 password TextField widgets",
+            "Labels: 'Mot de passe actuel', 'Nouveau mot de passe', 'Confirmer le mot de passe'",
+            "'Modifier' ElevatedButton visible when expanded",
+            "Collapsing hides password fields",
+            "Icon toggles between expand_more and expand_less"
+          ]
+        },
+        {
+          "id": "fm-user-profile-logout",
+          "title": "Logout button visible with confirmation dialog and successful logout",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to profile",
+            "Scroll to find 'Deconnexion' OutlinedButton",
+            "Verify logout icon is visible",
+            "Tap logout button",
+            "Verify confirmation dialog: 'Voulez-vous vous deconnecter ?' with Annuler",
+            "Confirm logout",
+            "Verify return to public shell with 'Connexion' tab"
+          ],
+          "assertions": [
+            "'Deconnexion' OutlinedButton is visible",
+            "Logout icon (Icons.logout) is present",
+            "Tapping shows dialog with 'Voulez-vous vous deconnecter ?'",
+            "'Annuler' button in dialog",
+            "Confirming logout returns to public shell with 'Connexion' tab"
           ]
         }
       ]
