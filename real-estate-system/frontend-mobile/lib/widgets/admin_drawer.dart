@@ -101,16 +101,37 @@ class AdminDrawer extends StatelessWidget {
                     label: 'Déconnexion',
                     route: '',
                     currentRoute: currentRoute,
-                    onTap: () {
-                      Navigator.pop(context);
-                      auth.logout();
-                    },
+                    onTap: () => _confirmLogout(context, auth),
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context, AuthProvider auth) {
+    Navigator.pop(context); // close drawer
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Voulez-vous vous déconnecter ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              auth.logout();
+            },
+            child: const Text('Déconnexion'),
+          ),
+        ],
       ),
     );
   }
