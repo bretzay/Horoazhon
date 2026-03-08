@@ -1,0 +1,143 @@
+{
+  "$schema": "spec-v1",
+  "role": "frontend-mobile",
+  "lastUpdated": "2026-03-08T16:10:17Z",
+  "features": [
+    {
+      "id": "fm-auth-login",
+      "title": "Login screen",
+      "description": "Mobile login screen for user authentication.\n\nScreen:\n- Email text field (keyboard type: email)\n- Password text field (obscured, toggle visibility)\n- 'Se connecter' button\n- 'Mot de passe oublié ?' link → forgot password screen\n- Horoazhon branding at top (logo + name)\n\nAPI:\n- POST /api/auth/login with email + password\n- On success: store JWT in flutter_secure_storage, navigate to role-appropriate dashboard\n- On error: show inline error message ('Identifiants invalides')\n\nRole routing after login:\n- SUPER_ADMIN, ADMIN_AGENCY, AGENT → Admin dashboard\n- CLIENT → Client dashboard\n\nEdge cases:\n- Empty fields: show validation error before API call\n- Network error: show 'Erreur de connexion au serveur'\n- Already authenticated: redirect to dashboard",
+      "category": "auth",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-auth-logout",
+      "title": "Logout",
+      "description": "Logout functionality accessible from profile/settings.\n\nBehavior:\n- Clear JWT token from flutter_secure_storage\n- Clear all Provider state (user info, cached data)\n- Navigate to login screen, clearing navigation stack\n- Confirmation dialog before logout: 'Voulez-vous vous déconnecter ?'\n\nAccessible from:\n- Profile screen (logout button)\n- Drawer/navigation menu",
+      "category": "auth",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-auth-activate",
+      "title": "Account activation screen",
+      "description": "Screen for activating a new account using the activation token.\n\nEntry point:\n- Deep link: horoazhon://activate?token=xxx\n- Or manual token entry screen accessible from login\n\nScreen:\n- Token field (pre-filled from deep link if available)\n- New password field (obscured, toggle visibility)\n- Confirm password field\n- 'Activer mon compte' button\n\nAPI flow:\n1. GET /api/auth/activation-status?token=xxx → verify token validity\n2. If invalid/expired: show error 'Lien d\\'activation invalide ou expiré'\n3. POST /api/auth/activate with token + password\n4. On success: show success message, navigate to login\n\nValidation:\n- Password minimum length\n- Password confirmation must match\n- Token must be valid before showing form",
+      "category": "auth",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-auth-password-reset",
+      "title": "Password reset flow (forgot + reset screens)",
+      "description": "Two-screen flow for password reset.\n\nScreen 1 — Forgot password:\n- Email field\n- 'Envoyer le lien' button\n- POST /api/auth/forgot-password with email\n- On success: show confirmation 'Un email de réinitialisation a été envoyé'\n- On error (email not found): show error message\n- Back link to login\n\nScreen 2 — Reset password:\n- Entry via deep link: horoazhon://reset-password?token=xxx\n- Token field (pre-filled from deep link)\n- New password field\n- Confirm password field\n- 'Réinitialiser' button\n\nAPI flow:\n1. GET /api/auth/reset-status?token=xxx → verify token\n2. POST /api/auth/reset-password with token + password\n3. On success: navigate to login with success message\n\nValidation:\n- Email format validation\n- Password confirmation match\n- Token validity check before showing reset form",
+      "category": "auth",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-public-homepage",
+      "title": "Home screen",
+      "description": "Landing screen of the app — showcases featured properties and quick access to browsing.\n\nSections:\n- Hero area: Horoazhon branding, tagline 'Gestion immobilière simplifiée'\n- Search bar: quick property search (navigates to property list with filter)\n- Featured properties: horizontal scrollable list of recent properties from GET /api/biens?size=6\n- Agency showcase: horizontal scrollable list from GET /api/agences\n- Quick action cards: 'Voir les biens', 'Voir les agences'\n\nNavigation:\n- Tap property card → property detail\n- Tap agency card → agency profile\n- Tap 'Voir les biens' → property list\n- Tap 'Voir les agences' → agency list\n\nPublic screen — no authentication required.",
+      "category": "public",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-public-property",
+      "title": "Property listing and detail screens",
+      "description": "Two screens for public property browsing.\n\nScreen 1 — Property list:\n- GET /api/biens with pagination (infinite scroll or load more button)\n- Filter bar: ville, type (dropdown), price range, forSale/forRent toggle\n- Property cards: photo (or placeholder), type badge (Vente/Location), price, ville, superficie\n- Pull-to-refresh\n- Empty state: 'Aucun bien trouvé' with clear filters button\n- Shimmer loading placeholders while fetching\n\nScreen 2 — Property detail:\n- GET /api/biens/{id} (returns BienDetailDTO)\n- Photo carousel (carousel_slider) with cached_network_image\n- Property info: type, ville, code postal, superficie, eco score, description\n- Price section: sale price and/or monthly rent\n- Characteristics list (from caracteristiques array)\n- Proximity places (from lieux array with minutes + locomotion type)\n- Owner info (if any)\n- Agency card with link to agency profile\n- Contact button (launches phone/email via url_launcher)\n\nPublic screens — no authentication required.",
+      "category": "public",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-public-agence",
+      "title": "Agency listing and profile screens",
+      "description": "Two screens for public agency browsing.\n\nScreen 1 — Agency list:\n- GET /api/agences (all agencies)\n- Agency cards: logo (or placeholder), nom, ville, telephone, email\n- Search/filter by name or ville\n- Pull-to-refresh\n\nScreen 2 — Agency profile:\n- GET /api/agences/{id} for agency info\n- GET /api/agences/{id}/biens for agency properties (paginated)\n- Agency header: logo, nom, description\n- Contact info: adresse, telephone, email, SIRET, TVA\n- Properties tab: scrollable list of agency's properties\n- Tap property → property detail screen\n- Contact buttons: call (tel:), email (mailto:) via url_launcher\n\nPublic screens — no authentication required.",
+      "category": "public",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-layout",
+      "title": "App navigation and layout",
+      "description": "Core navigation structure adapted for mobile.\n\nBottom navigation bar (public/client):\n- Accueil (home icon) → Home screen\n- Biens (building icon) → Property list\n- Agences (business icon) → Agency list\n- Profil (person icon) → Profile (if authenticated) or Login\n\nAdmin navigation (drawer):\nFor SUPER_ADMIN, ADMIN_AGENCY, AGENT roles — replace bottom nav with:\n- Bottom nav: Tableau de bord, Biens, Contrats, Plus\n- 'Plus' opens a drawer with: Personnes, Utilisateurs, Agences, Références, Profil, Déconnexion\n\nRole-adaptive behavior:\n- Unauthenticated: public bottom nav (4 tabs)\n- CLIENT: public nav + Profil tab shows client dashboard\n- ADMIN/AGENT: admin bottom nav + drawer\n- SUPER_ADMIN: admin nav + drawer with all management options\n\nShared elements:\n- App bar with 'Horoazhon' title and role-specific actions\n- Pull-to-refresh on all list screens\n- Loading states: shimmer placeholders\n- Error states: retry button with error message\n- Snackbar for success/error notifications (flash messages equivalent)\n\nResponsive:\n- Tablet: consider side navigation instead of bottom nav (if screen width > 768)\n- Phone: bottom navigation bar with drawer for overflow",
+      "category": "layout",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-user-profile",
+      "title": "User profile screen",
+      "description": "Profile management screen for authenticated users.\n\nScreen:\n- User info card: nom, prenom, email, role badge, agency name (if applicable)\n- GET /api/auth/me for current user data\n\nSections:\n- Informations personnelles: read-only display of user info\n- Changer le mot de passe: expandable section with:\n  - Current password field\n  - New password field\n  - Confirm new password field\n  - 'Modifier' button\n  - POST /api/auth/change-password\n- Déconnexion button (with confirmation dialog)\n\nAccess: Authenticated users only (all roles).\n\nEdge cases:\n- Wrong current password: show error 'Mot de passe actuel incorrect'\n- Password mismatch: client-side validation\n- Success: show snackbar 'Mot de passe modifié avec succès'",
+      "category": "profil",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-client-dashboard",
+      "title": "Client dashboard",
+      "description": "Dashboard screen for CLIENT role users.\n\nScreen:\n- GET /api/client/dashboard for aggregated data\n- Welcome header: 'Bonjour, {prenom}'\n\nStat cards (horizontal scrollable):\n- Total biens\n- Total contrats\n- Contrats actifs\n- Revenus totaux\n\nSections:\n- Mes biens récents: list from dashboard.properties, tap → property detail\n- Mes contrats récents: list from dashboard.recentContracts, tap → contract detail (read-only)\n\nAdditional tabs/screens:\n- GET /api/client/biens (paginated) — full property list for client\n- GET /api/client/contrats (paginated) — full contract list for client\n\nAccess: CLIENT role only.\nPull-to-refresh on all sections.\nEmpty states: 'Aucun bien' / 'Aucun contrat' with appropriate messaging.",
+      "category": "client",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-dashboard",
+      "title": "Admin dashboard screen",
+      "description": "Dashboard screen for admin roles (SUPER_ADMIN, ADMIN_AGENCY, AGENT).\n\nScreen:\n- Welcome header with role badge\n- Stat cards grid (2x2):\n  - Total biens (from GET /api/biens count)\n  - Total contrats (from GET /api/contrats count)\n  - Total personnes (from GET /api/personnes count)\n  - Total agences (SUPER_ADMIN only, from GET /api/agences count)\n\nQuick actions:\n- 'Nouveau bien' → property create screen\n- 'Nouveau contrat' → contract create screen\n- 'Nouvelle personne' → person create screen\n\nRecent activity:\n- Recent properties list (last 5)\n- Recent contracts list (last 5)\n\nAccess: SUPER_ADMIN, ADMIN_AGENCY, AGENT.\nData scoped by agency for non-SUPER_ADMIN (backend handles this automatically).\nPull-to-refresh.",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-bien",
+      "title": "Admin property screens (list, create, edit)",
+      "description": "Property CRUD screens for admin users.\n\nScreen 1 — Property list:\n- GET /api/biens with pagination (infinite scroll)\n- Search/filter bar: ville, type, price range\n- Property cards with action menu (edit, delete)\n- FAB (floating action button): '+' to create new property\n- Pull-to-refresh\n- Empty state: 'Aucun bien trouvé'\n\nScreen 2 — Create property:\n- Form fields: rue, ville, codePostal, type (dropdown), superficie, ecoScore, description\n- Agency dropdown (SUPER_ADMIN only — others auto-assigned)\n- POST /api/biens\n- On success: navigate to edit screen for sub-resource management\n\nScreen 3 — Edit property (tabbed):\n- Tab 1 — Informations: edit basic fields (PUT /api/biens/{id})\n- Tab 2 — Vente: manage Achat listing (create/edit/delete via /api/achats)\n- Tab 3 — Location: manage Location listing (create/edit/delete via /api/locations)\n- Tab 4 — Caractéristiques: add/remove from reference list (POST/DELETE /api/biens/{id}/caracteristiques)\n- Tab 5 — Proximité: add/remove lieux (POST/DELETE /api/biens/{id}/lieux)\n- Tab 6 — Propriétaire: assign/remove owner (PUT/DELETE /api/biens/{id}/proprietaire)\n- Tab 7 — Photos: view/add/remove photos (POST/DELETE /api/biens/{id}/photos)\n\nDelete:\n- Confirmation dialog: 'Supprimer ce bien ?'\n- DELETE /api/biens/{id}\n- Error if active contracts exist\n\nAccess: SUPER_ADMIN (all), ADMIN_AGENCY/AGENT (own agency only).\nForm validation: required fields highlighted on submit.",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-agence",
+      "title": "Admin agency screens (list, create, edit, settings)",
+      "description": "Agency management screens.\n\nScreen 1 — Agency list (SUPER_ADMIN only):\n- GET /api/agences\n- Agency cards: logo, nom, ville, SIRET\n- FAB: '+' to create new agency\n- Tap → edit agency\n\nScreen 2 — Create agency (SUPER_ADMIN only):\n- Form fields: nom, siret, numeroTva, rue, ville, codePostal, telephone, email, description, logo URL\n- POST /api/agences\n- On success: navigate back to list\n\nScreen 3 — Edit agency:\n- PUT /api/agences/{id}\n- Same form fields as create, pre-filled\n- SUPER_ADMIN: edit any agency\n- ADMIN_AGENCY: edit own agency only (settings screen)\n\nScreen 4 — Agency settings (ADMIN_AGENCY):\n- Simplified edit view for own agency\n- Shows agency info + edit capability\n- Accessed from drawer menu\n\nDelete (SUPER_ADMIN only):\n- Confirmation dialog\n- DELETE /api/agences/{id}\n\nAccess:\n- SUPER_ADMIN: full CRUD on all agencies\n- ADMIN_AGENCY: edit own agency only (via settings)\n- AGENT: view own agency settings (read-only)",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-contrat",
+      "title": "Admin contract screens (list, create, detail)",
+      "description": "Contract management screens.\n\nScreen 1 — Contract list:\n- GET /api/contrats with pagination\n- Filter: statut dropdown (EN_COURS, SIGNE, ANNULE, TERMINE), type (LOCATION, ACHAT)\n- Contract cards: CTR-{id}, type badge, status badge, bien info, cosigners summary\n- FAB: '+' to create new contract\n- Pull-to-refresh\n\nScreen 2 — Create contract:\n- Step 1: Select type (Location or Achat)\n- Step 2: Select the listing (location or achat from dropdowns)\n- Step 3: Add cosigners — search personnes (GET /api/personnes/search), assign type_signataire (BUYER/SELLER/RENTER/OWNER)\n- POST /api/contrats with locationId/achatId + cosigners array\n- On success: navigate to contract detail\n\nScreen 3 — Contract detail:\n- GET /api/contrats/{id}\n- Header: CTR-{id}, status badge, type badge\n- Property info section (linked bien)\n- Listing details (location or achat terms)\n- Cosigners list with roles\n- Actions (based on status):\n  - EN_COURS: 'Confirmer' (POST /confirm), 'Annuler' (POST /cancel)\n  - SIGNE: view PDF, upload signed document\n  - ANNULE/TERMINE: read-only\n- PDF download: GET /api/contrats/{id}/pdf → open in external viewer\n- Signed document: upload (POST), download (GET), delete (DELETE) /api/contrats/{id}/document-signe\n\nAccess: SUPER_ADMIN, ADMIN_AGENCY, AGENT (scoped to own agency by backend).",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-personne",
+      "title": "Admin person screens (list, create, edit)",
+      "description": "People management screens.\n\nScreen 1 — Person list:\n- GET /api/personnes with pagination\n- Search bar: real-time search via GET /api/personnes/search?query=xxx\n- Person cards: nom, prenom, ville, account status indicator\n- FAB: '+' to create new person\n- Pull-to-refresh\n\nScreen 2 — Create person:\n- Form fields: nom, prenom, dateNais (date picker), rue, ville, codePostal, rib\n- POST /api/personnes\n- On success: navigate to person detail/edit\n\nScreen 3 — Edit person:\n- PUT /api/personnes/{id}\n- Same form fields, pre-filled\n- Additional sections:\n  - Account status: GET /api/personnes/{id}/account-status\n  - Invite client: button to POST /api/auth/invite-client (if no account)\n  - Linked biens: GET /api/personnes/{id}/biens\n  - Linked contrats: GET /api/personnes/{id}/contrats\n\nDelete:\n- Confirmation dialog\n- DELETE /api/personnes/{id}\n- Error if person has active contracts\n\nAccess: SUPER_ADMIN, ADMIN_AGENCY, AGENT.\nPersonne list scoped by agency for non-SUPER_ADMIN.\nSearch is global (allows cross-agency lookup for contract creation).",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-user",
+      "title": "Admin user management screens",
+      "description": "User account management screens.\n\nScreen 1 — User list:\n- GET /api/users with pagination\n- User cards: email, role badge, agency name, active/inactive status\n- FAB: '+' to create new user\n- Pull-to-refresh\n\nScreen 2 — Create user:\n- Form fields: email, role (dropdown: AGENT, ADMIN_AGENCY, SUPER_ADMIN based on current user role), agenceId (dropdown, SUPER_ADMIN only), personneId (search/select personne)\n- POST /api/users\n- On success: show confirmation (activation email sent)\n\nActions on existing users:\n- Deactivate: DELETE /api/users/{id} with confirmation dialog\n- Reactivate: PUT /api/users/{id}/reactivate with confirmation\n- Status shown as badge (Actif/Inactif)\n\nAccess:\n- SUPER_ADMIN: manage all users, all roles, all agencies\n- ADMIN_AGENCY: manage users in own agency only, can only create AGENT role\n\nEdge cases:\n- Cannot deactivate yourself\n- Email must be unique (backend validates)",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    },
+    {
+      "id": "fm-admin-reference",
+      "title": "Admin reference data screen",
+      "description": "Reference data management screen (SUPER_ADMIN only).\n\nScreen — two-section layout:\n\nSection 1 — Caractéristiques:\n- GET /api/caracteristiques (list all)\n- List items with lib name\n- Add: text field + 'Ajouter' button → POST /api/caracteristiques\n- Edit: inline edit or edit dialog → PUT /api/caracteristiques/{id}\n- Delete: swipe-to-delete or delete button → DELETE /api/caracteristiques/{id}\n\nSection 2 — Lieux:\n- GET /api/lieux (list all)\n- Same pattern: list, add, edit, delete\n- POST/PUT/DELETE /api/lieux/{id}\n\nAccess: SUPER_ADMIN only.\nOther admin roles can view reference data (used in property forms) but cannot modify.\n\nEdge cases:\n- Delete referenced item: backend may reject if in use by properties\n- Empty lists: 'Aucune caractéristique' / 'Aucun lieu' with add prompt",
+      "category": "admin",
+      "status": "not_tested",
+      "proposedBy": "orchestrator"
+    }
+  ]
+}

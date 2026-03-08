@@ -14,6 +14,8 @@ docs/specs/
 ├── backend-tests.json        # Backend tests (QA-owned)
 ├── frontend-web.json         # Frontend feature definitions (Orchestrator-owned)
 ├── frontend-web-tests.json   # Frontend tests (QA-owned)
+├── frontend-mobile.json      # Flutter mobile feature definitions (Orchestrator-owned)
+├── frontend-mobile-tests.json # Flutter mobile tests (QA-owned)
 └── GUIDE.md                  # This file
 ```
 
@@ -27,8 +29,10 @@ docs/specs/
 |------|-------|-------------|---------------|
 | `backend.json` | Orchestrator (Role 8) | Everyone | Orchestrator; any role (except DevOps) can propose |
 | `frontend-web.json` | Orchestrator (Role 8) | Everyone | Orchestrator; any role (except DevOps) can propose |
+| `frontend-mobile.json` | Orchestrator (Role 8) | Everyone | Orchestrator; any role (except DevOps) can propose |
 | `backend-tests.json` | QA (Role 4) | QA, Testing Agent | QA only |
 | `frontend-web-tests.json` | QA (Role 4) | QA, Testing Agent | QA only |
+| `frontend-mobile-tests.json` | QA (Role 4) | QA, Testing Agent | QA only |
 
 **Implementers (Role 1, 2, 3) must never read test files.** They implement features based on the feature description alone.
 **Security (Role 5) can propose specs in any spec file** — security requirements apply across all layers.
@@ -221,7 +225,19 @@ Edge cases:
 | Type | Tool | Use for |
 |------|------|---------|
 | `http` | curl via Bash | Backend API endpoints |
-| `browser` | Puppeteer MCP | Frontend pages (DOM assertions, navigation, forms) |
+| `browser` | Puppeteer MCP | Frontend web pages (DOM assertions, navigation, forms) |
+| `flutter_integration` | `flutter test` via Bash | Flutter mobile app (runs on Android emulator via ADB) |
+
+#### Flutter integration tests
+
+Flutter integration tests run on an Android emulator connected from WSL2 via ADB. See `docs/FLUTTER_TESTING_SETUP.md` for full setup instructions.
+
+Key differences from HTTP/browser tests:
+- **Self-asserting**: assertions are written in Dart within the test files (`integration_test/*.dart`), not in the JSON spec
+- **Steps in JSON**: describe what the test validates (for documentation), not executable commands
+- **Execution**: `cd real-estate-system/frontend-mobile && flutter test integration_test/<file>.dart -d <device-id>`
+- **Pass/fail**: determined by exit code (0 = pass, non-zero = fail)
+- **Database reset**: required before test suites that hit the backend API
 
 ### Writing test steps (HTTP)
 
@@ -321,10 +337,9 @@ Strategies:
 | superadmin@horoazhon.fr | Admin | SUPER_ADMIN | none |
 | admin@horoazhon.fr | Admin | ADMIN_AGENCY | Horoazhon France (id=1) |
 | agent@horoazhon.fr | Agent | AGENT | Horoazhon France (id=1) |
+| client@horoazhon.fr | Client | CLIENT | Horoazhon France (id=1) |
 | admin@immosud.fr | Admin | ADMIN_AGENCY | Immobilier du Sud (id=2) |
 | agent@immosud.fr | Agent | AGENT | Immobilier du Sud (id=2) |
-
-**No CLIENT test account exists in seed data.** Tests requiring CLIENT access must create one via the invite+activation flow, or a CLIENT seed account must be added.
 
 ---
 
