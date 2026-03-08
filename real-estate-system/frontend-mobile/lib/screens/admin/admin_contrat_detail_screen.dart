@@ -56,7 +56,7 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
     final contrat = _contrat!;
     final statut = contrat['statut'] as String? ?? '';
     final type = contrat['type'] as String? ?? '';
-    final cosigners = contrat['cosignataires'] as List? ?? [];
+    final cosigners = contrat['cosigners'] as List? ?? [];
 
     return RefreshIndicator(
       onRefresh: _loadData,
