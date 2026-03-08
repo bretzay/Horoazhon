@@ -1,6 +1,531 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-mobile",
-  "lastUpdated": "",
-  "tests": []
+  "lastUpdated": "2026-03-08T17:52:35Z",
+  "tests": [
+    {
+      "featureId": "fm-public-homepage",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-public-homepage-branding",
+          "title": "Home screen loads with branding and tagline",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Wait for home screen to load with API data"
+          ],
+          "assertions": [
+            "Horoazhon branding text is visible",
+            "Tagline 'Gestion immobilière simplifiée' is visible"
+          ]
+        },
+        {
+          "id": "fm-public-homepage-featured-properties",
+          "title": "Featured properties section loads from API",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Wait for home screen to load with API data"
+          ],
+          "assertions": [
+            "'Biens en vedette' section header is visible",
+            "'Voir tout' action text is visible"
+          ]
+        },
+        {
+          "id": "fm-public-homepage-agency-showcase",
+          "title": "Agency showcase section loads from API",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Scroll down to agency section"
+          ],
+          "assertions": [
+            "'Nos agences' section header is visible"
+          ]
+        },
+        {
+          "id": "fm-public-homepage-search-bar",
+          "title": "Search bar is visible on home screen",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Wait for home screen to load"
+          ],
+          "assertions": [
+            "Search field with hint 'Rechercher un bien...' is visible",
+            "Search icon is visible"
+          ]
+        },
+        {
+          "id": "fm-public-homepage-quick-actions",
+          "title": "Quick action cards are visible",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Scroll down to quick actions section"
+          ],
+          "assertions": [
+            "'Voir les biens' card is visible",
+            "'Voir les agences' card is visible",
+            "Apartment and location icons are visible"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-public-property",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-public-property-list-loads",
+          "title": "Property list screen loads via bottom nav",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Tap the 'Biens' tab in bottom navigation",
+            "Wait for property list to load"
+          ],
+          "assertions": [
+            "Search field with hint 'Rechercher...' is visible"
+          ]
+        },
+        {
+          "id": "fm-public-property-filter-bar",
+          "title": "Filter bar with search and type/sale/rent chips is visible",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Navigate to Biens tab"
+          ],
+          "assertions": [
+            "Search field is visible",
+            "'Type' filter chip is visible",
+            "'Vente' filter chip is visible",
+            "'Location' filter chip is visible"
+          ]
+        },
+        {
+          "id": "fm-public-property-cards-display",
+          "title": "Property cards display with price and location info",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Navigate to Biens tab",
+            "Wait for properties to load"
+          ],
+          "assertions": [
+            "Card widgets are present",
+            "Location icons are visible on cards",
+            "Chevron right icons indicate tappable cards"
+          ]
+        },
+        {
+          "id": "fm-public-property-navigate-detail",
+          "title": "Tapping a property navigates to detail screen",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Navigate to Biens tab",
+            "Tap the first property card"
+          ],
+          "assertions": [
+            "Detail screen AppBar shows property ID in 'BI-X' format"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-public-agence",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-public-agence-list-loads",
+          "title": "Agency list screen loads via bottom nav",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Tap the 'Agences' tab in bottom navigation",
+            "Wait for agency list to load"
+          ],
+          "assertions": [
+            "Search field with hint 'Rechercher une agence...' is visible"
+          ]
+        },
+        {
+          "id": "fm-public-agence-search-bar",
+          "title": "Search bar is visible on agency list",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Navigate to Agences tab"
+          ],
+          "assertions": [
+            "Search field with hint text is visible",
+            "Search icon is visible"
+          ]
+        },
+        {
+          "id": "fm-public-agence-cards-display",
+          "title": "Agency cards display with name and contact info",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Navigate to Agences tab",
+            "Wait for agencies to load"
+          ],
+          "assertions": [
+            "Card widgets are present",
+            "Business icon (logo placeholder) is visible",
+            "Chevron right icons indicate tappable cards"
+          ]
+        },
+        {
+          "id": "fm-public-agence-navigate-detail",
+          "title": "Tapping an agency navigates to detail screen",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch the app",
+            "Navigate to Agences tab",
+            "Tap the first agency card"
+          ],
+          "assertions": [
+            "'Contact' section header is visible on detail screen",
+            "'Biens de l'agence' section is visible"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-auth-login",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-auth-login-ui-loads",
+          "title": "Login screen renders branding, form fields, and action links",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Launch app and navigate to Connexion tab",
+            "Verify Horoazhon branding text and subtitle are visible",
+            "Verify two TextFormField widgets exist (email, password)",
+            "Verify 'Se connecter' button, 'Mot de passe oublié ?' link, and 'Activer un compte' link are present"
+          ],
+          "assertions": [
+            "Text 'Horoazhon' is displayed",
+            "Text 'Connectez-vous à votre compte' is displayed",
+            "Two TextFormField widgets are found",
+            "ElevatedButton with text 'Se connecter' exists",
+            "TextButton with text 'Mot de passe oublié ?' exists",
+            "TextButton with text 'Activer un compte' exists"
+          ]
+        },
+        {
+          "id": "fm-auth-login-admin-success",
+          "title": "Valid ADMIN_AGENCY login navigates to admin dashboard",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Enter admin@horoazhon.fr in email field",
+            "Enter Admin in password field",
+            "Tap 'Se connecter' button",
+            "Wait for API response and navigation"
+          ],
+          "assertions": [
+            "Admin shell loads with 'Tableau de bord' in bottom navigation",
+            "Role chip shows 'Admin' in the app bar"
+          ]
+        },
+        {
+          "id": "fm-auth-login-client-success",
+          "title": "Valid CLIENT login navigates to client dashboard",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Enter client@horoazhon.fr in email field",
+            "Enter Client in password field",
+            "Tap 'Se connecter' button",
+            "Wait for API response and navigation"
+          ],
+          "assertions": [
+            "Public shell remains with 'Profil' tab visible",
+            "Role chip shows 'Client'"
+          ]
+        },
+        {
+          "id": "fm-auth-login-invalid-credentials",
+          "title": "Invalid credentials displays error message",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Enter wrong@email.com and wrongpassword",
+            "Tap 'Se connecter' button",
+            "Wait for API error response"
+          ],
+          "assertions": [
+            "Error text 'Identifiants invalides' is displayed"
+          ]
+        },
+        {
+          "id": "fm-auth-login-empty-validation",
+          "title": "Empty fields trigger form validation errors",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Tap 'Se connecter' without filling any fields"
+          ],
+          "assertions": [
+            "Validation error 'Veuillez saisir votre email' is displayed",
+            "Validation error 'Veuillez saisir votre mot de passe' is displayed"
+          ]
+        },
+        {
+          "id": "fm-auth-login-password-toggle",
+          "title": "Password visibility toggle switches icon",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Verify visibility_outlined icon is displayed",
+            "Tap the visibility toggle icon",
+            "Verify visibility_off_outlined icon is now displayed"
+          ],
+          "assertions": [
+            "Initially Icons.visibility_outlined is present",
+            "After tap Icons.visibility_off_outlined is present"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-auth-logout",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-auth-logout-dialog-shows",
+          "title": "Logout from admin drawer shows confirmation dialog",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr",
+            "Tap 'Plus' tab to open admin drawer",
+            "Tap 'Déconnexion' in the drawer",
+            "Verify confirmation dialog appears"
+          ],
+          "assertions": [
+            "Dialog text 'Voulez-vous vous déconnecter ?' is displayed",
+            "Cancel button 'Annuler' is displayed"
+          ]
+        },
+        {
+          "id": "fm-auth-logout-confirm",
+          "title": "Confirming logout returns to login screen",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr",
+            "Open drawer and tap 'Déconnexion'",
+            "Tap the 'Déconnexion' ElevatedButton in the confirmation dialog",
+            "Wait for state to clear"
+          ],
+          "assertions": [
+            "Public shell loads with 'Connexion' tab visible (user is logged out)"
+          ]
+        },
+        {
+          "id": "fm-auth-logout-cancel",
+          "title": "Cancelling logout stays on current screen",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin@horoazhon.fr",
+            "Open drawer and tap 'Déconnexion'",
+            "Tap 'Annuler' in the confirmation dialog"
+          ],
+          "assertions": [
+            "Admin shell remains with 'Tableau de bord' tab still visible"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-auth-activate",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-auth-activate-screen-loads",
+          "title": "Activation screen loads from login link with token field",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Tap 'Activer un compte' link",
+            "Verify activation screen renders"
+          ],
+          "assertions": [
+            "Title 'Activation du compte' is displayed",
+            "At least one TextFormField is visible (token field)",
+            "Check icon button for token verification is present"
+          ]
+        },
+        {
+          "id": "fm-auth-activate-invalid-token",
+          "title": "Invalid token shows error message",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to activation screen from login",
+            "Enter 'invalid-token-12345' in the token field",
+            "Tap the check icon to verify the token",
+            "Wait for API response"
+          ],
+          "assertions": [
+            "Error text containing 'invalide ou expiré' is displayed"
+          ]
+        },
+        {
+          "id": "fm-auth-activate-structure",
+          "title": "Activation screen has correct structure and labels",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to activation screen from login",
+            "Inspect visible UI elements"
+          ],
+          "assertions": [
+            "Token label text containing 'Token' is present",
+            "At least one TextFormField is found",
+            "AppBar title shows 'Activation du compte'"
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "fm-auth-password-reset",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "fm-auth-password-reset-forgot-loads",
+          "title": "Forgot password screen loads from login link",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to login screen",
+            "Tap 'Mot de passe oublié ?' link",
+            "Verify forgot password screen renders"
+          ],
+          "assertions": [
+            "AppBar title 'Mot de passe oublié' is displayed",
+            "Title 'Réinitialisation' is displayed",
+            "One TextFormField (email) is visible",
+            "Label 'Email' is present"
+          ]
+        },
+        {
+          "id": "fm-auth-password-reset-forgot-buttons",
+          "title": "Forgot password screen has send button and back link",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to forgot password screen from login",
+            "Inspect action buttons"
+          ],
+          "assertions": [
+            "ElevatedButton with text 'Envoyer le lien' is present",
+            "TextButton with text 'Retour à la connexion' is present"
+          ]
+        },
+        {
+          "id": "fm-auth-password-reset-empty-email",
+          "title": "Empty email shows validation error on forgot password",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to forgot password screen",
+            "Tap 'Envoyer le lien' without entering email"
+          ],
+          "assertions": [
+            "Validation error 'Email requis' is displayed"
+          ]
+        },
+        {
+          "id": "fm-auth-password-reset-back-link",
+          "title": "Back link from forgot password returns to login",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to forgot password screen",
+            "Tap 'Retour à la connexion'",
+            "Verify login screen is displayed"
+          ],
+          "assertions": [
+            "Login button 'Se connecter' is visible",
+            "Subtitle 'Connectez-vous à votre compte' is visible"
+          ]
+        },
+        {
+          "id": "fm-auth-password-reset-screen-structure",
+          "title": "Forgot password screen shows descriptive text and email icon",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Navigate to forgot password screen",
+            "Verify instructional text and icon"
+          ],
+          "assertions": [
+            "Instructional text 'Saisissez votre email pour recevoir un lien de réinitialisation' is displayed",
+            "Email icon (Icons.email_outlined) is present"
+          ]
+        }
+      ]
+    }
+  ]
 }

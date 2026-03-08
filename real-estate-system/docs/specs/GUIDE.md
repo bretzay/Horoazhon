@@ -226,18 +226,25 @@ Edge cases:
 |------|------|---------|
 | `http` | curl via Bash | Backend API endpoints |
 | `browser` | Puppeteer MCP | Frontend web pages (DOM assertions, navigation, forms) |
-| `flutter_integration` | `flutter test` via Bash | Flutter mobile app (runs on Android emulator via ADB) |
+| `flutter_integration` | `flutter test` via Windows PowerShell (user-assisted) | Flutter mobile app (runs on Android emulator) |
 
 #### Flutter integration tests
 
-Flutter integration tests run on an Android emulator connected from WSL2 via ADB. See `docs/FLUTTER_TESTING_SETUP.md` for full setup instructions.
+Flutter integration tests run on an Android emulator on Windows. **They cannot run from WSL2** — the Flutter SDK requires Windows natively. See `docs/FLUTTER_TESTING_SETUP.md` for full setup, widget finding strategy, and test file mapping.
+
+**Two deliverables per feature:**
+1. **Dart test file** in `frontend-mobile/integration_test/` — actual executable test with `IntegrationTestWidgetsFlutterBinding`, `testWidgets`, assertions in Dart
+2. **JSON spec entry** in `frontend-mobile-tests.json` — type `flutter_integration`, documentation-only steps/assertions for spec tracking
 
 Key differences from HTTP/browser tests:
-- **Self-asserting**: assertions are written in Dart within the test files (`integration_test/*.dart`), not in the JSON spec
-- **Steps in JSON**: describe what the test validates (for documentation), not executable commands
-- **Execution**: `cd real-estate-system/frontend-mobile && flutter test integration_test/<file>.dart -d <device-id>`
-- **Pass/fail**: determined by exit code (0 = pass, non-zero = fail)
-- **Database reset**: required before test suites that hit the backend API
+- **Dart files are the real tests**: assertions live in the `.dart` files, not in JSON
+- **JSON is documentation-only**: steps and assertions in the JSON describe what the Dart test validates (for dashboard tracking), not executable commands
+- **User-assisted execution**: the Testing Agent cannot run these directly from WSL2; it provides commands for the user to execute in Windows PowerShell
+- **Execution**: user runs `flutter test integration_test/<file>.dart -d emulator-5554` in PowerShell and pastes output
+- **Pass/fail**: determined by Flutter test output (`All tests passed!` vs `Some tests failed.`)
+- **No test_driver/ needed**: `test_driver/` is only required for web browser testing, not Android emulator
+- **Widget finding**: app screens use private `_formKey` — tests must use `find.byType()`, `find.text()`, `find.widgetWithText()`, `find.byIcon()` (not `find.byKey()`)
+- **Database reset**: the Testing Agent runs `/reset-db` from WSL2 before asking the user to execute tests
 
 ### Writing test steps (HTTP)
 

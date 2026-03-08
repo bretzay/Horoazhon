@@ -1,14 +1,25 @@
-# Flutter Integration Testing Setup: Android Emulator on Windows + WSL2
+# Flutter Integration Testing Setup: Windows PowerShell + Android Emulator
 
 ## Overview
 
 Flutter integration tests run on a real Android emulator to validate UI flows end-to-end. In this project's setup:
 
 - The **Android emulator** runs on **Windows** (via Android Studio).
-- **WSL2** connects to the emulator over TCP using **ADB** (Android Debug Bridge).
-- The **Testing Agent** (running inside WSL2) executes `flutter test integration_test/` targeting the emulator.
+- **Flutter SDK** is installed on **Windows** (`C:\tools\flutter`).
+- **ADB** is on the Windows PATH (via Android SDK `platform-tools`).
+- All Flutter and ADB commands run in **Windows PowerShell**, not WSL2.
 
-This architecture allows the full Flutter test suite to run from the Linux environment where the development toolchain lives, while leveraging the Windows-hosted emulator for device rendering.
+### Why not WSL2?
+
+The Flutter SDK uses Windows batch scripts (`.bat`) that cannot execute in WSL2's Linux environment. ADB TCP bridging between WSL2 and Windows is unreliable. Running Flutter natively on Windows where the emulator lives is the simplest and most stable approach.
+
+### Testing Agent workflow
+
+Since the Testing Agent runs inside WSL2 (via Claude Code) but cannot execute Flutter commands directly:
+
+1. The Testing Agent **generates the exact PowerShell commands** to run.
+2. The **user executes them in Windows PowerShell** and pastes the output back.
+3. The Testing Agent **parses the output** and updates spec status accordingly.
 
 ---
 
@@ -17,126 +28,69 @@ This architecture allows the full Flutter test suite to run from the Linux envir
 ### Windows
 
 - **Android Studio** installed with the Android SDK.
-- At least one **AVD (Android Virtual Device)** created (see Step 1 below).
-- **ADB** available on PATH (installed with Android Studio under `<SDK>/platform-tools/`).
+- **Android SDK Command-line Tools** installed (Android Studio > Settings > SDK Tools).
+- **Android licenses accepted**: `flutter doctor --android-licenses`
+- At least one **AVD (Android Virtual Device)** created.
+- **ADB** on PATH: Add `C:\Users\<username>\AppData\Local\Android\Sdk\platform-tools` to the `Path` environment variable (System > Environment Variables > Edit `Path` > New).
+- **Flutter SDK** on PATH: `C:\tools\flutter\bin` (or wherever Flutter is installed).
 
-### WSL2
+### Verification
 
-- **Flutter SDK** installed and on PATH (`flutter doctor` passes).
-- **ADB** installed:
-  ```bash
-  # Option A: Ubuntu/Debian package
-  sudo apt install adb
+Open **Windows PowerShell** and confirm:
 
-  # Option B: Use the Android SDK's platform-tools (if SDK is installed in WSL2)
-  export PATH="$PATH:$HOME/Android/Sdk/platform-tools"
-  ```
-- **Java** (required by Flutter/Gradle): OpenJDK 17+.
-
-### Network
-
-- WSL2 must be able to reach the Windows host IP on port 5555.
-- Windows Firewall must allow inbound connections on port 5555 from WSL2.
+```powershell
+flutter --version    # Should show Flutter 3.41+ with Dart 3.11+
+adb devices          # Should show emulator-5554 (when emulator is running)
+flutter devices      # Should list the emulator as a connected device
+```
 
 ---
 
 ## Step-by-step Setup
 
-### 1. Windows Side: Create and Start the Android Emulator
+### 1. Create and Start the Android Emulator
 
 1. Open **Android Studio** > **Device Manager** (or Tools > Device Manager).
 2. Click **Create Virtual Device**.
 3. Select a device profile: **Pixel 7** (recommended).
 4. Select a system image: **API 34 (Android 14)** with Google APIs, x86_64.
 5. Finish the wizard and **start the emulator** by clicking the Play button.
-6. Verify the emulator appears in ADB. Open **Windows PowerShell** or **Command Prompt**:
+6. Verify in PowerShell:
    ```powershell
    adb devices
    ```
-   You should see something like:
+   Expected:
    ```
    List of devices attached
    emulator-5554   device
    ```
 
-### 2. Windows Side: Enable ADB over TCP
+### 2. Authorize the Emulator
 
-By default, ADB communicates with the emulator over USB/local socket. To allow WSL2 to connect, switch ADB to TCP mode.
+If `adb devices` shows `unauthorized`:
+1. Look for a popup on the emulator asking "Allow USB debugging?" and tap **Allow**.
+2. If no popup appears, in the emulator go to **Settings > Developer options**, toggle **USB debugging** off then on.
+3. If still unauthorized:
+   ```powershell
+   adb kill-server
+   adb start-server
+   adb devices
+   ```
 
-In **Windows PowerShell** or **Command Prompt**:
+### 3. Verify Flutter Sees the Device
 
 ```powershell
-adb tcpip 5555
-```
-
-Expected output:
-```
-restarting in TCP mode port: 5555
-```
-
-This tells the ADB daemon on the emulator to also listen on TCP port 5555.
-
-### 3. Find the Windows Host IP from WSL2
-
-WSL2 runs in a lightweight VM with its own network namespace. You need the Windows host IP to bridge the connection.
-
-```bash
-# Method 1: /etc/resolv.conf (most reliable on standard WSL2 setups)
-WIN_HOST=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
-echo $WIN_HOST
-
-# Method 2: Default gateway (works on most WSL2 configurations)
-WIN_HOST=$(ip route show default | awk '{print $3}')
-echo $WIN_HOST
-```
-
-Either method should return an IP like `172.x.x.x`. Save this value for the next step.
-
-### 4. WSL2 Side: Connect ADB to the Windows Emulator
-
-```bash
-# Set the Windows host IP (use the method from Step 3)
-WIN_HOST=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
-
-# Kill any existing ADB server in WSL2 to avoid conflicts
-adb kill-server
-
-# Connect to the Windows emulator over TCP
-adb connect $WIN_HOST:5555
-```
-
-Expected output:
-```
-connected to 172.x.x.x:5555
-```
-
-Verify the connection:
-
-```bash
-adb devices
-```
-
-Expected output:
-```
-List of devices attached
-172.x.x.x:5555    device
-```
-
-If the status shows `offline` instead of `device`, see the Troubleshooting section.
-
-### 5. Verify Flutter Sees the Device
-
-```bash
 flutter devices
 ```
 
-Expected output should include the emulator:
+Expected:
 ```
-Found 1 connected device:
-  sdk gphone64 x86 64 (mobile) * 172.x.x.x:5555 * android-x64 * Android 14 (API 34)
+Found 2 connected devices:
+  sdk gphone64 x86 64 (mobile) * emulator-5554 * android-x64 * Android 14 (API 34) (emulator)
+  Windows (desktop)            * windows       * windows-x64 * Microsoft Windows [...]
 ```
 
-Note the device ID (`172.x.x.x:5555` or similar) -- you will use this with the `-d` flag.
+The emulator device ID is `emulator-5554`.
 
 ---
 
@@ -145,16 +99,24 @@ Note the device ID (`172.x.x.x:5555` or similar) -- you will use this with the `
 ```
 frontend-mobile/
 ├── integration_test/              # Integration tests (run on device/emulator)
-│   ├── app_test.dart              # Main test runner / smoke tests
-│   ├── auth_test.dart             # Authentication flow tests
-│   ├── property_test.dart         # Property browsing and search tests
-│   └── admin_test.dart            # Admin CRUD operation tests
-├── test_driver/
-│   └── integration_test.dart      # Test driver boilerplate
+│   ├── auth_test.dart             # Authentication flow tests (login, logout, activate, password reset)
+│   ├── public_test.dart           # Public screens (home, property list/detail, agency list/detail)
+│   ├── layout_test.dart           # App navigation and layout structure
+│   ├── client_test.dart           # Client dashboard
+│   ├── profile_test.dart          # User profile screen
+│   ├── admin_dashboard_test.dart  # Admin dashboard
+│   ├── admin_bien_test.dart       # Admin property CRUD
+│   ├── admin_agence_test.dart     # Admin agency CRUD
+│   ├── admin_contrat_test.dart    # Admin contract screens
+│   ├── admin_personne_test.dart   # Admin person CRUD
+│   ├── admin_user_test.dart       # Admin user management
+│   └── admin_reference_test.dart  # Admin reference data
 ├── test/
 │   └── widget_test.dart           # Widget unit tests (no device needed)
 └── pubspec.yaml                   # Must include integration_test dependency
 ```
+
+**Note:** `test_driver/` is NOT needed for Android/iOS device testing. It is only required for web browser testing via ChromeDriver. See [official docs](https://docs.flutter.dev/testing/integration-tests).
 
 ### pubspec.yaml Dependencies
 
@@ -168,45 +130,51 @@ dev_dependencies:
     sdk: flutter
 ```
 
-### Test Driver Boilerplate
-
-Create `test_driver/integration_test.dart`:
-
-```dart
-import 'package:integration_test/integration_test_driver.dart';
-
-Future<void> main() => integrationDriver();
-```
+To add via CLI: `flutter pub add "dev:integration_test:{sdk: flutter}"`
 
 ---
 
 ## Running Integration Tests
 
-```bash
-cd real-estate-system/frontend-mobile
+All commands run in **Windows PowerShell**, from the project directory:
 
-# Get the device ID
-DEVICE_ID=$(flutter devices | grep android | awk '{print $5}')
+```powershell
+cd C:\Users\frant\Documents\GitHub\Horoazhon\real-estate-system\frontend-mobile
 
-# Run all integration tests
-flutter test integration_test/ -d $DEVICE_ID
+# Run all integration tests on the emulator
+flutter test integration_test/ -d emulator-5554
 
 # Run a specific test file
-flutter test integration_test/auth_test.dart -d $DEVICE_ID
+flutter test integration_test/auth_test.dart -d emulator-5554
 
 # Run with verbose output (useful for debugging)
-flutter test integration_test/auth_test.dart -d $DEVICE_ID --verbose
+flutter test integration_test/auth_test.dart -d emulator-5554 --verbose
 ```
 
-If only one device is connected, you can omit `-d`:
+If only one mobile device is connected, you can omit `-d`:
 
-```bash
+```powershell
 flutter test integration_test/
 ```
 
 ---
 
 ## Writing Integration Tests
+
+### Widget Finding Strategy
+
+The app's screens use private `_formKey` variables for form validation, which are not accessible from integration tests. Use these finders instead:
+
+| Finder | Use for | Example |
+|--------|---------|---------|
+| `find.byType(T)` | Find widgets by type | `find.byType(TextFormField)` |
+| `find.text('...')` | Find exact text | `find.text('Se connecter')` |
+| `find.textContaining('...')` | Find partial text | `find.textContaining('Identifiants')` |
+| `find.byIcon(Icons.x)` | Find by icon | `find.byIcon(Icons.email)` |
+| `find.widgetWithText(T, '...')` | Find widget type containing text | `find.widgetWithText(ElevatedButton, 'Se connecter')` |
+| `find.byType(T).at(n)` | Find nth widget of type | `find.byType(TextFormField).at(1)` |
+
+**Important:** `find.byKey()` will NOT work unless public `Key()` or `ValueKey()` constants are added to the app widgets. When multiple `TextFormField` widgets exist on a screen, use positional indexing (`.at(0)`, `.at(1)`) or `find.widgetWithText()` to distinguish them.
 
 ### Complete Example: Login Flow
 
@@ -225,23 +193,26 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
 
-      // Fill in email
-      final emailField = find.byKey(const Key('email_field'));
-      expect(emailField, findsOneWidget);
-      await tester.enterText(emailField, 'admin@horoazhon.fr');
+      // Navigate to login screen (tap Profil tab if on home)
+      final profilTab = find.text('Profil');
+      if (profilTab.evaluate().isNotEmpty) {
+        await tester.tap(profilTab);
+        await tester.pumpAndSettle();
+      }
 
-      // Fill in password
-      final passwordField = find.byKey(const Key('password_field'));
-      await tester.enterText(passwordField, 'Admin');
+      // Find form fields by type and position
+      // Login screen has 2 TextFormFields: email (0), password (1)
+      final textFields = find.byType(TextFormField);
+      await tester.enterText(textFields.at(0), 'admin@horoazhon.fr');
+      await tester.enterText(textFields.at(1), 'Admin');
 
-      // Tap the login button
-      final loginButton = find.byKey(const Key('login_button'));
-      await tester.tap(loginButton);
+      // Tap login button by its text
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Se connecter'));
 
-      // Wait for navigation and API response
+      // Wait for API response and navigation
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Verify we reached the dashboard
+      // Verify we reached the admin dashboard
       expect(find.text('Tableau de bord'), findsOneWidget);
     });
 
@@ -249,15 +220,21 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-          find.byKey(const Key('email_field')), 'wrong@email.com');
-      await tester.enterText(
-          find.byKey(const Key('password_field')), 'wrongpassword');
-      await tester.tap(find.byKey(const Key('login_button')));
+      // Navigate to login if needed
+      final profilTab = find.text('Profil');
+      if (profilTab.evaluate().isNotEmpty) {
+        await tester.tap(profilTab);
+        await tester.pumpAndSettle();
+      }
+
+      final textFields = find.byType(TextFormField);
+      await tester.enterText(textFields.at(0), 'wrong@email.com');
+      await tester.enterText(textFields.at(1), 'wrongpassword');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Se connecter'));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify error message is displayed
-      expect(find.textContaining('Identifiants incorrects'), findsOneWidget);
+      expect(find.textContaining('Identifiants invalides'), findsOneWidget);
     });
   });
 }
@@ -288,7 +265,8 @@ await tester.scrollUntilVisible(
 
 **Interacting with dropdowns**:
 ```dart
-await tester.tap(find.byKey(const Key('type_dropdown')));
+// Tap the dropdown by its type or label text
+await tester.tap(find.byType(DropdownButtonFormField<String>));
 await tester.pumpAndSettle();
 await tester.tap(find.text('Appartement').last);
 await tester.pumpAndSettle();
@@ -300,39 +278,68 @@ final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 await binding.takeScreenshot('login-page');
 ```
 
+**Finding the nth widget of the same type**:
+```dart
+// When a screen has multiple TextFormFields, use positional index
+final fields = find.byType(TextFormField);
+await tester.enterText(fields.at(0), 'email@test.com');  // first field
+await tester.enterText(fields.at(1), 'password123');      // second field
+await tester.enterText(fields.at(2), 'password123');      // third field (confirm)
+```
+
 ---
 
 ## Testing Agent Protocol
 
-When the Testing Agent (running in WSL2) needs to execute Flutter integration tests:
+The Testing Agent runs inside WSL2 (via Claude Code) and **cannot execute Flutter commands directly**. Instead, it uses a user-assisted workflow.
 
-### Pre-flight Checks
+### Two-Phase Workflow
 
-1. **Verify emulator is connected**:
-   ```bash
-   adb devices
-   ```
-   Must show a device with status `device` (not `offline` or `unauthorized`).
+**Phase 1: Writing Tests (QA Agent — runs in WSL2)**
+- QA reads feature specs and Flutter source code
+- QA writes Dart test files in `integration_test/` (creates files via Write tool)
+- QA writes JSON spec entries via `spec_helper.py write-test` (for spec tracking)
+- No emulator or Flutter SDK needed for this phase
 
-2. **If not connected**, the Testing Agent **cannot start the emulator** from WSL2. It must report:
-   ```
-   BLOCKED: No Android emulator connected.
-   Action required: Start the emulator from Windows Android Studio,
-   then run "adb tcpip 5555" in Windows terminal.
-   From WSL2, run: adb connect <windows-host-ip>:5555
-   ```
+**Phase 2: Running Tests (Testing Agent — user-assisted)**
+- Testing Agent generates PowerShell commands
+- User runs them on Windows and pastes output back
+- Testing Agent parses results and updates spec status
 
-3. **Verify Flutter sees the device**:
-   ```bash
-   flutter devices
-   ```
+### Pre-flight Check
 
-### Test Execution
-
-```bash
-cd real-estate-system/frontend-mobile
-flutter test integration_test/<file>.dart 2>&1
+The Testing Agent asks the user to confirm the emulator is running:
 ```
+Please confirm the Android emulator is running:
+1. Open Android Studio > Device Manager > Start emulator
+2. In PowerShell, run: flutter devices
+3. Confirm the emulator appears (emulator-5554)
+```
+
+### Test Execution (User-Assisted)
+
+1. The Testing Agent generates the exact command(s) to run.
+2. The user executes them in **Windows PowerShell** and pastes the output.
+3. The Testing Agent parses the output and updates spec results.
+
+Example interaction:
+
+**Testing Agent says:**
+```
+Please run this in Windows PowerShell:
+
+cd C:\Users\frant\Documents\GitHub\Horoazhon\real-estate-system\frontend-mobile
+flutter test integration_test/auth_test.dart -d emulator-5554
+
+Paste the full output back here.
+```
+
+**User pastes:**
+```
+00:05 +2: All tests passed!
+```
+
+**Testing Agent updates** the spec status to `passing`.
 
 ### Parsing Results
 
@@ -342,105 +349,55 @@ Flutter test output follows this pattern:
 00:12 +1 -1: Some tests failed.      # Failure with details above
 ```
 
-The Testing Agent should:
-- Parse `+N` as passed test count.
-- Parse `-N` as failed test count.
-- Capture failure messages (printed above the summary line) as `lastResult`.
+The Testing Agent:
+- Parses `+N` as passed test count.
+- Parses `-N` as failed test count.
+- Captures failure messages (printed above the summary line) as `lastResult`.
 
-### Spec System Integration
+### Database Reset
 
-A new test type `"flutter_integration"` should be used in spec test files for Flutter-specific tests. This distinguishes them from `"http"` (backend API) and `"browser"` (Puppeteer web) tests.
-
-Example test suite entry in a future `frontend-mobile-tests.json`:
-```json
-{
-  "id": "fm-auth-login-test-1",
-  "featureId": "fm-auth-login",
-  "title": "Valid login navigates to dashboard",
-  "type": "flutter_integration",
-  "testFile": "integration_test/auth_test.dart",
-  "status": "not_tested",
-  "lastResult": null
-}
-```
+For Flutter integration tests that hit the backend API, the Testing Agent resets the database before running (same as HTTP tests):
+- Run `/reset-db` from WSL2 before each feature's test suites
+- Wait for backend health check before asking the user to run tests
 
 ---
 
 ## Troubleshooting
 
-### ADB connection refused
+### Device shows "unauthorized"
 
-**Symptom**: `adb connect` returns `failed to connect`.
-
-**Fix**:
-1. Ensure the emulator is running on Windows.
-2. Run `adb tcpip 5555` from Windows (not WSL2).
-3. Check Windows Firewall: allow inbound TCP on port 5555.
-   - Windows Settings > Firewall > Advanced Settings > Inbound Rules > New Rule
-   - Port: 5555, TCP, Allow the connection.
-
-### Device shows "offline"
-
-**Symptom**: `adb devices` shows `<ip>:5555  offline`.
+**Symptom**: `adb devices` shows `emulator-5554  unauthorized`.
 
 **Fix**:
-```bash
-# In WSL2
-adb disconnect
-adb kill-server
-adb connect $WIN_HOST:5555
-```
-
-If it persists, restart ADB on the Windows side too:
-```powershell
-# In Windows PowerShell
-adb kill-server
-adb start-server
-adb tcpip 5555
-```
+1. Check the emulator for an "Allow USB debugging?" dialog.
+2. Toggle Developer options > USB debugging off and on.
+3. Restart ADB:
+   ```powershell
+   adb kill-server
+   adb start-server
+   adb devices
+   ```
 
 ### Emulator not found by Flutter
 
-**Symptom**: `flutter devices` shows no devices, but `adb devices` shows connected.
+**Symptom**: `flutter devices` shows no mobile devices, but `adb devices` shows connected.
 
 **Fix**:
-```bash
-flutter doctor
+```powershell
+flutter doctor -v
 ```
 
 Common causes:
-- Flutter SDK not configured for Android: run `flutter config --android-sdk <path>`.
-- ADB version mismatch between Flutter's bundled ADB and system ADB. Use the same ADB binary:
-  ```bash
-  export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
-  ```
-
-### WSL2 cannot reach Windows host IP
-
-**Symptom**: `ping $WIN_HOST` times out.
-
-**Fix**:
-1. Restart WSL2:
-   ```powershell
-   # In Windows PowerShell
-   wsl --shutdown
-   ```
-   Then reopen your WSL2 terminal.
-2. Check if the IP changed (it can change after WSL restarts):
-   ```bash
-   cat /etc/resolv.conf | grep nameserver
-   ```
-3. If using a VPN, it may interfere with WSL2 networking. Disconnect the VPN and retry.
+- Android SDK Command-line Tools not installed (install via Android Studio > Settings > SDK Tools).
+- Licenses not accepted: `flutter doctor --android-licenses`
 
 ### Gradle build fails
 
 **Symptom**: `flutter test` fails during the build step with Gradle errors.
 
 **Fix**:
-```bash
-cd real-estate-system/frontend-mobile/android
-./gradlew clean
-cd ..
+```powershell
+cd C:\Users\frant\Documents\GitHub\Horoazhon\real-estate-system\frontend-mobile
 flutter clean
 flutter pub get
 flutter test integration_test/
@@ -462,18 +419,16 @@ flutter test integration_test/
   ```
 - Check if a dialog or permission prompt is blocking the UI.
 
-### Port 5555 already in use
+### Build cache issues after Flutter upgrade
 
-**Symptom**: `adb tcpip 5555` fails or conflicts.
+**Symptom**: Build errors after upgrading Flutter.
 
-**Fix**: Use a different port:
+**Fix**:
 ```powershell
-# Windows
-adb tcpip 5556
-```
-```bash
-# WSL2
-adb connect $WIN_HOST:5556
+flutter clean
+flutter pub get
+# Delete Gradle cache if needed
+Remove-Item -Recurse -Force "$env:USERPROFILE\.gradle\caches"
 ```
 
 ---
@@ -482,24 +437,18 @@ adb connect $WIN_HOST:5556
 
 This guide covers **local development and local Testing Agent sessions**. For CI/CD environments where a physical emulator is not available:
 
-- **Headless Chrome**: Flutter supports running integration tests in a headless browser as a fallback:
-  ```bash
-  flutter test integration_test/ -d chrome --headless
-  ```
-  This does not test native Android behavior but covers UI logic.
-
 - **Firebase Test Lab**: Upload your APK and test suite to run on real cloud-hosted devices:
-  ```bash
+  ```powershell
   # Build the test APK
-  pushd android
+  cd android
   flutter build apk
-  ./gradlew app:assembleAndroidTest
-  popd
+  .\gradlew app:assembleAndroidTest
+  cd ..
 
   # Upload to Firebase Test Lab
-  gcloud firebase test android run \
-    --type instrumentation \
-    --app build/app/outputs/apk/debug/app-debug.apk \
+  gcloud firebase test android run `
+    --type instrumentation `
+    --app build/app/outputs/apk/debug/app-debug.apk `
     --test build/app/outputs/apk/androidTest/debug/app-debug-androidTest.apk
   ```
 
@@ -516,14 +465,32 @@ This guide covers **local development and local Testing Agent sessions**. For CI
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Start emulator (Windows) | Android Studio > Device Manager > Play |
-| Enable TCP ADB (Windows) | `adb tcpip 5555` |
-| Get Windows IP (WSL2) | `cat /etc/resolv.conf \| grep nameserver \| awk '{print $2}'` |
-| Connect ADB (WSL2) | `adb connect <WIN_IP>:5555` |
-| Check devices | `adb devices` |
+| Task | Command (PowerShell) |
+|------|----------------------|
+| Start emulator | Android Studio > Device Manager > Play |
+| Check ADB devices | `adb devices` |
 | Check Flutter devices | `flutter devices` |
-| Run all integration tests | `flutter test integration_test/` |
-| Run one test file | `flutter test integration_test/auth_test.dart` |
-| Clean build | `flutter clean && flutter pub get` |
+| Add integration_test dep | `flutter pub add "dev:integration_test:{sdk: flutter}"` |
+| Run all integration tests | `flutter test integration_test/ -d emulator-5554` |
+| Run one test file | `flutter test integration_test/auth_test.dart -d emulator-5554` |
+| Run with verbose output | `flutter test integration_test/auth_test.dart -d emulator-5554 --verbose` |
+| Clean build | `flutter clean; flutter pub get` |
+| Accept licenses | `flutter doctor --android-licenses` |
+| Diagnose issues | `flutter doctor -v` |
+
+## Test File ↔ Feature Mapping
+
+| Test file | Features covered |
+|-----------|-----------------|
+| `auth_test.dart` | fm-auth-login, fm-auth-logout, fm-auth-activate, fm-auth-password-reset |
+| `public_test.dart` | fm-public-homepage, fm-public-property, fm-public-agence |
+| `layout_test.dart` | fm-layout |
+| `client_test.dart` | fm-client-dashboard |
+| `profile_test.dart` | fm-user-profile |
+| `admin_dashboard_test.dart` | fm-admin-dashboard |
+| `admin_bien_test.dart` | fm-admin-bien |
+| `admin_agence_test.dart` | fm-admin-agence |
+| `admin_contrat_test.dart` | fm-admin-contrat |
+| `admin_personne_test.dart` | fm-admin-personne |
+| `admin_user_test.dart` | fm-admin-user |
+| `admin_reference_test.dart` | fm-admin-reference |
