@@ -7,6 +7,10 @@ import '../config/app_formatters.dart';
 import '../services/api_service.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/error_state.dart';
+import 'property_detail_screen.dart';
+import 'property_list_screen.dart';
+import 'agency_detail_screen.dart';
+import 'agency_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -86,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Featured properties
           if (_featuredBiens.isNotEmpty) ...[
             _buildSectionHeader('Biens en vedette', 'Voir tout', () {
-              // Navigate to property list tab (index 1)
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyListScreen()));
             }),
             const SizedBox(height: AppSpacing.space4),
             _buildPropertyCarousel(),
@@ -96,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Agencies
           if (_agencies.isNotEmpty) ...[
             _buildSectionHeader('Nos agences', 'Voir tout', () {
-              // Navigate to agencies tab (index 2)
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyListScreen()));
             }),
             const SizedBox(height: AppSpacing.space4),
             _buildAgencyCarousel(),
@@ -111,6 +115,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _navigateToSearch() {
+    final query = _searchController.text.trim();
+    if (query.isNotEmpty) {
+      Navigator.push(context, MaterialPageRoute(
+        builder: (_) => PropertyListScreen(initialSearch: query),
+      ));
+    }
+  }
+
   Widget _buildSearchBar() {
     return TextField(
       controller: _searchController,
@@ -119,14 +132,10 @@ class _HomeScreenState extends State<HomeScreen> {
         prefixIcon: const Icon(Icons.search),
         suffixIcon: IconButton(
           icon: const Icon(Icons.arrow_forward),
-          onPressed: () {
-            // TODO: Navigate to property list with search query
-          },
+          onPressed: _navigateToSearch,
         ),
       ),
-      onSubmitted: (value) {
-        // TODO: Navigate to property list with search query
-      },
+      onSubmitted: (_) => _navigateToSearch(),
     );
   }
 
@@ -152,7 +161,17 @@ class _HomeScreenState extends State<HomeScreen> {
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.space4),
         itemBuilder: (context, index) {
           final bien = _featuredBiens[index] as Map<String, dynamic>;
-          return _PropertyCard(bien: bien);
+          return GestureDetector(
+            onTap: () {
+              final id = bien['id'] as int?;
+              if (id != null) {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => PropertyDetailScreen(bienId: id),
+                ));
+              }
+            },
+            child: _PropertyCard(bien: bien),
+          );
         },
       ),
     );
@@ -167,7 +186,17 @@ class _HomeScreenState extends State<HomeScreen> {
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.space4),
         itemBuilder: (context, index) {
           final agence = _agencies[index] as Map<String, dynamic>;
-          return _AgencyCard(agence: agence);
+          return GestureDetector(
+            onTap: () {
+              final id = agence['id'] as int?;
+              if (id != null) {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => AgencyDetailScreen(agenceId: id),
+                ));
+              }
+            },
+            child: _AgencyCard(agence: agence),
+          );
         },
       ),
     );
@@ -181,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.apartment,
             label: 'Voir les biens',
             onTap: () {
-              // TODO: Navigate to property list
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyListScreen()));
             },
           ),
         ),
@@ -191,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.location_on_outlined,
             label: 'Voir les agences',
             onTap: () {
-              // TODO: Navigate to agency list
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyListScreen()));
             },
           ),
         ),
