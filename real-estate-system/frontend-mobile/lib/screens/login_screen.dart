@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/app_colors.dart';
@@ -46,9 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       setState(() {
-        if (e.toString().contains('DioException') ||
-            e.toString().contains('SocketException') ||
-            e.toString().contains('Connection')) {
+        if (e is DioException &&
+            (e.type == DioExceptionType.connectionTimeout ||
+             e.type == DioExceptionType.sendTimeout ||
+             e.type == DioExceptionType.receiveTimeout ||
+             e.type == DioExceptionType.connectionError)) {
           _errorMessage = 'Erreur de connexion au serveur';
         } else {
           _errorMessage = 'Identifiants invalides';
