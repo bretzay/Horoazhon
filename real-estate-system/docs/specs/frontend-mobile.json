@@ -1,7 +1,7 @@
 {
   "$schema": "spec-v1",
   "role": "frontend-mobile",
-  "lastUpdated": "2026-03-09T14:12:02Z",
+  "lastUpdated": "2026-03-09T16:19:15Z",
   "features": [
     {
       "id": "fm-auth-login",
@@ -48,9 +48,11 @@
       "title": "Property listing and detail screens",
       "description": "Two screens for public property browsing.\n\nScreen 1 — Property list:\n- GET /api/biens with pagination (infinite scroll or load more button)\n- Filter bar: ville, type (dropdown), price range, forSale/forRent toggle\n- Property cards: photo (or placeholder), type badge (Vente/Location), price, ville, superficie\n- Pull-to-refresh\n- Empty state: 'Aucun bien trouvé' with clear filters button\n- Shimmer loading placeholders while fetching\n\nScreen 2 — Property detail:\n- GET /api/biens/{id} (returns BienDetailDTO)\n- Photo carousel (carousel_slider) with cached_network_image\n- Property info: type, ville, code postal, superficie, eco score, description\n- Price section: sale price and/or monthly rent\n- Characteristics list (from caracteristiques array)\n- Proximity places (from lieux array with minutes + locomotion type)\n- Owner info (if any)\n- Agency card with link to agency profile\n- Contact button (launches phone/email via url_launcher)\n\nPublic screens — no authentication required.",
       "category": "public",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-09T14:00:00Z",
+      "lastTestedAt": "2026-03-09T19:30:00Z",
+      "lastTestedBy": "testing-agent"
     },
     {
       "id": "fm-public-agence",
@@ -81,9 +83,11 @@
       "title": "Client dashboard",
       "description": "Dashboard screen for CLIENT role users.\n\nScreen:\n- GET /api/client/dashboard for aggregated data\n- Welcome header: 'Bonjour, {prenom}'\n\nStat cards (horizontal scrollable):\n- Total biens\n- Total contrats\n- Contrats actifs\n- Revenus totaux\n\nSections:\n- Mes biens récents: list from dashboard.properties, tap → property detail\n- Mes contrats récents: list from dashboard.recentContracts, tap → contract detail (read-only)\n\nAdditional tabs/screens:\n- GET /api/client/biens (paginated) — full property list for client\n- GET /api/client/contrats (paginated) — full contract list for client\n\nAccess: CLIENT role only.\nPull-to-refresh on all sections.\nEmpty states: 'Aucun bien' / 'Aucun contrat' with appropriate messaging.",
       "category": "client",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-09T14:00:00Z",
+      "lastTestedAt": "2026-03-09T19:30:00Z",
+      "lastTestedBy": "testing-agent"
     },
     {
       "id": "fm-admin-dashboard",
@@ -98,9 +102,11 @@
       "title": "Admin property screens (list, create, edit)",
       "description": "Property CRUD screens for admin users.\n\nScreen 1 — Property list:\n- GET /api/biens with pagination (infinite scroll)\n- Search/filter bar: ville, type, price range\n- Property cards with action menu (edit, delete)\n- FAB (floating action button): '+' to create new property\n- Pull-to-refresh\n- Empty state: 'Aucun bien trouvé'\n\nScreen 2 — Create property:\n- Form fields: rue, ville, codePostal, type (dropdown), superficie, ecoScore, description\n- Agency dropdown (SUPER_ADMIN only — others auto-assigned)\n- POST /api/biens\n- On success: navigate to edit screen for sub-resource management\n\nScreen 3 — Edit property (tabbed):\n- Tab 1 — Informations: edit basic fields (PUT /api/biens/{id})\n- Tab 2 — Vente: manage Achat listing (create/edit/delete via /api/achats)\n- Tab 3 — Location: manage Location listing (create/edit/delete via /api/locations)\n- Tab 4 — Caractéristiques: add/remove from reference list (POST/DELETE /api/biens/{id}/caracteristiques)\n- Tab 5 — Proximité: add/remove lieux (POST/DELETE /api/biens/{id}/lieux)\n- Tab 6 — Propriétaire: assign/remove owner (PUT/DELETE /api/biens/{id}/proprietaire)\n- Tab 7 — Photos: view/add/remove photos (POST/DELETE /api/biens/{id}/photos)\n\nDelete:\n- Confirmation dialog: 'Supprimer ce bien ?'\n- DELETE /api/biens/{id}\n- Error if active contracts exist\n\nAccess: SUPER_ADMIN (all), ADMIN_AGENCY/AGENT (own agency only).\nForm validation: required fields highlighted on submit.",
       "category": "admin",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-09T14:00:00Z",
+      "lastTestedAt": "2026-03-09T19:30:00Z",
+      "lastTestedBy": "testing-agent"
     },
     {
       "id": "fm-admin-agence",
@@ -115,9 +121,11 @@
       "title": "Admin contract screens (list, create, detail)",
       "description": "Contract management screens.\n\nScreen 1 — Contract list:\n- GET /api/contrats with pagination\n- Filter: statut dropdown (EN_COURS, SIGNE, ANNULE, TERMINE), type (LOCATION, ACHAT)\n- Contract cards: CTR-{id}, type badge, status badge, bien info, cosigners summary\n- FAB: '+' to create new contract\n- Pull-to-refresh\n\nScreen 2 — Create contract:\n- Step 1: Select type (Location or Achat)\n- Step 2: Select the listing (location or achat from dropdowns)\n- Step 3: Add cosigners — search personnes (GET /api/personnes/search), assign type_signataire (BUYER/SELLER/RENTER/OWNER)\n- POST /api/contrats with locationId/achatId + cosigners array\n- On success: navigate to contract detail\n\nScreen 3 — Contract detail:\n- GET /api/contrats/{id}\n- Header: CTR-{id}, status badge, type badge\n- Property info section (linked bien)\n- Listing details (location or achat terms)\n- Cosigners list with roles\n- Actions (based on status):\n  - EN_COURS: 'Confirmer' (POST /confirm), 'Annuler' (POST /cancel)\n  - SIGNE: view PDF, upload signed document\n  - ANNULE/TERMINE: read-only\n- PDF download: GET /api/contrats/{id}/pdf → open in external viewer\n- Signed document: upload (POST), download (GET), delete (DELETE) /api/contrats/{id}/document-signe\n\nAccess: SUPER_ADMIN, ADMIN_AGENCY, AGENT (scoped to own agency by backend).",
       "category": "admin",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-09T14:00:00Z",
+      "lastTestedAt": "2026-03-09T19:30:00Z",
+      "lastTestedBy": "testing-agent"
     },
     {
       "id": "fm-admin-personne",

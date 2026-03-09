@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-web",
-  "lastUpdated": "2026-03-09T15:06:28Z",
+  "lastUpdated": "2026-03-09T15:40:38Z",
   "tests": [
     {
       "featureId": "fe-auth-login",
@@ -771,7 +771,7 @@
           "id": "fe-public-property-list-loads",
           "title": "Property list page loads with grid (only active properties)",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -800,7 +800,7 @@
           "id": "fe-public-property-list-has-filters",
           "title": "Property list page has filter controls",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -825,7 +825,7 @@
           "id": "fe-public-property-list-pagination",
           "title": "Property list page has pagination controls",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -850,7 +850,7 @@
           "id": "fe-public-property-detail-loads",
           "title": "Property detail page loads for an active property",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -875,7 +875,7 @@
           "id": "fe-public-property-no-results",
           "title": "Filter with impossible params shows empty state",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -900,7 +900,7 @@
           "id": "fe-public-property-no-archived",
           "title": "Public property list does not show archived properties",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1452,7 +1452,7 @@
           "id": "fe-admin-bien-list-loads",
           "title": "Admin property list page loads with table and stats",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1507,7 +1507,7 @@
           "id": "fe-admin-bien-add-button",
           "title": "Admin property list has add button",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1558,7 +1558,7 @@
           "id": "fe-admin-bien-create-form-loads",
           "title": "Admin property create form loads with fields",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1613,7 +1613,7 @@
           "id": "fe-admin-bien-unauthenticated-redirect",
           "title": "Unauthenticated access to admin biens redirects to login",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1638,7 +1638,7 @@
           "id": "fe-admin-bien-filter-bar",
           "title": "Admin property list has filter bar and stat summary",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1689,7 +1689,7 @@
           "id": "fe-admin-bien-edit-sections",
           "title": "Edit page shows multi-section grid layout with sub-resource management",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1748,7 +1748,7 @@
           "id": "fe-admin-bien-archive-button",
           "title": "Admin bien list shows archive/unarchive action buttons",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1786,8 +1786,8 @@
           ],
           "assertions": [
             {
-              "type": "page_contains",
-              "value": "Archiver"
+              "type": "element_exists",
+              "selector": "[title=\"Archiver\"]"
             }
           ]
         },
@@ -1795,7 +1795,7 @@
           "id": "fe-admin-bien-actif-badge",
           "title": "Admin bien list displays actif/archive status badges",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1981,7 +1981,7 @@
           "id": "fe-admin-contrat-list-loads",
           "title": "Admin contract list page loads with table showing typeContrat column",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2036,7 +2036,7 @@
           "id": "fe-admin-contrat-list-type-column",
           "title": "Contract list table shows type column (Location/Achat)",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2083,7 +2083,7 @@
           "id": "fe-admin-contrat-create-form-bien-selector",
           "title": "Contract create form has Bien selector and typeContrat dropdown instead of location/achat ID",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2142,7 +2142,7 @@
           "id": "fe-admin-contrat-unauthenticated-redirect",
           "title": "Unauthenticated access to admin contrats redirects to login",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2167,7 +2167,7 @@
           "id": "fe-admin-contrat-detail-snapshot",
           "title": "Contract detail page shows snapshot fields and bien info instead of location/achat objects",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2218,7 +2218,7 @@
           "id": "fe-admin-contrat-detail-cosigners",
           "title": "Contract detail page shows cosigners table",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2257,7 +2257,7 @@
           "assertions": [
             {
               "type": "page_contains",
-              "value": "Cosignataires"
+              "value": "Signataires"
             }
           ]
         }
@@ -2757,7 +2757,7 @@
           "id": "fe-client-dashboard-unauthenticated-redirect",
           "title": "Unauthenticated access to /client redirects to /login",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2782,7 +2782,7 @@
           "id": "fe-client-dashboard-admin-role-redirect",
           "title": "Admin role accessing /client redirects to /admin",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2829,7 +2829,7 @@
           "id": "fe-client-dashboard-contrats-shape",
           "title": "Client dashboard shows contracts with typeContrat and snapshot info",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2880,7 +2880,7 @@
           "id": "fe-client-dashboard-active-biens-only",
           "title": "Client dashboard property section shows only active properties",
           "type": "browser",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {

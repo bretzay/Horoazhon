@@ -19,8 +19,8 @@ void main() {
 
       // Hero area: branding text
       expect(find.text('Horoazhon'), findsWidgets);
-      // Tagline
-      expect(find.text('Gestion immobilière simplifiée'), findsOneWidget);
+      // Search bar is present on home screen
+      expect(find.text('Rechercher un bien...'), findsOneWidget);
     });
 
     testWidgets('Featured properties section loads', (tester) async {

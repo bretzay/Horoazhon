@@ -31,7 +31,7 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     // Navigate to Contrats tab (index 2 in admin bottom nav)
-    await tester.tap(find.text('Contrats'));
+    await tester.tap(find.text('Contrats').last);
     await tester.pumpAndSettle(const Duration(seconds: 5));
   }
 
