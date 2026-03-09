@@ -82,6 +82,10 @@ public class LocationService {
         Location loc = locationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
         verifyAgencyAccess(loc);
+        Bien bien = loc.getBien();
+        if (bien != null) {
+            bien.setLocation(null);
+        }
         locationRepository.deleteById(id);
     }
 

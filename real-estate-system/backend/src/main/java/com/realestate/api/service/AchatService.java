@@ -78,6 +78,10 @@ public class AchatService {
         Achat achat = achatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
         verifyAgencyAccess(achat);
+        Bien bien = achat.getBien();
+        if (bien != null) {
+            bien.setAchat(null);
+        }
         achatRepository.deleteById(id);
     }
 
