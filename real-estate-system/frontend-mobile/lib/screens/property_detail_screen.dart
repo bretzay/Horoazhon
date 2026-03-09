@@ -1108,10 +1108,17 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
   Future<void> _doUpdateOffers(_OfferSheetResult r) async {
     try {
+      // Reload fresh data to get current offer IDs
+      final fresh = await _api.getBienById(widget.bienId);
+      final currentAchat = fresh['achat'] as Map<String, dynamic>?;
+      final currentLocation = fresh['location'] as Map<String, dynamic>?;
+      final currentAchatId = currentAchat?['id'] as int?;
+      final currentLocationId = currentLocation?['id'] as int?;
+
       // Sale: create, update, or delete
       if (r.saleOn) {
-        if (r.existingAchatId != null) {
-          await _api.updateAchat(r.existingAchatId!, {
+        if (currentAchatId != null) {
+          await _api.updateAchat(currentAchatId, {
             'bienId': widget.bienId,
             'prix': r.prix ?? 0,
           });
@@ -1121,14 +1128,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             'prix': r.prix ?? 0,
           });
         }
-      } else if (r.existingAchatId != null) {
-        await _api.deleteAchat(r.existingAchatId!);
+      } else if (currentAchatId != null) {
+        await _api.deleteAchat(currentAchatId);
       }
 
       // Rent: create, update, or delete
       if (r.rentOn) {
-        if (r.existingLocationId != null) {
-          await _api.updateLocation(r.existingLocationId!, {
+        if (currentLocationId != null) {
+          await _api.updateLocation(currentLocationId, {
             'bienId': widget.bienId,
             'mensualite': r.mensualite ?? 0,
             'caution': r.caution ?? 0,
@@ -1142,8 +1149,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             'dureeMois': r.dureeMois ?? 12,
           });
         }
-      } else if (r.existingLocationId != null) {
-        await _api.deleteLocation(r.existingLocationId!);
+      } else if (currentLocationId != null) {
+        await _api.deleteLocation(currentLocationId);
       }
 
       _loadData();
