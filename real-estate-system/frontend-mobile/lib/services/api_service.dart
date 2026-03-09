@@ -277,6 +277,15 @@ class ApiService {
     return response.data as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> updateLocation(int id, Map<String, dynamic> data) async {
+    final response = await _dio.put('/locations/$id', data: data);
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<void> deleteLocation(int id) async {
+    await _dio.delete('/locations/$id');
+  }
+
   // --- Achats ---
 
   Future<Map<String, dynamic>> getAchats({int page = 0, int size = 10}) async {
@@ -290,6 +299,43 @@ class ApiService {
   Future<Map<String, dynamic>> createAchat(Map<String, dynamic> data) async {
     final response = await _dio.post('/achats', data: data);
     return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> updateAchat(int id, Map<String, dynamic> data) async {
+    final response = await _dio.put('/achats/$id', data: data);
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<void> deleteAchat(int id) async {
+    await _dio.delete('/achats/$id');
+  }
+
+  // --- Bien Caractéristiques (Property-level) ---
+
+  Future<void> addBienCaracteristique(int bienId, int caracId, String valeur, {String? unite}) async {
+    await _dio.post('/biens/$bienId/caracteristiques', queryParameters: {
+      'caracteristiqueId': caracId,
+      'valeur': valeur,
+      if (unite != null) 'unite': unite,
+    });
+  }
+
+  Future<void> removeBienCaracteristique(int bienId, int caracId) async {
+    await _dio.delete('/biens/$bienId/caracteristiques/$caracId');
+  }
+
+  // --- Bien Lieux (Property-level) ---
+
+  Future<void> addBienLieu(int bienId, int lieuId, int minutes, {String? typeLocomotion}) async {
+    await _dio.post('/biens/$bienId/lieux', queryParameters: {
+      'lieuId': lieuId,
+      'minutes': minutes,
+      if (typeLocomotion != null) 'typeLocomotion': typeLocomotion,
+    });
+  }
+
+  Future<void> removeBienLieu(int bienId, int lieuId) async {
+    await _dio.delete('/biens/$bienId/lieux/$lieuId');
   }
 
   // --- Caractéristiques (Reference Data) ---
