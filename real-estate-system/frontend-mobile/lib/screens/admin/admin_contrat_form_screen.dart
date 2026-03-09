@@ -10,12 +10,16 @@ class AdminContratFormScreen extends StatefulWidget {
   final int bienId;
   final bool isForSale;
   final bool isForRent;
+  final Map<String, dynamic>? existingAchat;
+  final Map<String, dynamic>? existingLocation;
 
   const AdminContratFormScreen({
     super.key,
     required this.bienId,
     required this.isForSale,
     required this.isForRent,
+    this.existingAchat,
+    this.existingLocation,
   });
 
   @override
@@ -56,6 +60,19 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
     } else {
       _offerType = 'ACHAT';
     }
+
+    // Pre-fill from existing offers
+    if (widget.existingAchat != null) {
+      final a = widget.existingAchat!;
+      if (a['prix'] != null) _prixController.text = '${a['prix']}';
+    }
+    if (widget.existingLocation != null) {
+      final l = widget.existingLocation!;
+      if (l['mensualite'] != null) _mensualiteController.text = '${l['mensualite']}';
+      if (l['caution'] != null) _cautionController.text = '${l['caution']}';
+      if (l['dureeMois'] != null) _dureeMoisController.text = '${l['dureeMois']}';
+    }
+
     _loadPersonnes();
   }
 
