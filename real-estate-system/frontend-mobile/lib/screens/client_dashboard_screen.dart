@@ -208,7 +208,7 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
                               ),
                               if (contrat['dateCreation'] != null)
                                 Text(
-                                  'Créé: ${contrat['dateCreation']}',
+                                  'Créé: ${AppFormatters.formatDateString(contrat['dateCreation'] as String?)}',
                                   style: AppTextStyles.textSm.w400,
                                 ),
                             ],

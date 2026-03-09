@@ -23,6 +23,15 @@ class AppFormatters {
     return _dateFmt.format(date);
   }
 
+  /// Parse an ISO 8601 date string and format as dd/MM/yyyy.
+  /// Returns the raw string if parsing fails.
+  static String formatDateString(String? isoDate) {
+    if (isoDate == null || isoDate.isEmpty) return '';
+    final parsed = DateTime.tryParse(isoDate);
+    if (parsed == null) return isoDate;
+    return _dateFmt.format(parsed);
+  }
+
   static String formatBienId(int id) => 'BI-$id';
   static String formatContratId(int id) => 'CTR-$id';
   static String formatAgenceId(int id) => 'AG-$id';

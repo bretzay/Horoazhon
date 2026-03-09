@@ -112,9 +112,9 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
                   Text('Dates', style: AppTextStyles.textMd.w600),
                   const SizedBox(height: AppSpacing.space2),
                   if (contrat['dateCreation'] != null)
-                    _InfoRow('Création', contrat['dateCreation']),
+                    _InfoRow('Création', AppFormatters.formatDateString(contrat['dateCreation'] as String?)),
                   if (contrat['dateModification'] != null)
-                    _InfoRow('Modification', contrat['dateModification']),
+                    _InfoRow('Modification', AppFormatters.formatDateString(contrat['dateModification'] as String?)),
                 ],
               ),
             ),

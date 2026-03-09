@@ -215,7 +215,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ),
                       const Spacer(),
                       if (contrat['dateCreation'] != null)
-                        Text(contrat['dateCreation'], style: AppTextStyles.textSm.w400),
+                        Text(AppFormatters.formatDateString(contrat['dateCreation'] as String?),
+                            style: AppTextStyles.textSm.w400),
                     ],
                   ),
                 ),

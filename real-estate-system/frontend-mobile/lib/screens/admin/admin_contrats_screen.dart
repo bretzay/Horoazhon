@@ -144,6 +144,21 @@ class _ContratCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.space3),
           child: Row(
             children: [
+              // Type icon
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: type == 'ACHAT' ? AppColors.blue100 : AppColors.slate100,
+                  borderRadius: AppRadius.mdAll,
+                ),
+                child: Icon(
+                  type == 'ACHAT' ? Icons.shopping_cart_outlined : Icons.vpn_key_outlined,
+                  size: 20,
+                  color: type == 'ACHAT' ? AppColors.blue500 : AppColors.slate700,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.space3),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,9 +182,24 @@ class _ContratCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(type, style: AppTextStyles.textSm.w400),
-                    if (contrat['dateCreation'] != null)
-                      Text('Créé: ${contrat['dateCreation']}', style: AppTextStyles.textSm.w400.withColor(AppColors.slate400)),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: type == 'ACHAT' ? AppColors.blue500 : AppColors.slate900,
+                            borderRadius: AppRadius.fullAll,
+                          ),
+                          child: Text(type == 'ACHAT' ? 'Achat' : 'Location',
+                              style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
+                        ),
+                        if (contrat['dateCreation'] != null) ...[
+                          const SizedBox(width: 8),
+                          Text(AppFormatters.formatDateString(contrat['dateCreation'] as String?),
+                              style: AppTextStyles.textSm.w400.withColor(AppColors.slate400)),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),
