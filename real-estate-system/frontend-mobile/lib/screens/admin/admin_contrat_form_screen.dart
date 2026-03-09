@@ -40,9 +40,6 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
   // Achat fields
   final _prixController = TextEditingController();
 
-  // Shared
-  DateTime? _dateDispo;
-
   // Step 2: Cosigners
   List<dynamic> _personnes = [];
   bool _isLoadingPersonnes = true;
@@ -87,19 +84,6 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
     }
   }
 
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _dateDispo ?? now,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 365 * 5)),
-    );
-    if (picked != null) {
-      setState(() => _dateDispo = picked);
-    }
-  }
-
   void _addCosigner() {
     setState(() {
       _cosigners.add(_CosignerEntry(
@@ -114,14 +98,7 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
   }
 
   bool _validateStep1() {
-    if (!_formKey.currentState!.validate()) return false;
-    if (_dateDispo == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez sélectionner une date de disponibilité')),
-      );
-      return false;
-    }
-    return true;
+    return _formKey.currentState!.validate();
   }
 
   bool _validateStep2() {
@@ -147,8 +124,6 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final dateDispoStr = _dateDispo!.toIso8601String().split('T').first;
-
       // Step 1: Create the Location or Achat offer
       Map<String, dynamic> offer;
       if (_offerType == 'LOCATION') {
@@ -157,13 +132,11 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
           'caution': double.tryParse(_cautionController.text) ?? 0,
           'mensualite': double.tryParse(_mensualiteController.text) ?? 0,
           'dureeMois': int.tryParse(_dureeMoisController.text) ?? 12,
-          'dateDispo': dateDispoStr,
         });
       } else {
         offer = await _api.createAchat({
           'bienId': widget.bienId,
           'prix': double.tryParse(_prixController.text) ?? 0,
-          'dateDispo': dateDispoStr,
         });
       }
 
@@ -310,31 +283,6 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
           const SizedBox(height: AppSpacing.formFieldGap),
           _buildField('Durée (mois)', _dureeMoisController, keyboardType: TextInputType.number, required: true),
         ],
-
-        const SizedBox(height: AppSpacing.formFieldGap),
-
-        // Date de disponibilité
-        Text('Date de disponibilité', style: AppTextStyles.textMd.w500),
-        const SizedBox(height: AppSpacing.labelInputGap),
-        InkWell(
-          onTap: _pickDate,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.slate200),
-              borderRadius: AppRadius.mdAll,
-            ),
-            child: Text(
-              _dateDispo != null
-                  ? '${_dateDispo!.day.toString().padLeft(2, '0')}/${_dateDispo!.month.toString().padLeft(2, '0')}/${_dateDispo!.year}'
-                  : 'Sélectionner une date',
-              style: AppTextStyles.textMd.w400.withColor(
-                _dateDispo != null ? AppColors.slate900 : AppColors.slate400,
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
