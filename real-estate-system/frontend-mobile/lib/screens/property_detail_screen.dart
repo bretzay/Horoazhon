@@ -48,6 +48,30 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     }
   }
 
+  Future<void> _toggleArchive() async {
+    if (_bien == null) return;
+    final isActif = _bien!['actif'] as bool? ?? true;
+    try {
+      if (isActif) {
+        await _api.archiveBien(widget.bienId);
+      } else {
+        await _api.unarchiveBien(widget.bienId);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(isActif ? 'Bien archivé' : 'Bien désarchivé')),
+        );
+        _loadData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: ${e.toString().replaceAll('Exception: ', '')}')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -57,7 +81,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       appBar: AppBar(
         title: Text(_bien != null ? AppFormatters.formatBienId(widget.bienId) : 'Bien'),
         actions: [
-          if (isAdmin && _bien != null)
+          if (isAdmin && _bien != null) ...[
+            IconButton(
+              icon: Icon(
+                (_bien!['actif'] as bool? ?? true) ? Icons.archive_outlined : Icons.unarchive_outlined,
+              ),
+              tooltip: (_bien!['actif'] as bool? ?? true) ? 'Archiver' : 'Désarchiver',
+              onPressed: () => _toggleArchive(),
+            ),
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               tooltip: 'Modifier',
@@ -69,6 +100,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 _loadData();
               },
             ),
+          ],
         ],
       ),
       body: _buildBody(),
@@ -95,11 +127,27 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final isAdmin = context.read<AuthProvider>().hasAdminNav;
     final location = bien['location'] as Map<String, dynamic>?;
     final achat = bien['achat'] as Map<String, dynamic>?;
+    final isActif = bien['actif'] as bool? ?? true;
 
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView(
         children: [
+          // Archive status banner
+          if (!isActif)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space4, vertical: AppSpacing.space2),
+              color: AppColors.slate100,
+              child: Row(
+                children: [
+                  const Icon(Icons.archive_outlined, size: 16, color: AppColors.slate700),
+                  const SizedBox(width: AppSpacing.space2),
+                  Text('Ce bien est archivé', style: AppTextStyles.textSm.w600.withColor(AppColors.slate700)),
+                ],
+              ),
+            ),
+
           // Photo carousel
           if (photos.isNotEmpty)
             CarouselSlider(
@@ -443,8 +491,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               bienId: widget.bienId,
                               isForSale: isForSale,
                               isForRent: isForRent,
-                              existingAchat: achat,
-                              existingLocation: location,
+                              salePrice: prixVente != null ? (prixVente as num).toDouble() : null,
+                              monthlyRent: loyerMensuel != null ? (loyerMensuel as num).toDouble() : null,
+                              caution: location != null ? (location['caution'] as num?)?.toDouble() : null,
+                              dureeMois: location != null ? location['dureeMois'] as int? : null,
+                              dateDispo: (achat?['dateDispo'] ?? location?['dateDispo']) as String?,
                             ),
                           ),
                         );

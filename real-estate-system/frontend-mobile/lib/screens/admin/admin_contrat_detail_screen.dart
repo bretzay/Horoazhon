@@ -6,6 +6,7 @@ import '../../config/app_radius.dart';
 import '../../config/app_formatters.dart';
 import '../../services/api_service.dart';
 import '../../widgets/error_state.dart';
+import '../property_detail_screen.dart';
 import 'admin_personne_form_screen.dart';
 
 class AdminContratDetailScreen extends StatefulWidget {
@@ -58,6 +59,7 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
     final statut = contrat['statut'] as String? ?? '';
     final type = contrat['type'] as String? ?? '';
     final cosigners = contrat['cosigners'] as List? ?? [];
+    final bien = contrat['bien'] as Map<String, dynamic>?;
 
     return RefreshIndicator(
       onRefresh: _loadData,
@@ -103,6 +105,62 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
 
           const SizedBox(height: AppSpacing.space4),
 
+          // Linked Bien
+          if (bien != null) ...[
+            Text('Bien lié', style: AppTextStyles.textLg.w600),
+            const SizedBox(height: AppSpacing.space2),
+            Card(
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PropertyDetailScreen(bienId: bien['id'] as int),
+                  ),
+                ),
+                borderRadius: AppRadius.lgAll,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.space3),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.blue100,
+                          borderRadius: AppRadius.mdAll,
+                        ),
+                        child: const Icon(Icons.apartment, size: 20, color: AppColors.blue500),
+                      ),
+                      const SizedBox(width: AppSpacing.space3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppFormatters.formatBienId(bien['id'] as int),
+                              style: AppTextStyles.textMd.w600,
+                            ),
+                            Text(
+                              '${bien['type'] ?? ''} — ${bien['ville'] ?? ''}',
+                              style: AppTextStyles.textSm.w400.withColor(AppColors.slate500),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, size: 20, color: AppColors.slate400),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space4),
+          ],
+
+          // Snapshot values
+          _buildSnapshotCard(contrat, type),
+
+          const SizedBox(height: AppSpacing.space4),
+
           // Dates
           Card(
             child: Padding(
@@ -116,6 +174,8 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
                     _InfoRow('Création', AppFormatters.formatDateString(contrat['dateCreation'] as String?)),
                   if (contrat['dateModification'] != null)
                     _InfoRow('Modification', AppFormatters.formatDateString(contrat['dateModification'] as String?)),
+                  if (contrat['snapDateDispo'] != null)
+                    _InfoRow('Date disponibilité', contrat['snapDateDispo'] as String),
                 ],
               ),
             ),
@@ -171,6 +231,42 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
 
           const SizedBox(height: AppSpacing.space4),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSnapshotCard(Map<String, dynamic> contrat, String type) {
+    final hasSnapshot = contrat['snapPrix'] != null ||
+        contrat['snapMensualite'] != null ||
+        contrat['snapCaution'] != null ||
+        contrat['snapDureeMois'] != null;
+
+    if (!hasSnapshot) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              type == 'ACHAT' ? 'Détails achat' : 'Détails location',
+              style: AppTextStyles.textMd.w600,
+            ),
+            const SizedBox(height: AppSpacing.space2),
+            if (type == 'ACHAT') ...[
+              if (contrat['snapPrix'] != null)
+                _InfoRow('Prix', AppFormatters.formatCurrencyShort((contrat['snapPrix'] as num).toDouble())),
+            ] else ...[
+              if (contrat['snapMensualite'] != null)
+                _InfoRow('Mensualité', AppFormatters.formatRent((contrat['snapMensualite'] as num).toDouble())),
+              if (contrat['snapCaution'] != null)
+                _InfoRow('Caution', AppFormatters.formatCurrencyShort((contrat['snapCaution'] as num).toDouble())),
+              if (contrat['snapDureeMois'] != null)
+                _InfoRow('Durée', '${contrat['snapDureeMois']} mois'),
+            ],
+          ],
+        ),
       ),
     );
   }

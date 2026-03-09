@@ -96,6 +96,7 @@ class ApiService {
     double? prixMax,
     bool? forSale,
     bool? forRent,
+    bool? actif,
     int page = 0,
     int size = 10,
   }) async {
@@ -106,6 +107,7 @@ class ApiService {
       if (prixMax != null) 'prixMax': prixMax,
       if (forSale != null) 'forSale': forSale,
       if (forRent != null) 'forRent': forRent,
+      if (actif != null) 'actif': actif,
       'page': page,
       'size': size,
     });
@@ -129,6 +131,16 @@ class ApiService {
 
   Future<void> deleteBien(int id) async {
     await _dio.delete('/biens/$id');
+  }
+
+  Future<Map<String, dynamic>> archiveBien(int id) async {
+    final response = await _dio.put('/biens/$id/archive');
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> unarchiveBien(int id) async {
+    final response = await _dio.put('/biens/$id/unarchive');
+    return response.data as Map<String, dynamic>;
   }
 
   // --- Agences ---

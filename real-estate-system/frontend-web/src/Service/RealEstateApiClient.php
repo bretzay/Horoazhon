@@ -95,8 +95,11 @@ class RealEstateApiClient
 
     // ========== Biens (Properties) ==========
 
-    public function getBiens(array $filters = []): array
+    public function getBiens(array $filters = [], ?bool $actif = null): array
     {
+        if ($actif !== null) {
+            $filters['actif'] = $actif ? 'true' : 'false';
+        }
         return $this->get('/api/biens', $filters);
     }
 
@@ -123,6 +126,16 @@ class RealEstateApiClient
     public function deleteBien(int $id): void
     {
         $this->doDelete('/api/biens/' . $id);
+    }
+
+    public function archiveBien(int $id): array
+    {
+        return $this->put('/api/biens/' . $id . '/archive', []);
+    }
+
+    public function unarchiveBien(int $id): array
+    {
+        return $this->put('/api/biens/' . $id . '/unarchive', []);
     }
 
     // ========== Bien - Caracteristiques associations ==========
@@ -225,9 +238,13 @@ class RealEstateApiClient
         $this->doDelete('/api/agences/' . $id);
     }
 
-    public function getAgenceBiens(int $agenceId, int $page = 0, int $size = 12): array
+    public function getAgenceBiens(int $agenceId, int $page = 0, int $size = 12, ?bool $actif = null): array
     {
-        return $this->get('/api/agences/' . $agenceId . '/biens', ['page' => $page, 'size' => $size]);
+        $params = ['page' => $page, 'size' => $size];
+        if ($actif !== null) {
+            $params['actif'] = $actif ? 'true' : 'false';
+        }
+        return $this->get('/api/agences/' . $agenceId . '/biens', $params);
     }
 
     // ========== Personnes ==========

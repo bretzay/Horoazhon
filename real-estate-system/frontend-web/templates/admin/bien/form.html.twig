@@ -32,13 +32,29 @@
 {% block body %}
 <div class="page-header">
     <h1>{{ bien ? 'Modifier le Bien #' ~ bien.id : 'Nouveau Bien' }}</h1>
-    <div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
         {% if bien %}
+            {% if bien.actif is defined and not bien.actif %}
+                <form method="POST" action="{{ path('admin_biens_unarchive', {id: bien.id}) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-primary">Reactiver</button>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ path('admin_biens_archive', {id: bien.id}) }}" style="display:inline;" onsubmit="return confirm('Archiver ce bien ?')">
+                    <button type="submit" class="btn btn-secondary">Archiver</button>
+                </form>
+            {% endif %}
             <a href="{{ path('biens_detail', {id: bien.id}) }}" class="btn btn-primary">Voir le bien</a>
         {% endif %}
         <a href="{{ path('admin_biens') }}" class="btn btn-secondary">Retour</a>
     </div>
 </div>
+
+{% if bien and bien.actif is defined and not bien.actif %}
+<div style="background: #0f172a; color: #fff; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+    Ce bien est archive. Il n'apparait plus dans les listes publiques.
+</div>
+{% endif %}
 
 {# ===== Property form ===== #}
 <div class="card">

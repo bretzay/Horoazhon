@@ -21,7 +21,9 @@ frontend-mobile/
 │   │   ├── app_theme.dart           # AppTheme.build() — full ThemeData
 │   │   ├── app_formatters.dart      # AppFormatters (currency, date, IDs, area)
 │   │   └── app_icons.dart           # AppIconSizes (xs/sm/md/lg/xl)
-│   ├── models/                      # (empty — raw maps used directly)
+│   ├── models/
+│   │   ├── bien.dart              # Bien model with actif, sale/rent availability
+│   │   └── contrat.dart           # Contrat + CosignerDTO with bienId, typeContrat, snapshots
 │   ├── providers/
 │   │   └── auth_provider.dart       # AuthProvider — login, logout, role state, secure storage
 │   ├── screens/
@@ -40,8 +42,9 @@ frontend-mobile/
 │   │       ├── admin_dashboard_screen.dart  # Admin dashboard: stats, quick actions, recent
 │   │       ├── admin_biens_screen.dart      # Property list with CRUD actions
 │   │       ├── admin_bien_form_screen.dart  # Property create/edit form
-│   │       ├── admin_contrats_screen.dart   # Contract list with pagination
-│   │       ├── admin_contrat_detail_screen.dart # Contract detail with cosigners
+│   │       ├── admin_contrats_screen.dart   # Contract list with snapshot prices
+│   │       ├── admin_contrat_detail_screen.dart # Contract detail: linked Bien, snapshots, cosigners
+│   │       ├── admin_contrat_form_screen.dart # Contract create: Bien+type, read-only offer preview
 │   │       ├── admin_personnes_screen.dart  # Person list with search
 │   │       ├── admin_personne_form_screen.dart # Person create/edit form
 │   │       ├── admin_agences_screen.dart    # Agency list (SUPER_ADMIN CRUD)
@@ -68,7 +71,7 @@ frontend-mobile/
 |--------|------|------|-------------|
 | HomeScreen | `screens/home_screen.dart` | fm-public-homepage | Hero, search, featured properties, agencies |
 | PropertyListScreen | `screens/property_list_screen.dart` | fm-public-property | Filterable, paginated property list |
-| PropertyDetailScreen | `screens/property_detail_screen.dart` | fm-public-property | Photo carousel, characteristics, proximity |
+| PropertyDetailScreen | `screens/property_detail_screen.dart` | fm-public-property | Photo carousel, chars, proximity, archive banner + archive action |
 | AgencyListScreen | `screens/agency_list_screen.dart` | fm-public-agence | Searchable agency list |
 | AgencyDetailScreen | `screens/agency_detail_screen.dart` | fm-public-agence | Agency info, contact, properties |
 | ProfileScreen | `screens/profile_screen.dart` | fm-user-profile | User info, password change, logout |
@@ -78,10 +81,11 @@ frontend-mobile/
 | ResetPasswordScreen | `screens/reset_password_screen.dart` | fm-auth-password-reset | Reset password with token |
 | ClientDashboardScreen | `screens/client_dashboard_screen.dart` | fm-client-dashboard | Client stats, biens, contrats |
 | AdminDashboardScreen | `screens/admin/admin_dashboard_screen.dart` | fm-admin-dashboard | Stats grid, quick actions, recent activity |
-| AdminBiensScreen | `screens/admin/admin_biens_screen.dart` | fm-admin-bien | Property management list |
+| AdminBiensScreen | `screens/admin/admin_biens_screen.dart` | fm-admin-bien | Property management with Actifs/Archives/Tous filter, archive actions |
 | AdminBienFormScreen | `screens/admin/admin_bien_form_screen.dart` | fm-admin-bien | Property create/edit form |
-| AdminContratsScreen | `screens/admin/admin_contrats_screen.dart` | fm-admin-contrat | Contract list |
-| AdminContratDetailScreen | `screens/admin/admin_contrat_detail_screen.dart` | fm-admin-contrat | Contract detail with cosigners |
+| AdminContratsScreen | `screens/admin/admin_contrats_screen.dart` | fm-admin-contrat | Contract list with snapshot prices |
+| AdminContratDetailScreen | `screens/admin/admin_contrat_detail_screen.dart` | fm-admin-contrat | Contract detail: linked Bien, snapshot values, cosigners |
+| AdminContratFormScreen | `screens/admin/admin_contrat_form_screen.dart` | fm-admin-contrat | Contract create: type + offer preview, sends {bienId, typeContrat, cosigners} |
 | AdminPersonnesScreen | `screens/admin/admin_personnes_screen.dart` | fm-admin-personne | Person management list |
 | AdminPersonneFormScreen | `screens/admin/admin_personne_form_screen.dart` | fm-admin-personne | Person create/edit form |
 | AdminAgencesScreen | `screens/admin/admin_agences_screen.dart` | fm-admin-agence | Agency management |
@@ -109,7 +113,7 @@ frontend-mobile/
 
 | Service | File | Methods | Description |
 |---------|------|---------|-------------|
-| ApiService | `services/api_service.dart` | ~75 methods | Full API client: auth, biens, agences, personnes, contrats, utilisateurs, locations, achats, caractéristiques, lieux, client dashboard, profile |
+| ApiService | `services/api_service.dart` | ~78 methods | Full API client: auth, biens (+ archiveBien/unarchiveBien + actif filter), agences, personnes, contrats ({bienId, typeContrat, cosigners}), utilisateurs, locations, achats, caractéristiques, lieux, client dashboard, profile |
 
 ## Config (9 files)
 
@@ -152,3 +156,18 @@ frontend-mobile/
 | `shimmer` | ^3.0.0 | Loading placeholders |
 | `intl` | ^0.18.1 | Date/number formatting |
 | `url_launcher` | ^6.2.4 | External links |
+
+## Models (2 files)
+
+| Model | File | Fields |
+|-------|------|--------|
+| `Bien` | `models/bien.dart` | id, rue, ville, codePostal, ecoScore, superficie, description, type, dateCreation, **actif** (bool), availableForSale, availableForRent, salePrice, monthlyRent, principalPhotoUrl, photoCount, photoUrls, agence |
+| `Contrat` | `models/contrat.dart` | id, dateCreation, dateModification, statut, type, **bienId**, **typeContrat**, bien (map), hasSignedDocument, cosigners, **snapMensualite**, **snapCaution**, **snapDureeMois**, **snapPrix**, **snapDateDispo** |
+| `CosignerDTO` | `models/contrat.dart` | personneId, nom, prenom, typeSignataire |
+
+## Backend Adaptation Log
+
+### 2026-03-09: Contract restructure + Property archiving
+**Breaking changes adapted:**
+1. **Contracts reference Bien directly** — removed locationId/achatId from contract creation; now sends `{bienId, typeContrat, cosigners}`. Snapshot fields are set by the backend automatically.
+2. **Property archiving** — added `actif` field to Bien, archive/unarchive API methods, filter chips on admin biens screen, archive banner on property detail.

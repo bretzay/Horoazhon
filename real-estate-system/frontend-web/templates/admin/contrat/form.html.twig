@@ -10,6 +10,10 @@
     .autocomplete-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; }
     .autocomplete-item:hover { background: #f1f5f9; }
     .autocomplete-item .sub { font-size: 0.75rem; color: #94a3b8; }
+    .offer-info { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
+    .offer-info .offer-row { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.875rem; }
+    .offer-info .offer-label { color: #94a3b8; }
+    .offer-info .offer-value { font-weight: 600; color: #0f172a; }
 </style>
 {% endblock %}
 
@@ -23,31 +27,22 @@
     <form method="POST">
         <div class="form-group">
             <label>Type de contrat *</label>
-            <select name="contractType" id="contractType" onchange="toggleType()" required>
-                <option value="">-- Choisir --</option>
-                <option value="ACHAT">Achat (Vente)</option>
-                <option value="LOCATION">Location</option>
-            </select>
+            <div style="display: flex; gap: 1rem; margin-top: 0.25rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal;">
+                    <input type="radio" name="contractType" value="ACHAT" onchange="onTypeChange()" required> Achat (Vente)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal;">
+                    <input type="radio" name="contractType" value="LOCATION" onchange="onTypeChange()" required> Location
+                </label>
+            </div>
         </div>
 
-        <div class="form-group" id="achatSelect" style="display:none;">
-            <label>Annonce de vente *</label>
-            <select name="achatId" id="achatId" onchange="updateOwner()">
-                <option value="">-- Choisir --</option>
-                {% for a in achats %}
-                    <option value="{{ a.id }}" data-bien-id="{{ a.bienId }}">{{ a.bienType }} - {{ a.bienRue }}, {{ a.bienVille }} ({{ a.prix|number_format(0, ',', ' ') }} &euro;)</option>
-                {% endfor %}
+        <div class="form-group" id="bienSelectGroup" style="display:none;">
+            <label>Bien *</label>
+            <select name="bienId" id="bienId" onchange="onBienChange()" required>
+                <option value="">-- Choisir un bien --</option>
             </select>
-        </div>
-
-        <div class="form-group" id="locationSelect" style="display:none;">
-            <label>Annonce de location *</label>
-            <select name="locationId" id="locationId" onchange="updateOwner()">
-                <option value="">-- Choisir --</option>
-                {% for l in locations %}
-                    <option value="{{ l.id }}" data-bien-id="{{ l.bienId }}">{{ l.bienType }} - {{ l.bienRue }}, {{ l.bienVille }} ({{ l.mensualite|number_format(0, ',', ' ') }} &euro;/mois)</option>
-                {% endfor %}
-            </select>
+            <div id="offerInfo" style="display:none;"></div>
         </div>
 
         <div id="partiesSection" style="display:none;">
@@ -75,10 +70,16 @@
 
 {% block javascripts %}
 <script>
+var allBiens = {{ biens|json_encode|raw }};
 var bienOwners = {{ bienOwners|json_encode|raw }};
 var searchUrl = '{{ path("admin_personnes_search_json") }}';
 var currentType = '';
 var currentOwnerId = null;
+
+function formatPrice(value) {
+    if (!value) return '-';
+    return Number(value).toLocaleString('fr-FR') + ' \u20ac';
+}
 
 function setupAutocomplete(inputEl, hiddenEl, resultsEl) {
     var timer = null;
@@ -91,16 +92,27 @@ function setupAutocomplete(inputEl, hiddenEl, resultsEl) {
             fetch(searchUrl + '?q=' + encodeURIComponent(q))
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    resultsEl.innerHTML = '';
+                    while (resultsEl.firstChild) resultsEl.removeChild(resultsEl.firstChild);
                     var filtered = data.filter(function(p) { return p.id !== currentOwnerId; });
                     if (filtered.length === 0) {
-                        resultsEl.innerHTML = '<div class="autocomplete-item" style="color:#94a3b8;">Aucun resultat</div>';
+                        var noResult = document.createElement('div');
+                        noResult.className = 'autocomplete-item';
+                        noResult.style.color = '#94a3b8';
+                        noResult.textContent = 'Aucun resultat';
+                        resultsEl.appendChild(noResult);
                     } else {
                         filtered.forEach(function(p) {
                             var div = document.createElement('div');
                             div.className = 'autocomplete-item';
-                            div.innerHTML = '<strong>' + p.prenom + ' ' + p.nom + '</strong>' +
-                                (p.ville ? '<div class="sub">' + p.ville + '</div>' : '');
+                            var strong = document.createElement('strong');
+                            strong.textContent = p.prenom + ' ' + p.nom;
+                            div.appendChild(strong);
+                            if (p.ville) {
+                                var sub = document.createElement('div');
+                                sub.className = 'sub';
+                                sub.textContent = p.ville;
+                                div.appendChild(sub);
+                            }
                             div.addEventListener('click', function() {
                                 inputEl.value = p.prenom + ' ' + p.nom;
                                 hiddenEl.value = p.id;
@@ -121,57 +133,116 @@ function setupAutocomplete(inputEl, hiddenEl, resultsEl) {
     });
 }
 
-// Setup buyer autocomplete
 setupAutocomplete(
     document.getElementById('buyerSearch'),
     document.getElementById('buyerHidden'),
     document.getElementById('buyerResults')
 );
 
-function toggleType() {
-    currentType = document.getElementById('contractType').value;
-    document.getElementById('achatSelect').style.display = currentType === 'ACHAT' ? 'block' : 'none';
-    document.getElementById('locationSelect').style.display = currentType === 'LOCATION' ? 'block' : 'none';
-    document.getElementById('partiesSection').style.display = currentType ? 'block' : 'none';
+function onTypeChange() {
+    var radios = document.querySelectorAll('input[name="contractType"]');
+    currentType = '';
+    radios.forEach(function(r) { if (r.checked) currentType = r.value; });
+
+    var select = document.getElementById('bienId');
+    while (select.options.length > 1) select.remove(1);
+
+    allBiens.forEach(function(b) {
+        var show = false;
+        if (currentType === 'ACHAT' && b.availableForSale) show = true;
+        if (currentType === 'LOCATION' && b.availableForRent) show = true;
+        if (show) {
+            var price = currentType === 'ACHAT'
+                ? (b.salePrice ? formatPrice(b.salePrice) : '')
+                : (b.monthlyRent ? formatPrice(b.monthlyRent) + '/mois' : '');
+            var opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = b.type + ' - ' + b.rue + ', ' + b.ville + (price ? ' (' + price + ')' : '');
+            select.appendChild(opt);
+        }
+    });
+
+    document.getElementById('bienSelectGroup').style.display = currentType ? 'block' : 'none';
     document.getElementById('sellerLabel').textContent = currentType === 'LOCATION' ? 'Proprietaire' : 'Vendeur';
     document.getElementById('buyerLabel').textContent = currentType === 'LOCATION' ? 'Locataire *' : 'Acheteur *';
-    updateOwner();
+    document.getElementById('offerInfo').style.display = 'none';
+    document.getElementById('partiesSection').style.display = 'none';
+    document.getElementById('ownerDisplay').value = '';
+    currentOwnerId = null;
 }
 
-function updateOwner() {
-    var type = document.getElementById('contractType').value;
-    var select = type === 'ACHAT' ? document.getElementById('achatId') : document.getElementById('locationId');
-    var option = select.options[select.selectedIndex];
-    var bienId = option ? option.getAttribute('data-bien-id') : null;
-    var display = document.getElementById('ownerDisplay');
-
+function onBienChange() {
+    var bienId = document.getElementById('bienId').value;
+    var infoDiv = document.getElementById('offerInfo');
     currentOwnerId = null;
 
-    if (bienId && bienOwners[bienId]) {
-        var owner = bienOwners[bienId];
-        display.value = owner.prenom + ' ' + owner.nom;
-        currentOwnerId = owner.personneId;
-    } else if (bienId) {
-        display.value = 'Aucun proprietaire defini';
-    } else {
-        display.value = '';
+    if (!bienId) {
+        infoDiv.style.display = 'none';
+        document.getElementById('partiesSection').style.display = 'none';
+        document.getElementById('ownerDisplay').value = '';
+        return;
     }
+
+    var bien = allBiens.find(function(b) { return b.id == bienId; });
+    if (!bien) return;
+
+    // Build offer info using safe DOM methods
+    infoDiv.textContent = '';
+    var wrapper = document.createElement('div');
+    wrapper.className = 'offer-info';
+    var title = document.createElement('div');
+    title.style.fontWeight = '600';
+    title.style.marginBottom = '0.5rem';
+    title.textContent = 'Valeurs de l\'offre actuelle';
+    wrapper.appendChild(title);
+
+    function addRow(label, value) {
+        var row = document.createElement('div');
+        row.className = 'offer-row';
+        var lbl = document.createElement('span');
+        lbl.className = 'offer-label';
+        lbl.textContent = label;
+        var val = document.createElement('span');
+        val.className = 'offer-value';
+        val.textContent = value;
+        row.appendChild(lbl);
+        row.appendChild(val);
+        wrapper.appendChild(row);
+    }
+
+    if (currentType === 'ACHAT') {
+        addRow('Prix de vente', bien.salePrice ? formatPrice(bien.salePrice) : '-');
+    } else {
+        addRow('Loyer mensuel', bien.monthlyRent ? formatPrice(bien.monthlyRent) + '/mois' : '-');
+    }
+
+    infoDiv.appendChild(wrapper);
+    infoDiv.style.display = 'block';
+
+    // Show owner
+    var owner = bienOwners[bienId];
+    if (owner) {
+        document.getElementById('ownerDisplay').value = owner.prenom + ' ' + owner.nom;
+        currentOwnerId = owner.personneId;
+    } else {
+        document.getElementById('ownerDisplay').value = 'Aucun proprietaire defini';
+    }
+
+    document.getElementById('partiesSection').style.display = 'block';
 }
 
-// Auto-select listing from query params
+// Auto-select from query params
 (function() {
-    var preAchatId = '{{ preselectedAchatId ?? '' }}';
-    var preLocationId = '{{ preselectedLocationId ?? '' }}';
-    if (preAchatId) {
-        document.getElementById('contractType').value = 'ACHAT';
-        toggleType();
-        document.getElementById('achatId').value = preAchatId;
-        updateOwner();
-    } else if (preLocationId) {
-        document.getElementById('contractType').value = 'LOCATION';
-        toggleType();
-        document.getElementById('locationId').value = preLocationId;
-        updateOwner();
+    var preBienId = '{{ preselectedBienId ?? '' }}';
+    var preType = '{{ preselectedType ?? '' }}';
+    if (preType && preBienId) {
+        var radio = document.querySelector('input[name="contractType"][value="' + preType + '"]');
+        if (radio) {
+            radio.checked = true;
+            onTypeChange();
+            document.getElementById('bienId').value = preBienId;
+            onBienChange();
+        }
     }
 })();
 

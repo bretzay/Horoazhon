@@ -131,12 +131,22 @@
             {% endif %}
         {% endif %}
 
-        {% if contrat.achat is defined and contrat.achat %}
-            <div class="detail-item"><div class="label">Prix de vente</div><div class="value" style="font-weight:bold;">{{ contrat.achat.prix|number_format(0, ',', ' ') }} &euro;</div></div>
+        {% if contrat.type == 'ACHAT' and contrat.snapPrix is defined and contrat.snapPrix %}
+            <div class="detail-item"><div class="label">Prix de vente</div><div class="value" style="font-weight:bold;">{{ contrat.snapPrix|number_format(0, ',', ' ') }} &euro;</div></div>
         {% endif %}
-        {% if contrat.location is defined and contrat.location %}
-            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-weight:bold;">{{ contrat.location.mensualite|number_format(0, ',', ' ') }} &euro;/mois</div></div>
-            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ contrat.location.caution|number_format(0, ',', ' ') }} &euro;</div></div>
+        {% if contrat.type == 'LOCATION' %}
+            {% if contrat.snapMensualite is defined and contrat.snapMensualite %}
+            <div class="detail-item"><div class="label">Loyer</div><div class="value" style="font-weight:bold;">{{ contrat.snapMensualite|number_format(0, ',', ' ') }} &euro;/mois</div></div>
+            {% endif %}
+            {% if contrat.snapCaution is defined and contrat.snapCaution %}
+            <div class="detail-item"><div class="label">Caution</div><div class="value">{{ contrat.snapCaution|number_format(0, ',', ' ') }} &euro;</div></div>
+            {% endif %}
+            {% if contrat.snapDureeMois is defined and contrat.snapDureeMois %}
+            <div class="detail-item"><div class="label">Duree</div><div class="value">{{ contrat.snapDureeMois }} mois</div></div>
+            {% endif %}
+        {% endif %}
+        {% if contrat.snapDateDispo is defined and contrat.snapDateDispo %}
+            <div class="detail-item"><div class="label">Date disponibilite</div><div class="value">{{ contrat.snapDateDispo }}</div></div>
         {% endif %}
     </div>
 </div>

@@ -12,7 +12,7 @@
 | 1 | `HomeController` | `/` | 1 | `home` |
 | 2 | `AuthController` | — | 5 | `login`, `logout`, `activate_account`, `forgot_password`, `reset_password` |
 | 3 | `AdminDashboardController` | `/admin` | 1 | `admin_dashboard` |
-| 4 | `AdminBienController` | `/admin/biens` | 4 | `admin_biens`, `admin_biens_new`, `admin_biens_edit`, `admin_biens_delete` |
+| 4 | `AdminBienController` | `/admin/biens` | 6 | `admin_biens`, `admin_biens_new`, `admin_biens_edit`, `admin_biens_delete`, `admin_biens_archive`, `admin_biens_unarchive` |
 | 5 | `AdminAgenceController` | `/admin/agences` | 5 | `admin_agences`, `admin_agences_new`, `admin_agences_edit`, `admin_agence_settings`, `admin_agences_delete` |
 | 6 | `AdminContratController` | `/admin/contrats` | 10 | `admin_contrats`, `admin_contrats_new`, `admin_contrats_detail`, `admin_contrats_pdf`, `admin_contrats_statut`, `admin_contrats_confirm`, `admin_contrats_cancel`, `admin_contrats_delete_signe`, `admin_contrats_upload_signe`, `admin_contrats_signed_pdf` |
 | 7 | `AdminPersonneController` | `/admin/personnes` | 6 | `admin_personnes`, `admin_personnes_search_json`, `admin_personnes_new`, `admin_personnes_edit`, `admin_personnes_invite`, `admin_personnes_delete` |
@@ -23,7 +23,7 @@
 | 12 | `AgencePublicController` | — | 2 | `agences_list`, `agence_profile` |
 | 13 | `ProfileController` | — | 2 | `profil`, `profil_change_password` |
 
-**Total: 52 routes across 13 controllers**
+**Total: 54 routes across 13 controllers**
 
 ---
 
@@ -94,12 +94,14 @@ templates/
 ### Properties (Biens)
 | Method | API Endpoint | Used By |
 |--------|-------------|---------|
-| `getBiens(filters)` | `GET /api/biens` | AdminBienController, BienPublicController |
+| `getBiens(filters, actif)` | `GET /api/biens` | AdminBienController, BienPublicController |
 | `getBienById(id)` | `GET /api/biens/{id}` | AdminBienController, BienPublicController |
 | `getContratsByBien(bienId)` | `GET /api/biens/{bienId}/contrats` | AdminBienController |
 | `createBien(data)` | `POST /api/biens` | AdminBienController |
 | `updateBien(id, data)` | `PUT /api/biens/{id}` | AdminBienController |
 | `deleteBien(id)` | `DELETE /api/biens/{id}` | AdminBienController |
+| `archiveBien(id)` | `PUT /api/biens/{id}/archive` | AdminBienController |
+| `unarchiveBien(id)` | `PUT /api/biens/{id}/unarchive` | AdminBienController |
 | `addBienCaracteristique(...)` | `POST /api/biens/{id}/caracteristiques` | AdminBienController |
 | `removeBienCaracteristique(...)` | `DELETE /api/biens/{id}/caracteristiques/{cId}` | AdminBienController |
 | `addBienLieu(...)` | `POST /api/biens/{id}/lieux` | AdminBienController |
@@ -117,7 +119,7 @@ templates/
 | `createAgence(data)` | `POST /api/agences` | AdminAgenceController |
 | `updateAgence(id, data)` | `PUT /api/agences/{id}` | AdminAgenceController |
 | `deleteAgence(id)` | `DELETE /api/agences/{id}` | AdminAgenceController |
-| `getAgenceBiens(id, page, size)` | `GET /api/agences/{id}/biens` | AgencePublicController |
+| `getAgenceBiens(id, page, size, actif)` | `GET /api/agences/{id}/biens` | AgencePublicController |
 
 ### People
 | Method | API Endpoint | Used By |
@@ -185,7 +187,7 @@ templates/
 | `deactivateUser(id)` | `DELETE /api/users/{id}` | AdminUserController |
 | `reactivateUser(id)` | `PUT /api/users/{id}/reactivate` | AdminUserController |
 
-**Total: ~75 API client methods**
+**Total: ~77 API client methods**
 
 ---
 

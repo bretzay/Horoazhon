@@ -17,6 +17,8 @@ class AdminBienController extends AbstractController
     public function list(Request $request): Response
     {
         $annonce = $request->query->get('annonce');
+        $actifFilter = $request->query->get('actif', 'true');
+
         $filters = array_filter([
             'search' => $request->query->get('search'),
             'type' => $request->query->get('type'),
@@ -25,6 +27,11 @@ class AdminBienController extends AbstractController
             'page' => $request->query->get('page', 0),
             'size' => 20,
         ], fn($v) => $v !== null && $v !== '');
+
+        // Apply actif filter (default: show active only)
+        if ($actifFilter !== 'all') {
+            $filters['actif'] = $actifFilter;
+        }
 
         $data = $this->api->getBiens($filters);
         $agences = $this->api->getAgences();
@@ -35,6 +42,7 @@ class AdminBienController extends AbstractController
             'currentPage' => $data['number'] ?? 0,
             'agences' => $agences,
             'filters' => $request->query->all(),
+            'actifFilter' => $actifFilter,
         ]);
     }
 
@@ -238,6 +246,36 @@ class AdminBienController extends AbstractController
         try {
             $this->api->deleteBien($id);
             $this->addFlash('success', 'Bien supprime.');
+        } catch (\Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface $e) {
+            if ($e->getResponse()->getStatusCode() === 409) {
+                $this->addFlash('error', 'Ce bien ne peut pas etre supprime car il est lie a des contrats. Vous pouvez l\'archiver a la place.');
+            } else {
+                $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_biens');
+    }
+
+    #[Route('/{id}/archive', name: 'admin_biens_archive', methods: ['POST'])]
+    public function archive(int $id): Response
+    {
+        try {
+            $this->api->archiveBien($id);
+            $this->addFlash('success', 'Bien archive.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_biens');
+    }
+
+    #[Route('/{id}/unarchive', name: 'admin_biens_unarchive', methods: ['POST'])]
+    public function unarchive(int $id): Response
+    {
+        try {
+            $this->api->unarchiveBien($id);
+            $this->addFlash('success', 'Bien reactive.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur: ' . $e->getMessage());
         }

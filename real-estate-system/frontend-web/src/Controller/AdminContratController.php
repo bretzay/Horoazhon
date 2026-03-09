@@ -37,23 +37,19 @@ class AdminContratController extends AbstractController
     #[Route('/new', name: 'admin_contrats_new')]
     public function create(Request $request): Response
     {
-        $achats = $this->api->getAchats();
-        $locations = $this->api->getLocations();
+        // Fetch all biens that have sale or rental offers
+        $biensData = $this->api->getBiens(['size' => 200], true);
+        $allBiens = $biensData['content'] ?? [];
 
-        // Build map: bienId -> owner from each property linked to a listing
+        // Filter to only biens with active offers and build owner map
+        $biens = [];
         $bienOwners = [];
-        $bienIds = array_unique(array_merge(
-            array_column($achats, 'bienId'),
-            array_column($locations, 'bienId')
-        ));
-        foreach ($bienIds as $bienId) {
-            if ($bienId) {
-                try {
-                    $bien = $this->api->getBienById((int) $bienId);
-                    if (!empty($bien['proprietaires'][0])) {
-                        $bienOwners[$bienId] = $bien['proprietaires'][0];
-                    }
-                } catch (\Exception $e) {}
+        foreach ($allBiens as $bien) {
+            if (!empty($bien['availableForSale']) || !empty($bien['availableForRent'])) {
+                $biens[] = $bien;
+                if (!empty($bien['proprietaires'][0])) {
+                    $bienOwners[$bien['id']] = $bien['proprietaires'][0];
+                }
             }
         }
 
@@ -65,23 +61,9 @@ class AdminContratController extends AbstractController
                 }
 
                 $contractType = $request->request->get('contractType');
+                $bienId = (int) $request->request->get('bienId');
                 $sellerRole = $contractType === 'LOCATION' ? 'OWNER' : 'SELLER';
                 $buyerRole = $contractType === 'LOCATION' ? 'RENTER' : 'BUYER';
-
-                // Resolve owner automatically from the selected listing's property
-                if ($contractType === 'LOCATION') {
-                    $listingId = (int) $request->request->get('locationId');
-                    $bienId = null;
-                    foreach ($locations as $l) {
-                        if ($l['id'] === $listingId) { $bienId = $l['bienId']; break; }
-                    }
-                } else {
-                    $listingId = (int) $request->request->get('achatId');
-                    $bienId = null;
-                    foreach ($achats as $a) {
-                        if ($a['id'] === $listingId) { $bienId = $a['bienId']; break; }
-                    }
-                }
 
                 if (!$bienId || empty($bienOwners[$bienId])) {
                     throw new \Exception('Ce bien n\'a pas de proprietaire defini.');
@@ -93,17 +75,16 @@ class AdminContratController extends AbstractController
                         'typeSignataire' => $sellerRole,
                     ],
                     [
-                        'personneId' => (int) $request->request->get('buyer_personne'),
+                        'personneId' => (int) $buyerPersonne,
                         'typeSignataire' => $buyerRole,
                     ],
                 ];
 
-                $data = ['cosigners' => $cosigners];
-                if ($contractType === 'LOCATION') {
-                    $data['locationId'] = $listingId;
-                } else {
-                    $data['achatId'] = $listingId;
-                }
+                $data = [
+                    'bienId' => $bienId,
+                    'typeContrat' => $contractType,
+                    'cosigners' => $cosigners,
+                ];
 
                 $this->api->createContrat($data);
                 $this->addFlash('success', 'Contrat cree avec succes.');
@@ -114,11 +95,10 @@ class AdminContratController extends AbstractController
         }
 
         return $this->render('admin/contrat/form.html.twig', [
-            'achats' => $achats,
-            'locations' => $locations,
+            'biens' => $biens,
             'bienOwners' => $bienOwners,
-            'preselectedAchatId' => $request->query->get('achatId'),
-            'preselectedLocationId' => $request->query->get('locationId'),
+            'preselectedBienId' => $request->query->get('bienId'),
+            'preselectedType' => $request->query->get('type'),
         ]);
     }
 

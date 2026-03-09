@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../../config/app_colors.dart';
 import '../../config/app_text_styles.dart';
 import '../../config/app_spacing.dart';
@@ -30,6 +31,9 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
   int _currentPage = 0;
   bool _hasMore = true;
   String? _selectedType;
+
+  // Archive filter: null = actifs only, true = actifs, false = archives
+  bool? _actifFilter = true;
 
   @override
   void initState() {
@@ -67,6 +71,7 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
       final result = await _api.getBiens(
         search: _searchController.text.isNotEmpty ? _searchController.text : null,
         type: _selectedType,
+        actif: _actifFilter,
         page: page,
         size: 15,
       );
@@ -109,6 +114,25 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bien supprimé')));
           _loadData();
         }
+      } on DioException catch (e) {
+        if (mounted) {
+          final statusCode = e.response?.statusCode;
+          if (statusCode == 409) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Ce bien a des contrats. Vous pouvez l\'archiver à la place.'),
+                action: SnackBarAction(
+                  label: 'Archiver',
+                  onPressed: () => _toggleArchive(id, true),
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Impossible de supprimer ce bien')),
+            );
+          }
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -119,22 +143,71 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
     }
   }
 
+  Future<void> _toggleArchive(int id, bool archive) async {
+    try {
+      if (archive) {
+        await _api.archiveBien(id);
+      } else {
+        await _api.unarchiveBien(id);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(archive ? 'Bien archivé' : 'Bien désarchivé')),
+        );
+        _loadData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: ${e.toString().replaceAll('Exception: ', '')}')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Search + filter
+        // Search
         Container(
           padding: const EdgeInsets.all(AppSpacing.space3),
           color: AppColors.white,
-          child: TextField(
-            controller: _searchController,
-            decoration: const InputDecoration(
-              hintText: 'Rechercher un bien...',
-              prefixIcon: Icon(Icons.search),
-              contentPadding: EdgeInsets.symmetric(vertical: 8),
-            ),
-            onSubmitted: (_) => _loadData(),
+          child: Column(
+            children: [
+              TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Rechercher un bien...',
+                  prefixIcon: Icon(Icons.search),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                ),
+                onSubmitted: (_) => _loadData(),
+              ),
+              const SizedBox(height: AppSpacing.space2),
+              // Archive filter chips
+              Row(
+                children: [
+                  _ArchiveChip(
+                    label: 'Actifs',
+                    isActive: _actifFilter == true,
+                    onTap: () { setState(() => _actifFilter = true); _loadData(); },
+                  ),
+                  const SizedBox(width: AppSpacing.space2),
+                  _ArchiveChip(
+                    label: 'Archivés',
+                    isActive: _actifFilter == false,
+                    onTap: () { setState(() => _actifFilter = false); _loadData(); },
+                  ),
+                  const SizedBox(width: AppSpacing.space2),
+                  _ArchiveChip(
+                    label: 'Tous',
+                    isActive: _actifFilter == null,
+                    onTap: () { setState(() => _actifFilter = null); _loadData(); },
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
 
@@ -162,6 +235,7 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
                 return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
               }
               final bien = _biens[index] as Map<String, dynamic>;
+              final isActif = bien['actif'] as bool? ?? true;
               return _AdminBienCard(
                 bien: bien,
                 onTap: () => Navigator.push(context, MaterialPageRoute(
@@ -174,6 +248,7 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
                   _loadData();
                 },
                 onDelete: () => _deleteBien(bien['id'] as int),
+                onToggleArchive: () => _toggleArchive(bien['id'] as int, isActif),
               );
             },
           ),
@@ -196,19 +271,54 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
   }
 }
 
+class _ArchiveChip extends StatelessWidget {
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _ArchiveChip({required this.label, required this.isActive, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space3, vertical: AppSpacing.space1),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.blue500 : AppColors.white,
+          borderRadius: AppRadius.fullAll,
+          border: Border.all(color: isActive ? AppColors.blue500 : AppColors.slate200),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.textSm.w500.withColor(isActive ? AppColors.white : AppColors.slate700),
+        ),
+      ),
+    );
+  }
+}
+
 class _AdminBienCard extends StatelessWidget {
   final Map<String, dynamic> bien;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onToggleArchive;
 
-  const _AdminBienCard({required this.bien, required this.onTap, required this.onEdit, required this.onDelete});
+  const _AdminBienCard({
+    required this.bien,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onToggleArchive,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isForSale = bien['availableForSale'] == true;
     final isForRent = bien['availableForRent'] == true;
     final prix = bien['salePrice'] ?? bien['monthlyRent'];
+    final isActif = bien['actif'] as bool? ?? true;
 
     return Card(
       child: InkWell(
@@ -227,6 +337,17 @@ class _AdminBienCard extends StatelessWidget {
                         Text(AppFormatters.formatBienId(bien['id'] as int),
                             style: AppTextStyles.textSm.w600.withColor(AppColors.slate400)),
                         const SizedBox(width: 8),
+                        if (!isActif)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            margin: const EdgeInsets.only(right: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.slate100,
+                              borderRadius: AppRadius.fullAll,
+                            ),
+                            child: Text('Archivé',
+                                style: AppTextStyles.textSm.w600.withColor(AppColors.slate700)),
+                          ),
                         if (isForSale)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -265,10 +386,15 @@ class _AdminBienCard extends StatelessWidget {
               PopupMenuButton(
                 itemBuilder: (_) => [
                   const PopupMenuItem(value: 'edit', child: Text('Modifier')),
+                  PopupMenuItem(
+                    value: 'archive',
+                    child: Text(isActif ? 'Archiver' : 'Désarchiver'),
+                  ),
                   const PopupMenuItem(value: 'delete', child: Text('Supprimer')),
                 ],
                 onSelected: (value) {
                   if (value == 'edit') onEdit();
+                  if (value == 'archive') onToggleArchive();
                   if (value == 'delete') onDelete();
                 },
               ),

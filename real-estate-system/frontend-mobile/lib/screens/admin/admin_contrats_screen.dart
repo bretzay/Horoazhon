@@ -131,6 +131,16 @@ class _ContratCard extends StatelessWidget {
 
   const _ContratCard({required this.contrat, required this.onTap});
 
+  String _snapshotLabel(Map<String, dynamic> c, String type) {
+    if (type == 'ACHAT' && c['snapPrix'] != null) {
+      return AppFormatters.formatCurrencyShort((c['snapPrix'] as num).toDouble());
+    }
+    if (type == 'LOCATION' && c['snapMensualite'] != null) {
+      return AppFormatters.formatRent((c['snapMensualite'] as num).toDouble());
+    }
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
     final statut = contrat['statut'] as String? ?? '';
@@ -193,6 +203,11 @@ class _ContratCard extends StatelessWidget {
                           child: Text(type == 'ACHAT' ? 'Achat' : 'Location',
                               style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                         ),
+                        if (_snapshotLabel(contrat, type).isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Text(_snapshotLabel(contrat, type),
+                              style: AppTextStyles.textSm.w600.withColor(AppColors.blue500)),
+                        ],
                         if (contrat['dateCreation'] != null) ...[
                           const SizedBox(width: 8),
                           Text(AppFormatters.formatDateString(contrat['dateCreation'] as String?),

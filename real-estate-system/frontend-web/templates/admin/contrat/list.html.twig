@@ -35,7 +35,7 @@
 
 <table>
     <thead>
-        <tr><th>ID</th><th>Type</th><th>Bien</th><th>Statut</th><th>Cosignataires</th><th>Date</th><th>Actions</th></tr>
+        <tr><th>ID</th><th>Type</th><th>Bien</th><th>Montant</th><th>Statut</th><th>Cosignataires</th><th>Date</th><th>Actions</th></tr>
     </thead>
     <tbody>
         {% for c in contrats %}
@@ -43,6 +43,15 @@
             <td>CTR-{{ c.id }}</td>
             <td><span class="badge {{ c.type == 'ACHAT' ? 'badge-sale' : 'badge-rent' }}">{{ c.type }}</span></td>
             <td>{% if c.bien %}{{ c.bien.type ?? '' }} - {{ c.bien.rue ?? '' }}, {{ c.bien.ville ?? '' }}{% else %}-{% endif %}</td>
+            <td>
+                {% if c.type == 'ACHAT' and c.snapPrix is defined and c.snapPrix %}
+                    {{ c.snapPrix|number_format(0, ',', ' ') }} &euro;
+                {% elseif c.type == 'LOCATION' and c.snapMensualite is defined and c.snapMensualite %}
+                    {{ c.snapMensualite|number_format(0, ',', ' ') }} &euro;/mois
+                {% else %}
+                    -
+                {% endif %}
+            </td>
             <td><span class="badge badge-{{ c.statut|lower }}">{{ c.statut }}</span></td>
             <td>
                 {% if c.cosigners %}
@@ -53,7 +62,7 @@
             <td><a href="{{ path('admin_contrats_detail', {id: c.id}) }}" class="btn btn-primary btn-sm">Detail</a></td>
         </tr>
         {% else %}
-        <tr><td colspan="7">Aucun contrat.</td></tr>
+        <tr><td colspan="8">Aucun contrat.</td></tr>
         {% endfor %}
     </tbody>
 </table>

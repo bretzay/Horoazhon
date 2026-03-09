@@ -10,16 +10,22 @@ class AdminContratFormScreen extends StatefulWidget {
   final int bienId;
   final bool isForSale;
   final bool isForRent;
-  final Map<String, dynamic>? existingAchat;
-  final Map<String, dynamic>? existingLocation;
+  final double? salePrice;
+  final double? monthlyRent;
+  final double? caution;
+  final int? dureeMois;
+  final String? dateDispo;
 
   const AdminContratFormScreen({
     super.key,
     required this.bienId,
     required this.isForSale,
     required this.isForRent,
-    this.existingAchat,
-    this.existingLocation,
+    this.salePrice,
+    this.monthlyRent,
+    this.caution,
+    this.dureeMois,
+    this.dateDispo,
   });
 
   @override
@@ -27,24 +33,13 @@ class AdminContratFormScreen extends StatefulWidget {
 }
 
 class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
-  final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
-  // Step tracking
   int _currentStep = 0;
 
-  // Step 1: Offer type and details
-  late String _offerType; // 'LOCATION' or 'ACHAT'
+  late String _typeContrat;
 
-  // Location fields
-  final _cautionController = TextEditingController();
-  final _mensualiteController = TextEditingController();
-  final _dureeMoisController = TextEditingController();
-
-  // Achat fields
-  final _prixController = TextEditingController();
-
-  // Step 2: Cosigners
+  // Cosigners
   List<dynamic> _personnes = [];
   bool _isLoadingPersonnes = true;
   final List<_CosignerEntry> _cosigners = [];
@@ -54,35 +49,12 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
   @override
   void initState() {
     super.initState();
-    // Default to the available type
     if (widget.isForRent && !widget.isForSale) {
-      _offerType = 'LOCATION';
+      _typeContrat = 'LOCATION';
     } else {
-      _offerType = 'ACHAT';
+      _typeContrat = 'ACHAT';
     }
-
-    // Pre-fill from existing offers
-    if (widget.existingAchat != null) {
-      final a = widget.existingAchat!;
-      if (a['prix'] != null) _prixController.text = '${a['prix']}';
-    }
-    if (widget.existingLocation != null) {
-      final l = widget.existingLocation!;
-      if (l['mensualite'] != null) _mensualiteController.text = '${l['mensualite']}';
-      if (l['caution'] != null) _cautionController.text = '${l['caution']}';
-      if (l['dureeMois'] != null) _dureeMoisController.text = '${l['dureeMois']}';
-    }
-
     _loadPersonnes();
-  }
-
-  @override
-  void dispose() {
-    _cautionController.dispose();
-    _mensualiteController.dispose();
-    _dureeMoisController.dispose();
-    _prixController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadPersonnes() async {
@@ -95,9 +67,7 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
         });
       }
     } catch (_) {
-      if (mounted) {
-        setState(() => _isLoadingPersonnes = false);
-      }
+      if (mounted) setState(() => _isLoadingPersonnes = false);
     }
   }
 
@@ -105,7 +75,7 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
     setState(() {
       _cosigners.add(_CosignerEntry(
         personneId: null,
-        typeSignataire: _offerType == 'ACHAT' ? 'BUYER' : 'RENTER',
+        typeSignataire: _typeContrat == 'ACHAT' ? 'BUYER' : 'RENTER',
       ));
     });
   }
@@ -115,7 +85,8 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
   }
 
   bool _validateStep1() {
-    return _formKey.currentState!.validate();
+    // Step 1 is type selection + preview — always valid if type is chosen
+    return true;
   }
 
   bool _validateStep2() {
@@ -141,35 +112,14 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      // Step 1: Create the Location or Achat offer
-      Map<String, dynamic> offer;
-      if (_offerType == 'LOCATION') {
-        offer = await _api.createLocation({
-          'bienId': widget.bienId,
-          'caution': double.tryParse(_cautionController.text) ?? 0,
-          'mensualite': double.tryParse(_mensualiteController.text) ?? 0,
-          'dureeMois': int.tryParse(_dureeMoisController.text) ?? 12,
-        });
-      } else {
-        offer = await _api.createAchat({
-          'bienId': widget.bienId,
-          'prix': double.tryParse(_prixController.text) ?? 0,
-        });
-      }
-
-      // Step 2: Create the Contrat linked to the offer
       final contratData = <String, dynamic>{
+        'bienId': widget.bienId,
+        'typeContrat': _typeContrat,
         'cosigners': _cosigners.map((c) => {
           'personneId': c.personneId,
           'typeSignataire': c.typeSignataire,
         }).toList(),
       };
-
-      if (_offerType == 'LOCATION') {
-        contratData['locationId'] = offer['id'];
-      } else {
-        contratData['achatId'] = offer['id'];
-      }
 
       await _api.createContrat(contratData);
 
@@ -197,74 +147,70 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
       appBar: AppBar(
         title: Text('Contrat — ${AppFormatters.formatBienId(widget.bienId)}'),
       ),
-      body: Form(
-        key: _formKey,
-        child: Stepper(
-          currentStep: _currentStep,
-          onStepContinue: () {
-            if (_currentStep == 0) {
-              if (_validateStep1()) {
-                setState(() => _currentStep = 1);
-              }
-            } else {
-              _submit();
+      body: Stepper(
+        currentStep: _currentStep,
+        onStepContinue: () {
+          if (_currentStep == 0) {
+            if (_validateStep1()) {
+              setState(() => _currentStep = 1);
             }
-          },
-          onStepCancel: () {
-            if (_currentStep > 0) {
-              setState(() => _currentStep = 0);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-          controlsBuilder: (context, details) {
-            return Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.space4),
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: _isSubmitting ? null : details.onStepContinue,
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            width: 20, height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white),
-                          )
-                        : Text(_currentStep == 0 ? 'Suivant' : 'Créer le contrat'),
-                  ),
-                  const SizedBox(width: AppSpacing.space3),
-                  TextButton(
-                    onPressed: details.onStepCancel,
-                    child: Text(_currentStep == 0 ? 'Annuler' : 'Retour'),
-                  ),
-                ],
-              ),
-            );
-          },
-          steps: [
-            Step(
-              title: const Text('Offre'),
-              isActive: _currentStep >= 0,
-              state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-              content: _buildOfferStep(),
+          } else {
+            _submit();
+          }
+        },
+        onStepCancel: () {
+          if (_currentStep > 0) {
+            setState(() => _currentStep = 0);
+          } else {
+            Navigator.pop(context);
+          }
+        },
+        controlsBuilder: (context, details) {
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.space4),
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: _isSubmitting ? null : details.onStepContinue,
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white),
+                        )
+                      : Text(_currentStep == 0 ? 'Suivant' : 'Créer le contrat'),
+                ),
+                const SizedBox(width: AppSpacing.space3),
+                TextButton(
+                  onPressed: details.onStepCancel,
+                  child: Text(_currentStep == 0 ? 'Annuler' : 'Retour'),
+                ),
+              ],
             ),
-            Step(
-              title: const Text('Cosignataires'),
-              isActive: _currentStep >= 1,
-              content: _buildCosignersStep(),
-            ),
-          ],
-        ),
+          );
+        },
+        steps: [
+          Step(
+            title: const Text('Type et offre'),
+            isActive: _currentStep >= 0,
+            state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+            content: _buildTypeAndPreviewStep(),
+          ),
+          Step(
+            title: const Text('Cosignataires'),
+            isActive: _currentStep >= 1,
+            content: _buildCosignersStep(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildOfferStep() {
+  Widget _buildTypeAndPreviewStep() {
     final canChooseType = widget.isForSale && widget.isForRent;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Type selector
         Text('Type de contrat', style: AppTextStyles.textMd.w500),
         const SizedBox(height: AppSpacing.labelInputGap),
         if (canChooseType)
@@ -279,46 +225,98 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: _offerType == 'ACHAT' ? AppColors.blue100 : AppColors.slate100,
+              color: _typeContrat == 'ACHAT' ? AppColors.blue100 : AppColors.slate100,
               borderRadius: AppRadius.mdAll,
             ),
             child: Text(
-              _offerType == 'ACHAT' ? 'Achat' : 'Location',
+              _typeContrat == 'ACHAT' ? 'Achat' : 'Location',
               style: AppTextStyles.textMd.w600,
             ),
           ),
 
         const SizedBox(height: AppSpacing.formFieldGap),
 
-        // Offer-specific fields
-        if (_offerType == 'ACHAT') ...[
-          _buildField('Prix (EUR)', _prixController, keyboardType: TextInputType.number, required: true),
-        ] else ...[
-          _buildField('Mensualité (EUR)', _mensualiteController, keyboardType: TextInputType.number, required: true),
-          const SizedBox(height: AppSpacing.formFieldGap),
-          _buildField('Caution (EUR)', _cautionController, keyboardType: TextInputType.number, required: true),
-          const SizedBox(height: AppSpacing.formFieldGap),
-          _buildField('Durée (mois)', _dureeMoisController, keyboardType: TextInputType.number, required: true),
-        ],
+        // Read-only offer preview
+        Text('Valeurs de l\'offre (lecture seule)', style: AppTextStyles.textMd.w500),
+        const SizedBox(height: AppSpacing.space2),
+
+        Card(
+          color: AppColors.slate50,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.space3),
+            child: _typeContrat == 'ACHAT'
+                ? _buildAchatPreview()
+                : _buildLocationPreview(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAchatPreview() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _PreviewRow(
+          'Prix',
+          widget.salePrice != null
+              ? AppFormatters.formatCurrencyShort(widget.salePrice!)
+              : 'Non renseigné',
+        ),
+        if (widget.dateDispo != null)
+          _PreviewRow('Date disponibilité', widget.dateDispo!),
+      ],
+    );
+  }
+
+  Widget _buildLocationPreview() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _PreviewRow(
+          'Mensualité',
+          widget.monthlyRent != null
+              ? AppFormatters.formatRent(widget.monthlyRent!)
+              : 'Non renseigné',
+        ),
+        _PreviewRow(
+          'Caution',
+          widget.caution != null
+              ? AppFormatters.formatCurrencyShort(widget.caution!)
+              : 'Non renseigné',
+        ),
+        _PreviewRow(
+          'Durée',
+          widget.dureeMois != null ? '${widget.dureeMois} mois' : 'Non renseigné',
+        ),
+        if (widget.dateDispo != null)
+          _PreviewRow('Date disponibilité', widget.dateDispo!),
       ],
     );
   }
 
   // ignore: non_constant_identifier_names
   Widget _TypeChip(String label, String value) {
-    final selected = _offerType == value;
+    final selected = _typeContrat == value;
+    final enabled = value == 'ACHAT' ? widget.isForSale : widget.isForRent;
+
     return GestureDetector(
-      onTap: () => setState(() => _offerType = value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.blue500 : AppColors.white,
-          border: Border.all(color: selected ? AppColors.blue500 : AppColors.slate200),
-          borderRadius: AppRadius.fullAll,
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.textMd.w600.withColor(selected ? AppColors.white : AppColors.slate700),
+      onTap: enabled
+          ? () => setState(() => _typeContrat = value)
+          : null,
+      child: Opacity(
+        opacity: enabled ? 1.0 : 0.4,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.blue500 : AppColors.white,
+            border: Border.all(color: selected ? AppColors.blue500 : AppColors.slate200),
+            borderRadius: AppRadius.fullAll,
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.textMd.w600.withColor(selected ? AppColors.white : AppColors.slate700),
+          ),
         ),
       ),
     );
@@ -362,7 +360,6 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
                     ),
                     const SizedBox(height: AppSpacing.space2),
 
-                    // Personne dropdown
                     DropdownButtonFormField<int>(
                       value: cosigner.personneId,
                       hint: const Text('Sélectionner une personne'),
@@ -380,11 +377,10 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
                     ),
                     const SizedBox(height: AppSpacing.space2),
 
-                    // Role dropdown
                     DropdownButtonFormField<String>(
                       value: cosigner.typeSignataire,
                       isExpanded: true,
-                      items: _offerType == 'ACHAT'
+                      items: _typeContrat == 'ACHAT'
                           ? const [
                               DropdownMenuItem(value: 'BUYER', child: Text('Acheteur')),
                               DropdownMenuItem(value: 'SELLER', child: Text('Vendeur')),
@@ -413,22 +409,24 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
       ],
     );
   }
+}
 
-  Widget _buildField(String label, TextEditingController controller, {
-    bool required = false,
-    TextInputType? keyboardType,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppTextStyles.textMd.w500),
-        const SizedBox(height: AppSpacing.labelInputGap),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          validator: required ? (v) => (v == null || v.trim().isEmpty) ? 'Champ requis' : null : null,
-        ),
-      ],
+class _PreviewRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _PreviewRow(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTextStyles.textMd.w400.withColor(AppColors.slate500)),
+          Text(value, style: AppTextStyles.textMd.w600),
+        ],
+      ),
     );
   }
 }
