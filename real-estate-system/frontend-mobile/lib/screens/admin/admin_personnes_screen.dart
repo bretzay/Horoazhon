@@ -109,11 +109,13 @@ class _AdminPersonnesScreenState extends State<AdminPersonnesScreen> {
       ),
     );
     if (confirmed != true || emailCtrl.text.trim().isEmpty) {
-      emailCtrl.dispose();
+      WidgetsBinding.instance.addPostFrameCallback((_) => emailCtrl.dispose());
       return;
     }
+    final email = emailCtrl.text.trim();
+    WidgetsBinding.instance.addPostFrameCallback((_) => emailCtrl.dispose());
     try {
-      final result = await _api.inviteClient(personneId: personneId, email: emailCtrl.text.trim());
+      final result = await _api.inviteClient(personneId: personneId, email: email);
       final url = result['activationUrl'] as String?;
       if (mounted) {
         if (url != null) {
@@ -129,7 +131,6 @@ class _AdminPersonnesScreenState extends State<AdminPersonnesScreen> {
         );
       }
     }
-    emailCtrl.dispose();
   }
 
   void _showActivationResult(String url, String name) {

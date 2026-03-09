@@ -1012,6 +1012,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   ),
               ],
             ),
+          ),
           );
         });
       },
