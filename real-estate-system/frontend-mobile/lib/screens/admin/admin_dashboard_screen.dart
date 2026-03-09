@@ -11,6 +11,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
 import '../property_detail_screen.dart';
 import 'admin_bien_form_screen.dart';
+import 'admin_contrats_screen.dart';
 import 'admin_personne_form_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -127,10 +128,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 _loadData();
               }),
               const SizedBox(width: AppSpacing.space3),
-              // TODO: Wire to contract form when AdminContratFormScreen is created
-              _QuickAction(icon: Icons.note_add_outlined, label: 'Nouveau contrat', onTap: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPersonneFormScreen()));
-                _loadData();
+              _QuickAction(icon: Icons.description_outlined, label: 'Voir contrats', onTap: () {
+                // Contracts are created from property detail — navigate to list instead
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminContratsScreen(showAppBar: true)));
               }),
               const SizedBox(width: AppSpacing.space3),
               _QuickAction(icon: Icons.person_add_outlined, label: 'Nouvelle personne', onTap: () async {

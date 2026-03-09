@@ -11,7 +11,9 @@ import '../../widgets/empty_state.dart';
 import 'admin_contrat_detail_screen.dart';
 
 class AdminContratsScreen extends StatefulWidget {
-  const AdminContratsScreen({super.key});
+  final bool showAppBar;
+
+  const AdminContratsScreen({super.key, this.showAppBar = false});
 
   @override
   State<AdminContratsScreen> createState() => _AdminContratsScreenState();
@@ -81,6 +83,17 @@ class _AdminContratsScreenState extends State<AdminContratsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final content = _buildContent();
+    if (widget.showAppBar) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Contrats')),
+        body: content,
+      );
+    }
+    return content;
+  }
+
+  Widget _buildContent() {
     if (_isLoading) return const ShimmerLoading();
     if (_error != null) return ErrorState(message: _error!, onRetry: _loadData);
     if (_contrats.isEmpty) return const EmptyState(icon: Icons.description_outlined, title: 'Aucun contrat');

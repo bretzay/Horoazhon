@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config/app_colors.dart';
 import '../config/app_text_styles.dart';
 import '../config/app_spacing.dart';
 import '../config/app_radius.dart';
 import '../config/app_formatters.dart';
+import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 import '../widgets/error_state.dart';
+import 'admin/admin_bien_form_screen.dart';
+import 'admin/admin_contrat_form_screen.dart';
 
 class PropertyDetailScreen extends StatefulWidget {
   final int bienId;
@@ -45,9 +49,26 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.hasAdminNav;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_bien != null ? AppFormatters.formatBienId(widget.bienId) : 'Bien'),
+        actions: [
+          if (isAdmin && _bien != null)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: 'Modifier',
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AdminBienFormScreen(bienId: widget.bienId)),
+                );
+                _loadData();
+              },
+            ),
+        ],
       ),
       body: _buildBody(),
     );
@@ -295,6 +316,34 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                             ),
                         ],
                       ),
+                    ),
+                  ),
+                ],
+
+                // Create contract button (admin/agent only)
+                if (context.read<AuthProvider>().hasAdminNav && (isForSale || isForRent)) ...[
+                  const SizedBox(height: AppSpacing.space6),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AdminContratFormScreen(
+                              bienId: widget.bienId,
+                              isForSale: isForSale,
+                              isForRent: isForRent,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          _loadData();
+                        }
+                      },
+                      icon: const Icon(Icons.note_add_outlined),
+                      label: const Text('Créer un contrat'),
                     ),
                   ),
                 ],

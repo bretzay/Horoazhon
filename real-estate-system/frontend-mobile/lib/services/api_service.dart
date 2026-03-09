@@ -272,6 +272,11 @@ class ApiService {
     return response.data as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> createLocation(Map<String, dynamic> data) async {
+    final response = await _dio.post('/locations', data: data);
+    return response.data as Map<String, dynamic>;
+  }
+
   // --- Achats ---
 
   Future<Map<String, dynamic>> getAchats({int page = 0, int size = 10}) async {
@@ -279,6 +284,11 @@ class ApiService {
       'page': page,
       'size': size,
     });
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> createAchat(Map<String, dynamic> data) async {
+    final response = await _dio.post('/achats', data: data);
     return response.data as Map<String, dynamic>;
   }
 
