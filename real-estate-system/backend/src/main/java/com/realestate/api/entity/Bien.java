@@ -72,10 +72,10 @@ public class Bien {
     @OneToMany(mappedBy = "bien", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Posseder> proprietaires = new ArrayList<>();
 
-    @OneToOne(mappedBy = "bien", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "bien", cascade = CascadeType.ALL, orphanRemoval = true)
     private Location location;
 
-    @OneToOne(mappedBy = "bien", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "bien", cascade = CascadeType.ALL, orphanRemoval = true)
     private Achat achat;
 
     // Lifecycle callbacks

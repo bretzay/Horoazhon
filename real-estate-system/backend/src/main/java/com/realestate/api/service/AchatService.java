@@ -78,11 +78,16 @@ public class AchatService {
         Achat achat = achatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
         verifyAgencyAccess(achat);
+        if (achat.getContrats() != null && !achat.getContrats().isEmpty()) {
+            throw new IllegalStateException("Impossible de supprimer: des contrats sont liés à cette offre de vente");
+        }
         Bien bien = achat.getBien();
         if (bien != null) {
-            bien.setAchat(null);
+            bien.setAchat(null);  // orphanRemoval = true on Bien.achat will delete the Achat
+            bienRepository.save(bien);
+        } else {
+            achatRepository.delete(achat);
         }
-        achatRepository.deleteById(id);
     }
 
     private void verifyAgencyAccess(Achat achat) {

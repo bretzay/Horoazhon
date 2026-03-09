@@ -82,11 +82,16 @@ public class LocationService {
         Location loc = locationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
         verifyAgencyAccess(loc);
+        if (loc.getContrats() != null && !loc.getContrats().isEmpty()) {
+            throw new IllegalStateException("Impossible de supprimer: des contrats sont liés à cette offre de location");
+        }
         Bien bien = loc.getBien();
         if (bien != null) {
-            bien.setLocation(null);
+            bien.setLocation(null);  // orphanRemoval = true on Bien.location will delete the Location
+            bienRepository.save(bien);
+        } else {
+            locationRepository.delete(loc);
         }
-        locationRepository.deleteById(id);
     }
 
     private void verifyAgencyAccess(Location loc) {
