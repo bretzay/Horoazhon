@@ -6,6 +6,7 @@ import '../../config/app_radius.dart';
 import '../../config/app_formatters.dart';
 import '../../services/api_service.dart';
 import '../../widgets/error_state.dart';
+import 'admin_personne_form_screen.dart';
 
 class AdminContratDetailScreen extends StatefulWidget {
   final int contratId;
@@ -127,26 +128,41 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
           const SizedBox(height: AppSpacing.space2),
           ...cosigners.map((c) {
             final cos = c as Map<String, dynamic>;
+            final personneId = cos['personneId'] as int?;
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.space2),
               child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space3),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.person_outlined, color: AppColors.slate400),
-                      const SizedBox(width: AppSpacing.space3),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${cos['prenom'] ?? ''} ${cos['nom'] ?? ''}',
-                                style: AppTextStyles.textMd.w500),
-                            Text(cos['typeSignataire'] ?? '', style: AppTextStyles.textSm.w400),
-                          ],
+                child: InkWell(
+                  onTap: personneId != null
+                      ? () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AdminPersonneFormScreen(personneId: personneId),
+                            ),
+                          )
+                      : null,
+                  borderRadius: AppRadius.lgAll,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.space3),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person_outlined, color: AppColors.slate400),
+                        const SizedBox(width: AppSpacing.space3),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${cos['prenom'] ?? ''} ${cos['nom'] ?? ''}',
+                                  style: AppTextStyles.textMd.w500),
+                              Text(_signatairLabel(cos['typeSignataire'] as String? ?? ''),
+                                  style: AppTextStyles.textSm.w400.withColor(AppColors.slate500)),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        if (personneId != null)
+                          const Icon(Icons.chevron_right, size: 20, color: AppColors.slate400),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -157,6 +173,16 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
         ],
       ),
     );
+  }
+
+  String _signatairLabel(String type) {
+    switch (type) {
+      case 'BUYER': return 'Acheteur';
+      case 'SELLER': return 'Vendeur';
+      case 'RENTER': return 'Locataire';
+      case 'OWNER': return 'Propriétaire';
+      default: return type;
+    }
   }
 }
 
