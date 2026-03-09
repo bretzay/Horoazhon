@@ -94,7 +94,6 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
       initialDate: _dateDispo ?? now,
       firstDate: now,
       lastDate: now.add(const Duration(days: 365 * 5)),
-      locale: const Locale('fr'),
     );
     if (picked != null) {
       setState(() => _dateDispo = picked);
