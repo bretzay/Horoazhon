@@ -35,6 +35,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _error = null;
@@ -576,6 +577,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     int? selectedId;
     final valeurCtrl = TextEditingController();
     final uniteCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
 
     await showModalBottomSheet(
       context: context,
@@ -583,67 +585,75 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (ctx) {
         return StatefulBuilder(builder: (ctx, setSheetState) {
+          final isValid = selectedId != null && valeurCtrl.text.trim().isNotEmpty;
           return Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.space4, AppSpacing.space4, AppSpacing.space4,
               MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.space4,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Ajouter une caractéristique', style: AppTextStyles.textLg.w600),
-                const SizedBox(height: AppSpacing.space4),
-                if (available.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
-                    child: Text(
-                      'Toutes les caractéristiques sont déjà ajoutées',
-                      style: AppTextStyles.textMd.w400.withColor(AppColors.slate500),
-                    ),
-                  )
-                else ...[
-                  DropdownButtonFormField<int>(
-                    value: selectedId,
-                    hint: const Text('Sélectionner'),
-                    isExpanded: true,
-                    items: available.map<DropdownMenuItem<int>>((c) {
-                      final carac = c as Map<String, dynamic>;
-                      return DropdownMenuItem(
-                        value: carac['id'] as int,
-                        child: Text(carac['lib'] ?? carac['nom'] ?? ''),
-                      );
-                    }).toList(),
-                    onChanged: (v) => setSheetState(() => selectedId = v),
-                  ),
-                  const SizedBox(height: AppSpacing.space3),
-                  TextFormField(
-                    controller: valeurCtrl,
-                    decoration: const InputDecoration(labelText: 'Valeur'),
-                  ),
-                  const SizedBox(height: AppSpacing.space3),
-                  TextFormField(
-                    controller: uniteCtrl,
-                    decoration: const InputDecoration(labelText: 'Unité (optionnel)'),
-                  ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Ajouter une caractéristique', style: AppTextStyles.textLg.w600),
                   const SizedBox(height: AppSpacing.space4),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: selectedId == null || valeurCtrl.text.trim().isEmpty
-                          ? null
-                          : () {
-                              final id = selectedId!;
-                              final valeur = valeurCtrl.text.trim();
-                              final unite = uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim();
-                              Navigator.pop(ctx);
-                              _doAddCaracteristique(id, valeur, unite);
-                            },
-                      child: const Text('Ajouter'),
+                  if (available.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
+                      child: Text(
+                        'Toutes les caractéristiques sont déjà ajoutées',
+                        style: AppTextStyles.textMd.w400.withColor(AppColors.slate500),
+                      ),
+                    )
+                  else ...[
+                    DropdownButtonFormField<int>(
+                      value: selectedId,
+                      hint: const Text('Sélectionner'),
+                      isExpanded: true,
+                      validator: (v) => v == null ? 'Champ requis' : null,
+                      items: available.map<DropdownMenuItem<int>>((c) {
+                        final carac = c as Map<String, dynamic>;
+                        return DropdownMenuItem(
+                          value: carac['id'] as int,
+                          child: Text(carac['lib'] ?? carac['nom'] ?? ''),
+                        );
+                      }).toList(),
+                      onChanged: (v) => setSheetState(() => selectedId = v),
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.space3),
+                    TextFormField(
+                      controller: valeurCtrl,
+                      decoration: const InputDecoration(labelText: 'Valeur *'),
+                      validator: (v) => (v == null || v.trim().isEmpty) ? 'Champ requis' : null,
+                      onChanged: (_) => setSheetState(() {}),
+                    ),
+                    const SizedBox(height: AppSpacing.space3),
+                    TextFormField(
+                      controller: uniteCtrl,
+                      decoration: const InputDecoration(labelText: 'Unité (optionnel)'),
+                    ),
+                    const SizedBox(height: AppSpacing.space4),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: !isValid
+                            ? null
+                            : () {
+                                if (!formKey.currentState!.validate()) return;
+                                final id = selectedId!;
+                                final valeur = valeurCtrl.text.trim();
+                                final unite = uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim();
+                                Navigator.pop(ctx);
+                                WidgetsBinding.instance.addPostFrameCallback((_) => _doAddCaracteristique(id, valeur, unite));
+                              },
+                        child: const Text('Ajouter'),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
         });
@@ -679,6 +689,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     int? selectedId;
     final minutesCtrl = TextEditingController();
     String locomotion = 'A_PIED';
+    final formKey = GlobalKey<FormState>();
 
     await showModalBottomSheet(
       context: context,
@@ -686,76 +697,88 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (ctx) {
         return StatefulBuilder(builder: (ctx, setSheetState) {
+          final isValid = selectedId != null && minutesCtrl.text.trim().isNotEmpty;
           return Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.space4, AppSpacing.space4, AppSpacing.space4,
               MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.space4,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Ajouter un lieu de proximité', style: AppTextStyles.textLg.w600),
-                const SizedBox(height: AppSpacing.space4),
-                if (available.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
-                    child: Text(
-                      'Tous les lieux sont déjà ajoutés',
-                      style: AppTextStyles.textMd.w400.withColor(AppColors.slate500),
-                    ),
-                  )
-                else ...[
-                  DropdownButtonFormField<int>(
-                    value: selectedId,
-                    hint: const Text('Sélectionner un lieu'),
-                    isExpanded: true,
-                    items: available.map<DropdownMenuItem<int>>((l) {
-                      final lieu = l as Map<String, dynamic>;
-                      return DropdownMenuItem(
-                        value: lieu['id'] as int,
-                        child: Text(lieu['lib'] ?? lieu['nom'] ?? ''),
-                      );
-                    }).toList(),
-                    onChanged: (v) => setSheetState(() => selectedId = v),
-                  ),
-                  const SizedBox(height: AppSpacing.space3),
-                  TextFormField(
-                    controller: minutesCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Minutes'),
-                  ),
-                  const SizedBox(height: AppSpacing.space3),
-                  DropdownButtonFormField<String>(
-                    value: locomotion,
-                    isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'Type de locomotion'),
-                    items: const [
-                      DropdownMenuItem(value: 'A_PIED', child: Text('À pied')),
-                      DropdownMenuItem(value: 'VELO', child: Text('Vélo')),
-                      DropdownMenuItem(value: 'TRANSPORT_PUBLIC', child: Text('Transport public')),
-                      DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')),
-                    ],
-                    onChanged: (v) => setSheetState(() => locomotion = v!),
-                  ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Ajouter un lieu de proximité', style: AppTextStyles.textLg.w600),
                   const SizedBox(height: AppSpacing.space4),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: selectedId == null || minutesCtrl.text.trim().isEmpty
-                          ? null
-                          : () {
-                              final id = selectedId!;
-                              final mins = int.tryParse(minutesCtrl.text.trim()) ?? 0;
-                              final loco = locomotion;
-                              Navigator.pop(ctx);
-                              _doAddLieu(id, mins, loco);
-                            },
-                      child: const Text('Ajouter'),
+                  if (available.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
+                      child: Text(
+                        'Tous les lieux sont déjà ajoutés',
+                        style: AppTextStyles.textMd.w400.withColor(AppColors.slate500),
+                      ),
+                    )
+                  else ...[
+                    DropdownButtonFormField<int>(
+                      value: selectedId,
+                      hint: const Text('Sélectionner un lieu'),
+                      isExpanded: true,
+                      validator: (v) => v == null ? 'Champ requis' : null,
+                      items: available.map<DropdownMenuItem<int>>((l) {
+                        final lieu = l as Map<String, dynamic>;
+                        return DropdownMenuItem(
+                          value: lieu['id'] as int,
+                          child: Text(lieu['lib'] ?? lieu['nom'] ?? ''),
+                        );
+                      }).toList(),
+                      onChanged: (v) => setSheetState(() => selectedId = v),
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.space3),
+                    TextFormField(
+                      controller: minutesCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Minutes *'),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Champ requis';
+                        if (int.tryParse(v.trim()) == null) return 'Nombre invalide';
+                        return null;
+                      },
+                      onChanged: (_) => setSheetState(() {}),
+                    ),
+                    const SizedBox(height: AppSpacing.space3),
+                    DropdownButtonFormField<String>(
+                      value: locomotion,
+                      isExpanded: true,
+                      decoration: const InputDecoration(labelText: 'Type de locomotion'),
+                      items: const [
+                        DropdownMenuItem(value: 'A_PIED', child: Text('À pied')),
+                        DropdownMenuItem(value: 'VELO', child: Text('Vélo')),
+                        DropdownMenuItem(value: 'TRANSPORT_PUBLIC', child: Text('Transport public')),
+                        DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')),
+                      ],
+                      onChanged: (v) => setSheetState(() => locomotion = v!),
+                    ),
+                    const SizedBox(height: AppSpacing.space4),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: !isValid
+                            ? null
+                            : () {
+                                if (!formKey.currentState!.validate()) return;
+                                final id = selectedId!;
+                                final mins = int.tryParse(minutesCtrl.text.trim()) ?? 0;
+                                final loco = locomotion;
+                                Navigator.pop(ctx);
+                                WidgetsBinding.instance.addPostFrameCallback((_) => _doAddLieu(id, mins, loco));
+                              },
+                        child: const Text('Ajouter'),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
         });
@@ -778,6 +801,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final cautionCtrl = TextEditingController(text: location != null ? '${location['caution'] ?? ''}' : '');
     final dureeCtrl = TextEditingController(text: location != null ? '${location['dureeMois'] ?? ''}' : '');
 
+    final formKey = GlobalKey<FormState>();
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -789,113 +814,151 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               AppSpacing.space4, AppSpacing.space4, AppSpacing.space4,
               MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.space4,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Gérer les offres', style: AppTextStyles.textLg.w600),
-                const SizedBox(height: AppSpacing.space4),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Gérer les offres', style: AppTextStyles.textLg.w600),
+                  const SizedBox(height: AppSpacing.space4),
 
-                // --- Vente ---
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: saleOn ? AppColors.blue500 : AppColors.slate200,
-                        borderRadius: AppRadius.fullAll,
-                      ),
-                      child: Text('Vente', style: AppTextStyles.textSm.w600.withColor(saleOn ? AppColors.white : AppColors.slate500)),
-                    ),
-                    const Spacer(),
-                    Switch(
-                      value: saleOn,
-                      onChanged: (v) => setSheetState(() => saleOn = v),
-                      activeColor: AppColors.blue500,
-                    ),
-                  ],
-                ),
-                if (saleOn) ...[
-                  const SizedBox(height: AppSpacing.space2),
-                  TextFormField(
-                    controller: prixCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Prix (EUR)'),
-                  ),
-                ],
-
-                const SizedBox(height: AppSpacing.space4),
-
-                // --- Location ---
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: rentOn ? AppColors.slate900 : AppColors.slate200,
-                        borderRadius: AppRadius.fullAll,
-                      ),
-                      child: Text('Location', style: AppTextStyles.textSm.w600.withColor(rentOn ? AppColors.white : AppColors.slate500)),
-                    ),
-                    const Spacer(),
-                    Switch(
-                      value: rentOn,
-                      onChanged: (v) => setSheetState(() => rentOn = v),
-                      activeColor: AppColors.slate900,
-                    ),
-                  ],
-                ),
-                if (rentOn) ...[
-                  const SizedBox(height: AppSpacing.space2),
-                  TextFormField(
-                    controller: mensualiteCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Mensualité (EUR)'),
-                  ),
-                  const SizedBox(height: AppSpacing.space3),
+                  // --- Vente ---
                   Row(
                     children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: cautionCtrl,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Caution (EUR)'),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: saleOn ? AppColors.blue500 : AppColors.slate200,
+                          borderRadius: AppRadius.fullAll,
                         ),
+                        child: Text('Vente', style: AppTextStyles.textSm.w600.withColor(saleOn ? AppColors.white : AppColors.slate500)),
                       ),
-                      const SizedBox(width: AppSpacing.space3),
-                      Expanded(
-                        child: TextFormField(
-                          controller: dureeCtrl,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Durée (mois)'),
-                        ),
+                      const Spacer(),
+                      Switch(
+                        value: saleOn,
+                        onChanged: (v) => setSheetState(() => saleOn = v),
+                        activeColor: AppColors.blue500,
                       ),
                     ],
                   ),
-                ],
+                  if (saleOn) ...[
+                    const SizedBox(height: AppSpacing.space2),
+                    TextFormField(
+                      controller: prixCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Prix (EUR) *'),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Champ requis';
+                        if (double.tryParse(v.trim()) == null) return 'Montant invalide';
+                        return null;
+                      },
+                      onChanged: (_) => setSheetState(() {}),
+                    ),
+                  ],
 
-                const SizedBox(height: AppSpacing.space4),
+                  const SizedBox(height: AppSpacing.space4),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      final data = _OfferSheetResult(
-                        saleOn: saleOn,
-                        rentOn: rentOn,
-                        prix: double.tryParse(prixCtrl.text.trim()),
-                        mensualite: double.tryParse(mensualiteCtrl.text.trim()),
-                        caution: double.tryParse(cautionCtrl.text.trim()),
-                        dureeMois: int.tryParse(dureeCtrl.text.trim()),
-                        existingAchatId: achat?['id'] as int?,
-                        existingLocationId: location?['id'] as int?,
-                      );
-                      Navigator.pop(ctx);
-                      _doUpdateOffers(data);
-                    },
-                    child: const Text('Enregistrer'),
+                  // --- Location ---
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: rentOn ? AppColors.slate900 : AppColors.slate200,
+                          borderRadius: AppRadius.fullAll,
+                        ),
+                        child: Text('Location', style: AppTextStyles.textSm.w600.withColor(rentOn ? AppColors.white : AppColors.slate500)),
+                      ),
+                      const Spacer(),
+                      Switch(
+                        value: rentOn,
+                        onChanged: (v) => setSheetState(() => rentOn = v),
+                        activeColor: AppColors.slate900,
+                      ),
+                    ],
                   ),
-                ),
+                  if (rentOn) ...[
+                    const SizedBox(height: AppSpacing.space2),
+                    TextFormField(
+                      controller: mensualiteCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Mensualité (EUR) *'),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Champ requis';
+                        if (double.tryParse(v.trim()) == null) return 'Montant invalide';
+                        return null;
+                      },
+                      onChanged: (_) => setSheetState(() {}),
+                    ),
+                    const SizedBox(height: AppSpacing.space3),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: cautionCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(labelText: 'Caution (EUR) *'),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Requis';
+                              if (double.tryParse(v.trim()) == null) return 'Invalide';
+                              return null;
+                            },
+                            onChanged: (_) => setSheetState(() {}),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.space3),
+                        Expanded(
+                          child: TextFormField(
+                            controller: dureeCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(labelText: 'Durée (mois) *'),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Requis';
+                              if (int.tryParse(v.trim()) == null) return 'Invalide';
+                              return null;
+                            },
+                            onChanged: (_) => setSheetState(() {}),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  const SizedBox(height: AppSpacing.space4),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (!saleOn && !rentOn)
+                          ? () {
+                              final data = _OfferSheetResult(
+                                saleOn: false, rentOn: false,
+                                prix: null, mensualite: null, caution: null, dureeMois: null,
+                                existingAchatId: achat?['id'] as int?,
+                                existingLocationId: location?['id'] as int?,
+                              );
+                              Navigator.pop(ctx);
+                              WidgetsBinding.instance.addPostFrameCallback((_) => _doUpdateOffers(data));
+                            }
+                          : () {
+                              if (!formKey.currentState!.validate()) return;
+                              final data = _OfferSheetResult(
+                                saleOn: saleOn,
+                                rentOn: rentOn,
+                                prix: double.tryParse(prixCtrl.text.trim()),
+                                mensualite: double.tryParse(mensualiteCtrl.text.trim()),
+                                caution: double.tryParse(cautionCtrl.text.trim()),
+                                dureeMois: int.tryParse(dureeCtrl.text.trim()),
+                                existingAchatId: achat?['id'] as int?,
+                                existingLocationId: location?['id'] as int?,
+                              );
+                              Navigator.pop(ctx);
+                              WidgetsBinding.instance.addPostFrameCallback((_) => _doUpdateOffers(data));
+                            },
+                      child: const Text('Enregistrer'),
+                    ),
+                  ),
               ],
             ),
           );
@@ -914,64 +977,74 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final caracId = carac['caracteristiqueId'] as int;
     final valeurCtrl = TextEditingController(text: '${carac['valeur'] ?? ''}');
     final uniteCtrl = TextEditingController(text: carac['unite'] as String? ?? '');
+    final formKey = GlobalKey<FormState>();
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.space4, AppSpacing.space4, AppSpacing.space4,
-            MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.space4,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(carac['lib'] ?? 'Caractéristique', style: AppTextStyles.textLg.w600),
-              const SizedBox(height: AppSpacing.space4),
-              TextFormField(
-                controller: valeurCtrl,
-                decoration: const InputDecoration(labelText: 'Valeur'),
-              ),
-              const SizedBox(height: AppSpacing.space3),
-              TextFormField(
-                controller: uniteCtrl,
-                decoration: const InputDecoration(labelText: 'Unité (optionnel)'),
-              ),
-              const SizedBox(height: AppSpacing.space4),
-              Row(
+        return StatefulBuilder(builder: (ctx, setSheetState) {
+          final isValid = valeurCtrl.text.trim().isNotEmpty;
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.space4, AppSpacing.space4, AppSpacing.space4,
+              MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.space4,
+            ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _removeCaracteristique(caracId);
-                      },
-                      style: OutlinedButton.styleFrom(foregroundColor: AppColors.slate500),
-                      child: const Text('Supprimer'),
-                    ),
+                  Text(carac['lib'] ?? 'Caractéristique', style: AppTextStyles.textLg.w600),
+                  const SizedBox(height: AppSpacing.space4),
+                  TextFormField(
+                    controller: valeurCtrl,
+                    decoration: const InputDecoration(labelText: 'Valeur *'),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Champ requis' : null,
+                    onChanged: (_) => setSheetState(() {}),
                   ),
-                  const SizedBox(width: AppSpacing.space3),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: valeurCtrl.text.trim().isEmpty
-                          ? null
-                          : () {
-                              final valeur = valeurCtrl.text.trim();
-                              final unite = uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim();
-                              Navigator.pop(ctx);
-                              _doEditCaracteristique(caracId, valeur, unite);
-                            },
-                      child: const Text('Enregistrer'),
-                    ),
+                  const SizedBox(height: AppSpacing.space3),
+                  TextFormField(
+                    controller: uniteCtrl,
+                    decoration: const InputDecoration(labelText: 'Unité (optionnel)'),
+                  ),
+                  const SizedBox(height: AppSpacing.space4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            WidgetsBinding.instance.addPostFrameCallback((_) => _removeCaracteristique(caracId));
+                          },
+                          style: OutlinedButton.styleFrom(foregroundColor: AppColors.slate500),
+                          child: const Text('Supprimer'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.space3),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: !isValid
+                              ? null
+                              : () {
+                                  if (!formKey.currentState!.validate()) return;
+                                  final valeur = valeurCtrl.text.trim();
+                                  final unite = uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim();
+                                  Navigator.pop(ctx);
+                                  WidgetsBinding.instance.addPostFrameCallback((_) => _doEditCaracteristique(caracId, valeur, unite));
+                                },
+                          child: const Text('Enregistrer'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-        );
+            ),
+          );
+        });
       },
     );
     valeurCtrl.dispose();
@@ -984,6 +1057,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final lieuId = lieu['lieuId'] as int;
     final minutesCtrl = TextEditingController(text: '${lieu['minutes'] ?? ''}');
     String locomotion = lieu['typeLocomotion'] as String? ?? 'A_PIED';
+    final formKey = GlobalKey<FormState>();
 
     await showModalBottomSheet(
       context: context,
@@ -991,65 +1065,76 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (ctx) {
         return StatefulBuilder(builder: (ctx, setSheetState) {
+          final isValid = minutesCtrl.text.trim().isNotEmpty;
           return Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.space4, AppSpacing.space4, AppSpacing.space4,
               MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.space4,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(lieu['lib'] ?? 'Lieu', style: AppTextStyles.textLg.w600),
-                const SizedBox(height: AppSpacing.space4),
-                TextFormField(
-                  controller: minutesCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Minutes'),
-                ),
-                const SizedBox(height: AppSpacing.space3),
-                DropdownButtonFormField<String>(
-                  value: locomotion,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Type de locomotion'),
-                  items: const [
-                    DropdownMenuItem(value: 'A_PIED', child: Text('À pied')),
-                    DropdownMenuItem(value: 'VELO', child: Text('Vélo')),
-                    DropdownMenuItem(value: 'TRANSPORT_PUBLIC', child: Text('Transport public')),
-                    DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')),
-                  ],
-                  onChanged: (v) => setSheetState(() => locomotion = v!),
-                ),
-                const SizedBox(height: AppSpacing.space4),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          _removeLieu(lieuId);
-                        },
-                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.slate500),
-                        child: const Text('Supprimer'),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(lieu['lib'] ?? 'Lieu', style: AppTextStyles.textLg.w600),
+                  const SizedBox(height: AppSpacing.space4),
+                  TextFormField(
+                    controller: minutesCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Minutes *'),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Champ requis';
+                      if (int.tryParse(v.trim()) == null) return 'Nombre invalide';
+                      return null;
+                    },
+                    onChanged: (_) => setSheetState(() {}),
+                  ),
+                  const SizedBox(height: AppSpacing.space3),
+                  DropdownButtonFormField<String>(
+                    value: locomotion,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: 'Type de locomotion'),
+                    items: const [
+                      DropdownMenuItem(value: 'A_PIED', child: Text('À pied')),
+                      DropdownMenuItem(value: 'VELO', child: Text('Vélo')),
+                      DropdownMenuItem(value: 'TRANSPORT_PUBLIC', child: Text('Transport public')),
+                      DropdownMenuItem(value: 'VOITURE', child: Text('Voiture')),
+                    ],
+                    onChanged: (v) => setSheetState(() => locomotion = v!),
+                  ),
+                  const SizedBox(height: AppSpacing.space4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            WidgetsBinding.instance.addPostFrameCallback((_) => _removeLieu(lieuId));
+                          },
+                          style: OutlinedButton.styleFrom(foregroundColor: AppColors.slate500),
+                          child: const Text('Supprimer'),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.space3),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: minutesCtrl.text.trim().isEmpty
-                            ? null
-                            : () {
-                                final mins = int.tryParse(minutesCtrl.text.trim()) ?? 0;
-                                final loco = locomotion;
-                                Navigator.pop(ctx);
-                                _doEditLieu(lieuId, mins, loco);
-                              },
-                        child: const Text('Enregistrer'),
+                      const SizedBox(width: AppSpacing.space3),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: !isValid
+                              ? null
+                              : () {
+                                  if (!formKey.currentState!.validate()) return;
+                                  final mins = int.tryParse(minutesCtrl.text.trim()) ?? 0;
+                                  final loco = locomotion;
+                                  Navigator.pop(ctx);
+                                  WidgetsBinding.instance.addPostFrameCallback((_) => _doEditLieu(lieuId, mins, loco));
+                                },
+                          child: const Text('Enregistrer'),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         });
@@ -1126,6 +1211,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           await _api.createAchat({
             'bienId': widget.bienId,
             'prix': r.prix ?? 0,
+            'dateDispo': DateTime.now().toIso8601String().substring(0, 10),
           });
         }
       } else if (currentAchatId != null) {
@@ -1147,6 +1233,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             'mensualite': r.mensualite ?? 0,
             'caution': r.caution ?? 0,
             'dureeMois': r.dureeMois ?? 12,
+            'dateDispo': DateTime.now().toIso8601String().substring(0, 10),
           });
         }
       } else if (currentLocationId != null) {
@@ -1160,8 +1247,13 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         );
       }
     } catch (e) {
+      _loadData();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+        final msg = e.toString();
+        final userMsg = msg.contains('contrats')
+            ? 'Impossible de supprimer : des contrats sont liés à cette offre'
+            : 'Erreur: ${msg.replaceAll('Exception: ', '')}';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userMsg)));
       }
     }
   }
