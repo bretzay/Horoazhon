@@ -62,11 +62,12 @@ public class AgenceController {
     @GetMapping("/{id}/biens")
     public ResponseEntity<Page<BienDTO>> getAgenceBiens(
         @PathVariable Long id,
+        @RequestParam(required = false) Boolean actif,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "12") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateCreation"));
-        return ResponseEntity.ok(bienService.findByAgenceId(id, pageable));
+        return ResponseEntity.ok(bienService.findByAgenceId(id, actif, pageable));
     }
 
     @DeleteMapping("/{id}")

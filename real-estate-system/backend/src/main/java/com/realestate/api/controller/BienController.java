@@ -37,6 +37,7 @@ public class BienController {
         @RequestParam(required = false) Long lieuId,
         @RequestParam(required = false) Integer maxMinutes,
         @RequestParam(required = false) String locomotion,
+        @RequestParam(required = false) Boolean actif,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "dateCreation,desc") String[] sort,
@@ -46,7 +47,7 @@ public class BienController {
         Page<BienDTO> biens = bienService.findAll(
             search, type, prixMin, prixMax, forSale, forRent,
             caracId, caracMin, lieuId, maxMinutes, locomotion,
-            allParams, pageable
+            actif, allParams, pageable
         );
         return ResponseEntity.ok(biens);
     }
@@ -82,6 +83,20 @@ public class BienController {
     public ResponseEntity<Void> deleteBien(@PathVariable Long id) {
         bienService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/archive")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")
+    public ResponseEntity<BienDTO> archiveBien(@PathVariable Long id) {
+        BienDTO archived = bienService.archiveBien(id);
+        return ResponseEntity.ok(archived);
+    }
+
+    @PutMapping("/{id}/unarchive")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')")
+    public ResponseEntity<BienDTO> unarchiveBien(@PathVariable Long id) {
+        BienDTO unarchived = bienService.unarchiveBien(id);
+        return ResponseEntity.ok(unarchived);
     }
 
     // ===== Caracteristiques associations =====

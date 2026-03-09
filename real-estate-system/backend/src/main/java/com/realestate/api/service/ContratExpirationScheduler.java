@@ -43,7 +43,7 @@ public class ContratExpirationScheduler {
         int expired = 0;
 
         for (Contrat contrat : signedContracts) {
-            Integer dureeMois = contrat.getLocation().getDureeMois();
+            Integer dureeMois = contrat.getSnapDureeMois();
             if (dureeMois == null || dureeMois <= 0) continue;
 
             // Get the latest signature date among cosigners

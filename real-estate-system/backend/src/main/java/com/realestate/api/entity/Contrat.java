@@ -4,15 +4,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Contrat (Contract) Entity
- * Represents a contract that is EITHER for rental OR for purchase (exclusive)
- * The X constraint in MCD ensures a contract can't be both simultaneously
- */
 @Entity
 @Table(name = "Contrat")
 @Data
@@ -34,14 +31,29 @@ public class Contrat {
     @Column(length = 50, nullable = false)
     private StatutContrat statut = StatutContrat.EN_COURS;
 
-    // Exclusive relationship: EITHER location OR achat (enforced by DB constraint)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @JoinColumn(name = "bien_id", nullable = false)
+    private Bien bien;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "achat_id")
-    private Achat achat;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_contrat", length = 50, nullable = false)
+    private TypeContrat typeContrat;
+
+    // Snapshot fields — copied from offer at contract creation time
+    @Column(name = "snap_mensualite", precision = 15, scale = 2)
+    private BigDecimal snapMensualite;
+
+    @Column(name = "snap_caution", precision = 15, scale = 2)
+    private BigDecimal snapCaution;
+
+    @Column(name = "snap_duree_mois")
+    private Integer snapDureeMois;
+
+    @Column(name = "snap_prix", precision = 15, scale = 2)
+    private BigDecimal snapPrix;
+
+    @Column(name = "snap_date_dispo")
+    private LocalDate snapDateDispo;
 
     @Column(length = 500)
     private String documentSigne;
@@ -50,37 +62,17 @@ public class Contrat {
     @JoinColumn(name = "compte_createur_id")
     private Compte createdBy;
 
-    // Co-signers (minimum 2 required)
     @OneToMany(mappedBy = "contrat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cosigner> cosigners = new ArrayList<>();
-
-    // Lifecycle callbacks
 
     @PrePersist
     protected void onCreate() {
         dateCreation = LocalDateTime.now();
-        validateExclusivity();
-        // Minimum signers validated in service layer (cosigners not yet persisted at @PrePersist time)
     }
 
     @PreUpdate
     protected void onUpdate() {
         dateModification = LocalDateTime.now();
-        validateExclusivity();
-    }
-
-    // Validation methods
-
-    /**
-     * Ensures the exclusivity constraint (X in MCD)
-     * A contract must have EITHER location OR achat, not both, not neither
-     */
-    private void validateExclusivity() {
-        if ((location == null && achat == null) || (location != null && achat != null)) {
-            throw new IllegalStateException(
-                "Un contrat doit être soit une location, soit un achat (pas les deux, pas aucun)"
-            );
-        }
     }
 
     // Helper methods
@@ -96,30 +88,28 @@ public class Contrat {
     }
 
     public boolean isRentalContract() {
-        return location != null;
+        return typeContrat == TypeContrat.LOCATION;
     }
 
     public boolean isPurchaseContract() {
-        return achat != null;
+        return typeContrat == TypeContrat.ACHAT;
     }
 
     public TypeContrat getType() {
-        if (isRentalContract()) return TypeContrat.LOCATION;
-        if (isPurchaseContract()) return TypeContrat.ACHAT;
-        return null;
+        return typeContrat;
     }
 
     // Enums
 
     public enum StatutContrat {
-        EN_COURS,    // In progress
-        SIGNE,       // Signed
-        ANNULE,      // Cancelled
-        TERMINE      // Completed
+        EN_COURS,
+        SIGNE,
+        ANNULE,
+        TERMINE
     }
 
     public enum TypeContrat {
-        LOCATION,    // Rental
-        ACHAT        // Purchase
+        LOCATION,
+        ACHAT
     }
 }

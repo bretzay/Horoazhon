@@ -21,7 +21,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     
     // Find available locations
     @Query("SELECT l FROM Location l WHERE l.dateDispo <= CURRENT_DATE " +
-           "AND NOT EXISTS (SELECT 1 FROM Contrat c WHERE c.location = l AND c.statut = 'SIGNE')")
+           "AND NOT EXISTS (SELECT 1 FROM Contrat c WHERE c.bien = l.bien AND c.typeContrat = 'LOCATION' AND c.statut = 'SIGNE')")
     List<Location> findAvailableLocations();
 
     // Agency-filtered

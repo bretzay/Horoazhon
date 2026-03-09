@@ -44,6 +44,9 @@ public class Bien {
     @Column(length = 50)
     private String type; // MAISON, APPARTEMENT, TERRAIN, STUDIO
 
+    @Column(nullable = false)
+    private Boolean actif = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime dateCreation;
 

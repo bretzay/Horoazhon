@@ -10,7 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContratDetailDTO extends ContratDTO {
-    private LocationDTO location;
-    private AchatDTO achat;
-    private int siblingContratCount; // other EN_COURS contracts on the same offer
+    private int siblingContratCount; // other EN_COURS contracts of same type on same Bien
 }

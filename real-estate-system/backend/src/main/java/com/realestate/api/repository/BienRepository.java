@@ -114,6 +114,9 @@ public interface BienRepository extends JpaRepository<Bien, Long> {
     
     // Find by agency
     Page<Bien> findByAgenceId(Long agenceId, Pageable pageable);
+
+    // Find by agency with actif filter
+    Page<Bien> findByAgenceIdAndActif(Long agenceId, Boolean actif, Pageable pageable);
     
     // Find properties owned by a person
     @Query("SELECT b FROM Bien b JOIN b.proprietaires p WHERE p.personne.id = :personneId")

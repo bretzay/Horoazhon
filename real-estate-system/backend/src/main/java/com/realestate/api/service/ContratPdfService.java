@@ -62,7 +62,6 @@ public class ContratPdfService {
             yPosition = drawCenteredText(content, getContratTypeFr(contrat), fontItalic, 12, pageWidth, yPosition);
             yPosition -= 10;
 
-            // Horizontal line
             content.setLineWidth(1f);
             content.moveTo(margin, yPosition);
             content.lineTo(pageWidth - margin, yPosition);
@@ -76,7 +75,7 @@ public class ContratPdfService {
             yPosition -= 15;
 
             // === Property info ===
-            Bien bien = getBienFromContrat(contrat);
+            Bien bien = contrat.getBien();
             if (bien != null) {
                 yPosition = drawText(content, "BIEN IMMOBILIER", fontBold, 12, margin, yPosition);
                 yPosition -= 5;
@@ -87,26 +86,30 @@ public class ContratPdfService {
                 }
                 yPosition -= 10;
 
-                // Sale or rental details
-                if (contrat.getAchat() != null) {
-                    Achat achat = contrat.getAchat();
+                // Sale or rental details from snapshot
+                if (contrat.isPurchaseContract()) {
                     yPosition = drawText(content, "CONDITIONS DE VENTE", fontBold, 12, margin, yPosition);
                     yPosition -= 5;
-                    yPosition = drawText(content, "Prix de vente: " + String.format("%,.2f", achat.getPrix()) + " EUR", fontRegular, 10, margin + 15, yPosition);
-                    if (achat.getDateDispo() != null) {
-                        yPosition = drawText(content, "Date de disponibilite: " + achat.getDateDispo().format(DATE_FMT), fontRegular, 10, margin + 15, yPosition);
+                    if (contrat.getSnapPrix() != null) {
+                        yPosition = drawText(content, "Prix de vente: " + String.format("%,.2f", contrat.getSnapPrix()) + " EUR", fontRegular, 10, margin + 15, yPosition);
                     }
-                } else if (contrat.getLocation() != null) {
-                    Location loc = contrat.getLocation();
+                    if (contrat.getSnapDateDispo() != null) {
+                        yPosition = drawText(content, "Date de disponibilite: " + contrat.getSnapDateDispo().format(DATE_FMT), fontRegular, 10, margin + 15, yPosition);
+                    }
+                } else if (contrat.isRentalContract()) {
                     yPosition = drawText(content, "CONDITIONS DE LOCATION", fontBold, 12, margin, yPosition);
                     yPosition -= 5;
-                    yPosition = drawText(content, "Loyer mensuel: " + String.format("%,.2f", loc.getMensualite()) + " EUR", fontRegular, 10, margin + 15, yPosition);
-                    yPosition = drawText(content, "Caution: " + String.format("%,.2f", loc.getCaution()) + " EUR", fontRegular, 10, margin + 15, yPosition);
-                    if (loc.getDureeMois() != null) {
-                        yPosition = drawText(content, "Duree: " + loc.getDureeMois() + " mois", fontRegular, 10, margin + 15, yPosition);
+                    if (contrat.getSnapMensualite() != null) {
+                        yPosition = drawText(content, "Loyer mensuel: " + String.format("%,.2f", contrat.getSnapMensualite()) + " EUR", fontRegular, 10, margin + 15, yPosition);
                     }
-                    if (loc.getDateDispo() != null) {
-                        yPosition = drawText(content, "Date de disponibilite: " + loc.getDateDispo().format(DATE_FMT), fontRegular, 10, margin + 15, yPosition);
+                    if (contrat.getSnapCaution() != null) {
+                        yPosition = drawText(content, "Caution: " + String.format("%,.2f", contrat.getSnapCaution()) + " EUR", fontRegular, 10, margin + 15, yPosition);
+                    }
+                    if (contrat.getSnapDureeMois() != null) {
+                        yPosition = drawText(content, "Duree: " + contrat.getSnapDureeMois() + " mois", fontRegular, 10, margin + 15, yPosition);
+                    }
+                    if (contrat.getSnapDateDispo() != null) {
+                        yPosition = drawText(content, "Date de disponibilite: " + contrat.getSnapDateDispo().format(DATE_FMT), fontRegular, 10, margin + 15, yPosition);
                     }
                 }
                 yPosition -= 15;
@@ -144,7 +147,6 @@ public class ContratPdfService {
             List<String> clauses = getClauses(contrat);
             int clauseNum = 1;
             for (String clause : clauses) {
-                // Word wrap
                 List<String> lines = wrapText(clauseNum + ". " + clause, fontRegular, 9, contentWidth - 15);
                 for (String line : lines) {
                     yPosition = drawText(content, line, fontRegular, 9, margin + 15, yPosition);
@@ -177,7 +179,6 @@ public class ContratPdfService {
                     currentY = drawText(content, "Signature:", fontRegular, 9, xPos, currentY);
                     currentY -= 30;
 
-                    // Signature line
                     content.moveTo(xPos, currentY);
                     content.lineTo(xPos + colWidth - 30, currentY);
                     content.stroke();
@@ -205,16 +206,11 @@ public class ContratPdfService {
         }
     }
 
-    /**
-     * Generates a reconduction PDF: loads the old contract's signed document
-     * and appends a reconduction note page explaining the ownership transfer.
-     */
     public byte[] generateReconductionPdf(Contrat oldRentalContrat,
                                            Contrat purchaseContrat,
                                            Personne newOwner) throws IOException {
         PDDocument document;
 
-        // Try to load the old contract's signed PDF as base
         String oldDocPath = oldRentalContrat.getDocumentSigne();
         if (oldDocPath != null && !oldDocPath.isBlank()) {
             Path filePath = Paths.get(uploadDir).resolve(oldDocPath);
@@ -228,7 +224,6 @@ public class ContratPdfService {
         }
 
         try {
-            // Add reconduction note page
             PDPage notePage = new PDPage(PDRectangle.A4);
             document.addPage(notePage);
 
@@ -243,20 +238,17 @@ public class ContratPdfService {
 
             PDPageContentStream content = new PDPageContentStream(document, notePage);
 
-            // Header
             yPosition = drawCenteredText(content, "AVENANT - RECONDUCTION DE BAIL", fontBold, 16, pageWidth, yPosition);
             yPosition -= 5;
             yPosition = drawCenteredText(content, "Suite a un transfert de propriete", fontItalic, 11, pageWidth, yPosition);
             yPosition -= 10;
 
-            // Horizontal line
             content.setLineWidth(1f);
             content.moveTo(margin, yPosition);
             content.lineTo(pageWidth - margin, yPosition);
             content.stroke();
             yPosition -= 25;
 
-            // Reference to original contract
             yPosition = drawText(content, "REFERENCES", fontBold, 12, margin, yPosition);
             yPosition -= 5;
             yPosition = drawText(content, "Contrat de location d'origine N: " + oldRentalContrat.getId(),
@@ -267,8 +259,7 @@ public class ContratPdfService {
                     LocalDateTime.now().format(DATE_FMT), fontRegular, 10, margin + 15, yPosition);
             yPosition -= 15;
 
-            // Property info
-            Bien bien = oldRentalContrat.getLocation().getBien();
+            Bien bien = oldRentalContrat.getBien();
             yPosition = drawText(content, "BIEN CONCERNE", fontBold, 12, margin, yPosition);
             yPosition -= 5;
             yPosition = drawText(content, "Type: " + (bien.getType() != null ? bien.getType() : "Non specifie"),
@@ -277,7 +268,6 @@ public class ContratPdfService {
                     fontRegular, 10, margin + 15, yPosition);
             yPosition -= 15;
 
-            // New owner info
             yPosition = drawText(content, "NOUVEAU PROPRIETAIRE", fontBold, 12, margin, yPosition);
             yPosition -= 5;
             yPosition = drawText(content, newOwner.getPrenom() + " " + newOwner.getNom(),
@@ -290,7 +280,6 @@ public class ContratPdfService {
             }
             yPosition -= 15;
 
-            // Renter info
             Personne renter = null;
             for (Cosigner cs : oldRentalContrat.getCosigners()) {
                 if (cs.getTypeSignataire() == Cosigner.TypeSignataire.RENTER) {
@@ -306,7 +295,6 @@ public class ContratPdfService {
                 yPosition -= 15;
             }
 
-            // Reconduction clauses
             yPosition = drawText(content, "CLAUSES DE RECONDUCTION", fontBold, 12, margin, yPosition);
             yPosition -= 5;
 
@@ -318,10 +306,9 @@ public class ContratPdfService {
             clauses.add("Les conditions du bail (loyer, caution, obligations des parties) restent inchangees, " +
                     "conformement a l'article 3 de la loi n89-462 du 6 juillet 1989.");
 
-            Location loc = oldRentalContrat.getLocation();
-            if (loc.getDureeMois() != null) {
+            if (oldRentalContrat.getSnapDureeMois() != null) {
                 clauses.add("La duree restante du bail est maintenue a son terme initial. " +
-                        "Duree d'origine: " + loc.getDureeMois() + " mois.");
+                        "Duree d'origine: " + oldRentalContrat.getSnapDureeMois() + " mois.");
             } else {
                 clauses.add("Le bail a duree indeterminee est maintenu sans modification de duree.");
             }
@@ -339,7 +326,6 @@ public class ContratPdfService {
                 clauseNum++;
             }
 
-            // Footer
             content.beginText();
             content.setFont(fontItalic, 8);
             content.newLineAtOffset(margin, 30);
@@ -356,15 +342,9 @@ public class ContratPdfService {
         }
     }
 
-    private Bien getBienFromContrat(Contrat contrat) {
-        if (contrat.getAchat() != null) return contrat.getAchat().getBien();
-        if (contrat.getLocation() != null) return contrat.getLocation().getBien();
-        return null;
-    }
-
     private String getContratTypeFr(Contrat contrat) {
-        if (contrat.getAchat() != null) return "Contrat de Vente";
-        if (contrat.getLocation() != null) return "Contrat de Location";
+        if (contrat.isPurchaseContract()) return "Contrat de Vente";
+        if (contrat.isRentalContract()) return "Contrat de Location";
         return "Contrat";
     }
 
@@ -389,18 +369,17 @@ public class ContratPdfService {
     private List<String> getClauses(Contrat contrat) {
         List<String> clauses = new ArrayList<>();
 
-        if (contrat.getAchat() != null) {
-            clauses.add("Le vendeur s'engage a ceder le bien immobilier designe ci-dessus a l'acheteur au prix convenu de " + String.format("%,.2f", contrat.getAchat().getPrix()) + " EUR.");
+        if (contrat.isPurchaseContract()) {
+            clauses.add("Le vendeur s'engage a ceder le bien immobilier designe ci-dessus a l'acheteur au prix convenu de " + String.format("%,.2f", contrat.getSnapPrix()) + " EUR.");
             clauses.add("L'acheteur s'engage a verser la totalite du prix de vente au moment de la signature de l'acte authentique.");
             clauses.add("Le vendeur garantit que le bien est libre de toute hypotheque, servitude ou charge non declaree.");
             clauses.add("La propriete du bien sera transferee a l'acheteur a compter de la signature de l'acte authentique de vente.");
             clauses.add("Les frais de notaire et taxes liees a la transaction seront a la charge de l'acheteur, sauf accord contraire entre les parties.");
-        } else if (contrat.getLocation() != null) {
-            Location loc = contrat.getLocation();
-            clauses.add("Le proprietaire met a disposition du locataire le bien immobilier designe ci-dessus moyennant un loyer mensuel de " + String.format("%,.2f", loc.getMensualite()) + " EUR.");
-            clauses.add("Le locataire versera une caution de " + String.format("%,.2f", loc.getCaution()) + " EUR a la signature du present contrat, restituable en fin de bail sous reserve de l'etat des lieux.");
-            if (loc.getDureeMois() != null) {
-                clauses.add("La duree du bail est fixee a " + loc.getDureeMois() + " mois a compter de la date de prise d'effet.");
+        } else if (contrat.isRentalContract()) {
+            clauses.add("Le proprietaire met a disposition du locataire le bien immobilier designe ci-dessus moyennant un loyer mensuel de " + String.format("%,.2f", contrat.getSnapMensualite()) + " EUR.");
+            clauses.add("Le locataire versera une caution de " + String.format("%,.2f", contrat.getSnapCaution()) + " EUR a la signature du present contrat, restituable en fin de bail sous reserve de l'etat des lieux.");
+            if (contrat.getSnapDureeMois() != null) {
+                clauses.add("La duree du bail est fixee a " + contrat.getSnapDureeMois() + " mois a compter de la date de prise d'effet.");
             }
             clauses.add("Le loyer est payable mensuellement, au plus tard le 5 de chaque mois, par virement bancaire ou tout autre moyen convenu entre les parties.");
             clauses.add("Le locataire s'engage a maintenir le bien en bon etat et a effectuer les reparations locatives a sa charge conformement a la legislation en vigueur.");

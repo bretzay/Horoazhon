@@ -3,8 +3,10 @@ package com.realestate.api.service;
 import com.realestate.api.dto.CreateLocationRequest;
 import com.realestate.api.dto.LocationDTO;
 import com.realestate.api.entity.Bien;
+import com.realestate.api.entity.Contrat;
 import com.realestate.api.entity.Location;
 import com.realestate.api.repository.BienRepository;
+import com.realestate.api.repository.ContratRepository;
 import com.realestate.api.repository.LocationRepository;
 import com.realestate.api.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +24,7 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
     private final BienRepository bienRepository;
+    private final ContratRepository contratRepository;
     private final SecurityUtils securityUtils;
 
     @Transactional(readOnly = true)
@@ -53,6 +56,11 @@ public class LocationService {
             throw new IllegalStateException("Bien " + request.getBienId() + " already has a rental listing");
         }
 
+        // Guard: blocked if a SIGNE Location-type contract exists on the Bien
+        if (contratRepository.existsSignedByBienIdAndType(bien.getId(), Contrat.TypeContrat.LOCATION)) {
+            throw new IllegalStateException("Impossible de creer une offre de location: un contrat de location signe existe pour ce bien");
+        }
+
         Location loc = new Location();
         loc.setBien(bien);
         loc.setCaution(request.getCaution());
@@ -82,12 +90,15 @@ public class LocationService {
         Location loc = locationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + id));
         verifyAgencyAccess(loc);
-        if (loc.getContrats() != null && !loc.getContrats().isEmpty()) {
-            throw new IllegalStateException("Impossible de supprimer: des contrats sont liés à cette offre de location");
+
+        // Guard: blocked if EN_COURS Location-type contracts exist for the Bien
+        if (contratRepository.existsEnCoursByBienIdAndType(loc.getBien().getId(), Contrat.TypeContrat.LOCATION)) {
+            throw new IllegalStateException("Impossible de supprimer: des contrats de location en cours existent pour ce bien");
         }
+
         Bien bien = loc.getBien();
         if (bien != null) {
-            bien.setLocation(null);  // orphanRemoval = true on Bien.location will delete the Location
+            bien.setLocation(null);
             bienRepository.save(bien);
         } else {
             locationRepository.delete(loc);

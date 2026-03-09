@@ -28,6 +28,9 @@ public class BienDTO {
     private int photoCount;
     private List<String> photoUrls = new ArrayList<>();
 
+    // Status
+    private boolean actif = true;
+
     // Availability info
     private boolean availableForSale;
     private boolean availableForRent;

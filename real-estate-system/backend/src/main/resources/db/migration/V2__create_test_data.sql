@@ -388,46 +388,54 @@ VALUES (4000.00, '2026-04-01', 2200.00, 24, 3);
 
 -- ============================================================
 -- CONTRACTS — AGENCY 1 (Horoazhon France)
+-- Contracts now reference Bien directly with snapshot fields
 -- ============================================================
 
--- Contrat 1: SALE of Bien 1 (Appart Haussmann, Achat 1)
+-- Contrat 1: SALE of Bien 1 (Appart Haussmann) — snapshot from Achat 1
 -- Normal EN_COURS. Seller: Martin Pierre (3), Buyer: Girard Julien (14)
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 1, 1);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 1, 'ACHAT', 485000.00, '2026-04-01', 1);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (1, 3, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (1, 14, 'BUYER', NULL);
 
--- Contrat 2: RENT of Bien 2 (Studio Marais, Location 1)
+-- Contrat 2: RENT of Bien 2 (Studio Marais) — snapshot from Location 1
 -- Normal EN_COURS. Owner: Durand Marie (4), Renter: Robin Emilie (15)
-INSERT INTO Contrat (statut, location_id, compte_createur_id) VALUES ('EN_COURS', 1, 2);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_mensualite, snap_caution, snap_duree_mois, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 2, 'LOCATION', 800.00, 1600.00, 12, '2026-03-15', 2);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (2, 4, 'OWNER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (2, 15, 'RENTER', NULL);
 
--- Contrats 3, 4, 5: THREE competing contracts for SALE of Bien 5 (Terrain Fontainebleau, Achat 3)
--- All EN_COURS on the same Achat. Seller: Bernard Claire (7). Three different buyers.
+-- Contrats 3, 4, 5: THREE competing contracts for SALE of Bien 5 (Terrain Fontainebleau) — snapshot from Achat 3
+-- All EN_COURS on the same Bien+ACHAT. Seller: Bernard Claire (7). Three different buyers.
 -- Edge case: confirming one should cancel the other two.
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 3, 1);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 5, 'ACHAT', 195000.00, '2026-05-01', 1);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (3, 7, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (3, 14, 'BUYER', NULL);
 
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 3, 1);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 5, 'ACHAT', 195000.00, '2026-05-01', 1);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (4, 7, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (4, 15, 'BUYER', NULL);
 
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 3, 1);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 5, 'ACHAT', 195000.00, '2026-05-01', 1);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (5, 7, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (5, 16, 'BUYER', NULL);
 
--- Contrat 6: SALE of Bien 3 (Maison Vincennes, Achat 2)
+-- Contrat 6: SALE of Bien 3 (Maison Vincennes) — snapshot from Achat 2
 -- Edge case: same property also has a rent contract (Contrat 7).
 -- Seller: Lefevre Sophie (5), Buyer: Mercier Hugo (16)
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 2, 2);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 3, 'ACHAT', 780000.00, '2026-06-01', 2);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (6, 5, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (6, 16, 'BUYER', NULL);
 
--- Contrat 7: RENT of Bien 3 (Maison Vincennes, Location 5)
+-- Contrat 7: RENT of Bien 3 (Maison Vincennes) — snapshot from Location 5
 -- Edge case: same property as Contrat 6 but for rent (independent listing).
 -- Owner: Lefevre Sophie (5), Renter: Girard Julien (14)
-INSERT INTO Contrat (statut, location_id, compte_createur_id) VALUES ('EN_COURS', 5, 2);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_mensualite, snap_caution, snap_duree_mois, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 3, 'LOCATION', 2200.00, 4000.00, 24, '2026-04-01', 2);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (7, 5, 'OWNER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (7, 14, 'RENTER', NULL);
 
@@ -435,21 +443,24 @@ INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VA
 -- CONTRACTS — AGENCY 2 (Immobilier du Sud)
 -- ============================================================
 
--- Contrat 8: SALE of Bien 6 (Appart Presqu'ile, Achat 4)
+-- Contrat 8: SALE of Bien 6 (Appart Presqu'ile) — snapshot from Achat 4
 -- Normal EN_COURS. Seller: Garcia Thomas (10), Buyer: Blanc Marine (17)
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 4, 4);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 6, 'ACHAT', 365000.00, '2026-04-15', 4);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (8, 10, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (8, 17, 'BUYER', NULL);
 
--- Contrat 9: RENT of Bien 7 (Studio Part-Dieu, Location 3)
+-- Contrat 9: RENT of Bien 7 (Studio Part-Dieu) — snapshot from Location 3
 -- Normal EN_COURS. Owner: Fournier Camille (11), Renter: Faure Alexandre (18)
-INSERT INTO Contrat (statut, location_id, compte_createur_id) VALUES ('EN_COURS', 3, 5);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_mensualite, snap_caution, snap_duree_mois, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 7, 'LOCATION', 550.00, 1100.00, 12, '2026-03-01', 5);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (9, 11, 'OWNER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (9, 18, 'RENTER', NULL);
 
--- Contrat 10: SALE of Bien 10 (Maison Villeurbanne, Achat 6)
+-- Contrat 10: SALE of Bien 10 (Maison Villeurbanne) — snapshot from Achat 6
 -- Normal EN_COURS. Seller: Bernard Claire (7), Buyer: Faure Alexandre (18)
-INSERT INTO Contrat (statut, achat_id, compte_createur_id) VALUES ('EN_COURS', 6, 4);
+INSERT INTO Contrat (statut, bien_id, type_contrat, snap_prix, snap_date_dispo, compte_createur_id)
+VALUES ('EN_COURS', 10, 'ACHAT', 420000.00, '2026-05-15', 4);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (10, 7, 'SELLER', NULL);
 INSERT INTO Cosigner (contrat_id, personne_id, typeSignataire, dateSignature) VALUES (10, 18, 'BUYER', NULL);
 

@@ -23,12 +23,14 @@
 ### BienController — `/api/biens`
 | Method | Verb | Path | Auth |
 |--------|------|------|------|
-| `getAllBiens` | GET | `/api/biens` | Public |
+| `getAllBiens` | GET | `/api/biens` | Public (filters archived; auth sees all) |
 | `getBienById` | GET | `/api/biens/{id}` | Public |
 | `getContratsByBien` | GET | `/api/biens/{bienId}/contrats` | Authenticated |
 | `createBien` | POST | `/api/biens` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
 | `updateBien` | PUT | `/api/biens/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT (own agency) |
-| `deleteBien` | DELETE | `/api/biens/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT (own agency) |
+| `deleteBien` | DELETE | `/api/biens/{id}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT (409 if contracts exist) |
+| `archiveBien` | PUT | `/api/biens/{id}/archive` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
+| `unarchiveBien` | PUT | `/api/biens/{id}/unarchive` | SUPER_ADMIN, ADMIN_AGENCY, AGENT |
 | `addCaracteristique` | POST | `/api/biens/{bienId}/caracteristiques` | SUPER_ADMIN, ADMIN_AGENCY, AGENT (own agency) |
 | `removeCaracteristique` | DELETE | `/api/biens/{bienId}/caracteristiques/{cId}` | SUPER_ADMIN, ADMIN_AGENCY, AGENT (own agency) |
 | `addLieu` | POST | `/api/biens/{bienId}/lieux` | SUPER_ADMIN, ADMIN_AGENCY, AGENT (own agency) |
@@ -45,7 +47,7 @@
 | `getAgenceById` | GET | `/api/agences/{id}` | Public |
 | `createAgence` | POST | `/api/agences` | SUPER_ADMIN |
 | `updateAgence` | PUT | `/api/agences/{id}` | SUPER_ADMIN, ADMIN_AGENCY |
-| `getAgenceBiens` | GET | `/api/agences/{id}/biens` | Public |
+| `getAgenceBiens` | GET | `/api/agences/{id}/biens` | Public (supports ?actif= filter) |
 | `deleteAgence` | DELETE | `/api/agences/{id}` | SUPER_ADMIN |
 
 ### ContratController — `/api/contrats`
@@ -134,7 +136,7 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 | `getContracts` | GET | `/api/client/contrats` | CLIENT only | Page\<ContratDTO\> |
 | `getProperties` | GET | `/api/client/biens` | CLIENT only | Page\<BienDTO\> |
 
-**Total: ~81 endpoints across 11 controllers**
+**Total: ~83 endpoints across 11 controllers**
 
 ---
 
@@ -144,9 +146,9 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 |--------|-------|-------------|
 | `Compte` | `Compte` | id, email (UNIQUE), password (BCrypt, NULL until activated), role (ENUM), agence_id (FK), personne_id (FK), token_activation, token_expiration, token_reset, token_reset_expiration, actif, date_creation |
 | `Agence` | `Agence` | id, siret (UNIQUE), nom, numero_tva, rue, ville, code_postal, telephone, email, description, logo |
-| `Bien` | `Bien` | id, rue, ville, code_postal, eco_score, superficie, description, type, agence_id (FK), compte_createur_id (FK) |
+| `Bien` | `Bien` | id, rue, ville, code_postal, eco_score, superficie, description, type, actif (BIT DEFAULT 1), agence_id (FK), compte_createur_id (FK) |
 | `Personne` | `Personne` | id, nom, prenom, date_nais, rue, ville, code_postal, rib, avoirs |
-| `Contrat` | `Contrat` | id, statut (ENUM), location_id (FK XOR), achat_id (FK XOR), document_signe, compte_createur_id (FK) |
+| `Contrat` | `Contrat` | id, statut (ENUM), type_contrat (LOCATION\|ACHAT), bien_id (FK NOT NULL), snap_mensualite, snap_caution, snap_duree_mois, snap_prix, snap_date_dispo, document_signe, compte_createur_id (FK) |
 | `Location` | `Location` | id, caution, date_dispo, mensualite, duree_mois, bien_id (FK UNIQUE) |
 | `Achat` | `Achat` | id, prix, date_dispo, bien_id (FK UNIQUE) |
 | `Photo` | `Photo` | id, chemin, ordre, bien_id (FK) |
@@ -172,9 +174,9 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 | Service | Responsibilities |
 |---------|-----------------|
 | `AuthService` | Login, account activation, password reset, password change, client invitation |
-| `BienService` | Property CRUD, dynamic filtering, characteristics/lieux/photos/owner management |
+| `BienService` | Property CRUD, dynamic filtering, characteristics/lieux/photos/owner management, archive/unarchive |
 | `AgenceService` | Agency CRUD |
-| `ContratService` | Contract CRUD, status management, PDF document handling |
+| `ContratService` | Contract CRUD (via bienId+typeContrat), status management, confirm (deletes offer, cancels siblings), PDF document handling |
 | `PersonneService` | Person CRUD, search, linked biens/contrats |
 | `LocationService` | Rental listing CRUD |
 | `AchatService` | Sale listing CRUD |
@@ -202,7 +204,7 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 | `UpdateBienRequest` | rue, ville, codePostal, type, superficie, description, ecoScore |
 | `CreateLocationRequest` | bienId, caution, dateDispo, mensualite, dureeMois |
 | `CreateAchatRequest` | bienId, prix, dateDispo |
-| `CreateContratRequest` | locationId, achatId, cosigners (list of CosignerRequest) |
+| `CreateContratRequest` | bienId, typeContrat (LOCATION\|ACHAT), cosigners (list of CosignerRequest) |
 | `CosignerRequest` | personneId, typeSignataire |
 | `CreatePersonneRequest` | nom, prenom, dateNais, rue, ville, codePostal, rib |
 
@@ -210,12 +212,12 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 | DTO | Key Fields |
 |-----|-----------|
 | `AuthenticationResponse` | token, type ("Bearer"), role, nom, prenom, agenceId, agenceNom, agenceLogo, personneId |
-| `BienDTO` | id, rue, ville, codePostal, ecoScore, type, superficie, description, dateCreation, agence, principalPhotoUrl, photoCount, photoUrls, availableForSale, availableForRent, salePrice, monthlyRent |
+| `BienDTO` | id, rue, ville, codePostal, ecoScore, type, superficie, description, dateCreation, actif, agence, principalPhotoUrl, photoCount, photoUrls, availableForSale, availableForRent, salePrice, monthlyRent |
 | `BienDetailDTO` | (extends BienDTO) + photos, caracteristiques, lieux, proprietaires, achat, location |
 | `PhotoDTO` | id, chemin, ordre, url |
 | `AgenceDTO` | id, siret, nom, numeroTva, rue, ville, codePostal, telephone, email, description, logo |
-| `ContratDTO` | id, statut, type, hasSignedDocument, bien, cosigners |
-| `ContratDetailDTO` | (extends ContratDTO) + location, achat, siblingContratCount |
+| `ContratDTO` | id, statut, type, hasSignedDocument, bien, cosigners, snapMensualite, snapCaution, snapDureeMois, snapPrix, snapDateDispo |
+| `ContratDetailDTO` | (extends ContratDTO) + siblingContratCount |
 | `LocationDTO` | id, caution, dateDispo, mensualite, dureeMois, bienId |
 | `AchatDTO` | id, prix, dateDispo, bienId |
 | `PersonneDTO` | id, nom, prenom, dateNais, rue, ville, codePostal, avoirs, rib |
@@ -237,8 +239,8 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 |-----------|--------|----------------------|
 | `CompteRepository` | Compte | `findByEmail`, `findByTokenActivation`, `findByTokenReset`, `findByAgenceId`, `findByAgenceIdAndRole` |
 | `AgenceRepository` | Agence | `findBySiret`, `findByNomContainingIgnoreCase`, `findByVille` |
-| `BienRepository` | Bien | `findByFilters(...)` (dynamic JPQL), `findByFiltersAndAgence(...)`, `findByAgenceId`, `findByProprietaireId` |
-| `ContratRepository` | Contrat | `findByIdWithDetails`, `findByBienId`, `findByPersonneId`, `findSignedRentalContracts`, `findByAgence` |
+| `BienRepository` | Bien | `findByFilters(...)` (dynamic JPQL), `findByFiltersAndAgence(...)`, `findByAgenceId`, `findByAgenceIdAndActif`, `findByProprietaireId` |
+| `ContratRepository` | Contrat | `findByIdWithDetails`, `findByBienId`, `findByBienIdAndTypeContrat`, `existsByBienId`, `existsSignedByBienIdAndType`, `existsEnCoursByBienIdAndType`, `findByPersonneId`, `findSignedRentalContracts`, `findByAgence` |
 | `PersonneRepository` | Personne | `searchByNameIgnoreAccents` (native), `findProprietaires`, `findByAgence` (native UNION: Compte+Posseder+Cosigner paths), `searchByAgence` (native UNION + accent-insensitive filter) |
 | `LocationRepository` | Location | Standard CRUD |
 | `AchatRepository` | Achat | Standard CRUD |
@@ -281,6 +283,9 @@ Class-level: `@PreAuthorize("hasRole('CLIENT')")`
 - `@Scheduled` cron for auto-expiring rental contracts
 - `@Async` email sending via `EmailService`
 - Password reset/activation tokens: UUID-based, time-limited, single-use
+- **Contract restructure**: Contrat references Bien directly (not via Location/Achat). Offer values are snapshotted at creation. Confirming a contract deletes the offer and cancels sibling EN_COURS contracts.
+- **Property archiving**: Soft-delete via `actif` field. Public endpoints filter archived. Archive deletes offers and cancels EN_COURS contracts. DELETE returns 409 if contracts exist (suggests archive).
+- **Offer creation guards**: LocationService/AchatService block create if SIGNE contract exists for same Bien+type. Delete blocked if EN_COURS contracts reference the offer.
 
 ---
 

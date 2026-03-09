@@ -3,6 +3,8 @@ package com.realestate.api.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,4 +20,11 @@ public class ContratDTO {
     private BienDTO bien;
     private boolean hasSignedDocument;
     private List<CosignerDTO> cosigners;
+
+    // Snapshot fields
+    private BigDecimal snapMensualite;
+    private BigDecimal snapCaution;
+    private Integer snapDureeMois;
+    private BigDecimal snapPrix;
+    private LocalDate snapDateDispo;
 }

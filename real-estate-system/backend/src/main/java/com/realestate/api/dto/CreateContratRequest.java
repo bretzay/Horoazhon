@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateContratRequest {
-    private Long locationId; // Either this...
-    private Long achatId;     // ...or this (exclusive)
+    private Long bienId;
+    private String typeContrat; // LOCATION or ACHAT
     private List<CosignerRequest> cosigners; // Must have at least 2
 }

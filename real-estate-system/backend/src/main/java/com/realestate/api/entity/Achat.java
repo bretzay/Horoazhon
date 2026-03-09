@@ -5,8 +5,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "Achat")
@@ -19,10 +17,10 @@ public class Achat {
     private Long id;
 
     @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal prix; // Sale price
+    private BigDecimal prix;
 
     @Column(nullable = false)
-    private LocalDate dateDispo; // Available from
+    private LocalDate dateDispo;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime dateCreation;
@@ -30,11 +28,6 @@ public class Achat {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bien_id", nullable = false, unique = true)
     private Bien bien;
-
-    @OneToMany(mappedBy = "achat")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<Contrat> contrats = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

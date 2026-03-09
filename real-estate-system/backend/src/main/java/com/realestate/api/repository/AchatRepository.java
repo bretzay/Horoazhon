@@ -21,7 +21,7 @@ public interface AchatRepository extends JpaRepository<Achat, Long> {
     
     // Find available purchases
     @Query("SELECT a FROM Achat a WHERE a.dateDispo <= CURRENT_DATE " +
-           "AND NOT EXISTS (SELECT 1 FROM Contrat c WHERE c.achat = a AND c.statut = 'SIGNE')")
+           "AND NOT EXISTS (SELECT 1 FROM Contrat c WHERE c.bien = a.bien AND c.typeContrat = 'ACHAT' AND c.statut = 'SIGNE')")
     List<Achat> findAvailableAchats();
 
     // Agency-filtered

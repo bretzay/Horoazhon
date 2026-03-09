@@ -191,8 +191,11 @@ List properties with pagination and filters.
 | caracMin_{id} | integer | Minimum value for characteristic with given ID |
 | lieuMax_{id} | integer | Maximum minutes to lieu with given ID |
 | lieuLoco_{id} | string | Locomotion type for lieu filter (A_PIED, VELO, TRANSPORT_PUBLIC, VOITURE) |
+| actif | boolean | Filter by active status (public requests always filter actif=true; authenticated can pass explicitly) |
 | page | integer | Page number (0-indexed, default 0) |
 | size | integer | Page size (default 10) |
+
+**Visibility rules:** Public (unauthenticated) requests only see active properties (`actif=true`). Authenticated users see all properties by default, but can filter with `?actif=true` or `?actif=false`.
 
 **Characteristic filters:** Multiple characteristics can be filtered simultaneously using `caracMin_1=3&caracMin_2=1`. All must match (AND logic).
 
@@ -218,7 +221,49 @@ Update a property. Requires authentication.
 
 ### DELETE /api/biens/{id}
 
-Delete a property. Requires authentication.
+Delete a property. Returns **409 Conflict** if the property has any contracts (suggests archiving instead). Requires authentication.
+
+**Response (409):**
+```json
+{
+  "error": "Cannot delete property with existing contracts. Use archive instead."
+}
+```
+
+### PUT /api/biens/{id}/archive
+
+Archive a property (soft-delete). Guards: fails if a SIGNE contract exists. Side-effects: deletes Location/Achat offers, cancels all EN_COURS contracts on this property.
+
+**Auth:** SUPER_ADMIN, ADMIN_AGENCY, AGENT
+
+**Response (200):** `BienDTO` (with `actif: false`)
+
+**Error (409):** If a SIGNE contract exists on this property.
+
+### PUT /api/biens/{id}/unarchive
+
+Restore an archived property.
+
+**Auth:** SUPER_ADMIN, ADMIN_AGENCY, AGENT
+
+**Response (200):** `BienDTO` (with `actif: true`)
+
+---
+
+## Agence Bien Listing
+
+### GET /api/agences/{id}/biens
+
+List properties for an agency with optional `actif` filter.
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| actif | boolean | Filter by active status |
+| page | integer | Page number (0-indexed, default 0) |
+| size | integer | Page size (default 12) |
+
+**Response (200):** `Page<BienDTO>`
 
 ---
 
@@ -317,6 +362,54 @@ Get contracts where personne is a cosigner.
 | Agency Admin | ADMIN_AGENCY | Own agency data, staff management |
 | Agent | AGENT | Own agency properties and contracts |
 | Client | CLIENT | Personal dashboard, own properties/contracts |
+
+---
+
+## Contract Model
+
+Contracts now reference a **Bien** directly (not via Location/Achat offers). Offer values are snapshotted at contract creation.
+
+### POST /api/contrats — Create Contract
+
+**Request:**
+```json
+{
+  "bienId": 1,
+  "typeContrat": "LOCATION",
+  "cosigners": [
+    { "personneId": 5, "typeSignataire": "RENTER" },
+    { "personneId": 3, "typeSignataire": "OWNER" }
+  ]
+}
+```
+
+- `typeContrat`: `"LOCATION"` or `"ACHAT"`
+- The corresponding offer (Location or Achat) must exist on the Bien
+- Offer values are copied to snapshot fields: `snapMensualite`, `snapCaution`, `snapDureeMois` (for LOCATION), `snapPrix`, `snapDateDispo` (for ACHAT)
+
+### POST /api/contrats/{id}/confirm — Confirm Contract
+
+Confirming a contract:
+1. Deletes the corresponding offer from the Bien (Location or Achat)
+2. Auto-cancels all other EN_COURS contracts of the same type on the same Bien
+
+### ContratDTO Response Shape
+
+```json
+{
+  "id": 1,
+  "statut": "EN_COURS",
+  "type": "LOCATION",
+  "hasSignedDocument": false,
+  "snapMensualite": 800.00,
+  "snapCaution": 1600.00,
+  "snapDureeMois": 12,
+  "snapPrix": null,
+  "snapDateDispo": "2025-01-15",
+  "bien": { "id": 2, "rue": "...", "ville": "...", "actif": true },
+  "cosigners": [...]
+}
+```
 
 ---
 

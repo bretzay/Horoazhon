@@ -42,9 +42,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Long> {
            "SELECT DISTINCT p.* FROM Personne p " +
            "JOIN Cosigner cos ON cos.personne_id = p.id " +
            "JOIN Contrat ct ON cos.contrat_id = ct.id " +
-           "LEFT JOIN Location loc ON ct.location_id = loc.id " +
-           "LEFT JOIN Achat ach ON ct.achat_id = ach.id " +
-           "JOIN Bien b ON COALESCE(loc.bien_id, ach.bien_id) = b.id " +
+           "JOIN Bien b ON ct.bien_id = b.id " +
            "WHERE b.agence_id = :agenceId",
            nativeQuery = true)
     List<Personne> findByAgence(@Param("agenceId") Long agenceId);
@@ -62,9 +60,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Long> {
            "SELECT p.* FROM Personne p " +
            "JOIN Cosigner cos ON cos.personne_id = p.id " +
            "JOIN Contrat ct ON cos.contrat_id = ct.id " +
-           "LEFT JOIN Location loc ON ct.location_id = loc.id " +
-           "LEFT JOIN Achat ach ON ct.achat_id = ach.id " +
-           "JOIN Bien b ON COALESCE(loc.bien_id, ach.bien_id) = b.id " +
+           "JOIN Bien b ON ct.bien_id = b.id " +
            "WHERE b.agence_id = :agenceId" +
            ") AS result " +
            "WHERE result.nom COLLATE Latin1_General_CI_AI LIKE '%' + :searchTerm + '%' " +

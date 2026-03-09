@@ -64,6 +64,7 @@ CREATE TABLE Bien (
     agence_id BIGINT NULL,
     dateCreation DATETIME2 DEFAULT GETDATE(),
     dateModification DATETIME2,
+    actif BIT NOT NULL DEFAULT 1,
     CONSTRAINT CK_Superficie CHECK (superficie >= 0)
 );
 
@@ -123,20 +124,22 @@ CREATE TABLE Achat (
     dateCreation DATETIME2 DEFAULT GETDATE()
 );
 
--- Table: Contrat - includes location_id and achat_id
+-- Table: Contrat - references Bien directly with offer snapshots
 CREATE TABLE Contrat (
     id BIGINT IDENTITY(1,1) PRIMARY KEY,
     dateCreation DATETIME2 DEFAULT GETDATE(),
     dateModification DATETIME2,
     statut NVARCHAR(50) DEFAULT 'EN_COURS',
     documentSigne NVARCHAR(500) NULL,
-    location_id BIGINT NULL,
-    achat_id BIGINT NULL,
+    bien_id BIGINT NOT NULL,
+    type_contrat NVARCHAR(50) NOT NULL,
+    snap_mensualite DECIMAL(15,2) NULL,
+    snap_caution DECIMAL(15,2) NULL,
+    snap_duree_mois INT NULL,
+    snap_prix DECIMAL(15,2) NULL,
+    snap_date_dispo DATE NULL,
     CONSTRAINT CK_Contrat_Statut CHECK (statut IN ('EN_COURS', 'SIGNE', 'ANNULE', 'TERMINE')),
-    CONSTRAINT CK_Contrat_Exclusivity CHECK (
-        (location_id IS NOT NULL AND achat_id IS NULL) OR
-        (location_id IS NULL AND achat_id IS NOT NULL)
-    )
+    CONSTRAINT CK_Contrat_Type CHECK (type_contrat IN ('LOCATION', 'ACHAT'))
 );
 
 -- Table: Cosigner (Contrat - Personne)
@@ -182,10 +185,8 @@ ALTER TABLE Achat ADD CONSTRAINT FK_Achat_Bien
     FOREIGN KEY (bien_id) REFERENCES Bien(id) ON DELETE CASCADE;
 ALTER TABLE Achat ADD CONSTRAINT UQ_Achat_Bien UNIQUE (bien_id);
 
-ALTER TABLE Contrat ADD CONSTRAINT FK_Contrat_Location
-    FOREIGN KEY (location_id) REFERENCES Location(id) ON DELETE NO ACTION;
-ALTER TABLE Contrat ADD CONSTRAINT FK_Contrat_Achat
-    FOREIGN KEY (achat_id) REFERENCES Achat(id) ON DELETE NO ACTION;
+ALTER TABLE Contrat ADD CONSTRAINT FK_Contrat_Bien
+    FOREIGN KEY (bien_id) REFERENCES Bien(id) ON DELETE NO ACTION;
 
 ALTER TABLE Cosigner ADD CONSTRAINT FK_Cosigner_Contrat
     FOREIGN KEY (contrat_id) REFERENCES Contrat(id) ON DELETE CASCADE;
@@ -201,8 +202,8 @@ CREATE INDEX IDX_Photo_Ordre ON Photo(bien_id, ordre);
 CREATE INDEX IDX_Bien_Ville ON Bien(ville);
 CREATE INDEX IDX_Bien_Type ON Bien(type);
 CREATE INDEX IDX_Bien_Agence ON Bien(agence_id);
-CREATE INDEX IDX_Contrat_Location ON Contrat(location_id);
-CREATE INDEX IDX_Contrat_Achat ON Contrat(achat_id);
+CREATE INDEX IDX_Contrat_Bien ON Contrat(bien_id);
+CREATE INDEX IDX_Contrat_Type ON Contrat(type_contrat);
 CREATE INDEX IDX_Cosigner_Personne ON Cosigner(personne_id);
 CREATE INDEX IDX_Personne_Nom ON Personne(nom, prenom);
 

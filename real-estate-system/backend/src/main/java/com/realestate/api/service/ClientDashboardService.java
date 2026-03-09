@@ -47,9 +47,7 @@ public class ClientDashboardService {
                 .filter(c -> c.getStatut() == Contrat.StatutContrat.EN_COURS || c.getStatut() == Contrat.StatutContrat.SIGNE)
                 .count());
 
-        // Revenue calculations: only SIGNE and TERMINE rental contracts where this person is OWNER.
-        // EN_COURS = not yet signed = no revenue. ANNULE = cancelled = no revenue.
-        // All revenue (active + past) is merged into a single timeline.
+        // Revenue calculations: only SIGNE and TERMINE rental contracts where this person is OWNER
         BigDecimal totalRevenue = BigDecimal.ZERO;
         BigDecimal monthlyRevenue = BigDecimal.ZERO;
         Map<String, BigDecimal> revenueByMonth = new TreeMap<>();
@@ -65,12 +63,10 @@ public class ClientDashboardService {
                             && cs.getTypeSignataire() == Cosigner.TypeSignataire.OWNER);
             if (!isOwner) continue;
 
-            if (c.getLocation() == null) continue;
-            BigDecimal mensualite = c.getLocation().getMensualite();
+            BigDecimal mensualite = c.getSnapMensualite();
             if (mensualite == null) continue;
-            Integer dureeMois = c.getLocation().getDureeMois();
+            Integer dureeMois = c.getSnapDureeMois();
 
-            // Use the latest cosigner signature date as the contract start date for revenue
             LocalDateTime signatureDate = c.getCosigners().stream()
                     .map(Cosigner::getDateSignature)
                     .filter(d -> d != null)
@@ -78,9 +74,6 @@ public class ClientDashboardService {
                     .orElse(c.getDateCreation());
             YearMonth start = YearMonth.from(signatureDate);
 
-            // Determine the end boundary for revenue:
-            // - SIGNE: up to current month (skip future)
-            // - TERMINE: up to the termination date (dateModification), not the full original duration
             YearMonth endBoundary;
             if (c.getStatut() == Contrat.StatutContrat.TERMINE) {
                 endBoundary = YearMonth.from(c.getDateModification());
@@ -96,14 +89,12 @@ public class ClientDashboardService {
                     revenueByMonth.merge(key, mensualite, BigDecimal::add);
                 }
 
-                // Current month revenue (contract is SIGNE and active right now)
                 YearMonth contractEnd = start.plusMonths(dureeMois);
                 if (c.getStatut() == Contrat.StatutContrat.SIGNE
                         && !now.isBefore(start) && now.isBefore(contractEnd)) {
                     monthlyRevenue = monthlyRevenue.add(mensualite);
                 }
             } else if (dureeMois == null) {
-                // Indefinite contract: generate revenue from start to endBoundary
                 YearMonth month = start;
                 while (!month.isAfter(endBoundary)) {
                     String key = month.format(monthFmt);
@@ -156,13 +147,15 @@ public class ClientDashboardService {
         dto.setDateCreation(c.getDateCreation());
         dto.setDateModification(c.getDateModification());
         dto.setStatut(c.getStatut().name());
-        dto.setType(c.getType() != null ? c.getType().name() : null);
+        dto.setType(c.getTypeContrat() != null ? c.getTypeContrat().name() : null);
         dto.setHasSignedDocument(c.getDocumentSigne() != null && !c.getDocumentSigne().isBlank());
+        dto.setSnapMensualite(c.getSnapMensualite());
+        dto.setSnapCaution(c.getSnapCaution());
+        dto.setSnapDureeMois(c.getSnapDureeMois());
+        dto.setSnapPrix(c.getSnapPrix());
+        dto.setSnapDateDispo(c.getSnapDateDispo());
 
-        Bien bien = null;
-        if (c.getLocation() != null) bien = c.getLocation().getBien();
-        else if (c.getAchat() != null) bien = c.getAchat().getBien();
-
+        Bien bien = c.getBien();
         if (bien != null) {
             BienDTO bienDTO = new BienDTO();
             bienDTO.setId(bien.getId());
@@ -171,6 +164,7 @@ public class ClientDashboardService {
             bienDTO.setCodePostal(bien.getCodePostal());
             bienDTO.setType(bien.getType());
             bienDTO.setSuperficie(bien.getSuperficie());
+            bienDTO.setActif(bien.getActif());
             if (bien.getLocation() != null) {
                 bienDTO.setAvailableForRent(true);
                 bienDTO.setMonthlyRent(bien.getLocation().getMensualite());
@@ -208,6 +202,7 @@ public class ClientDashboardService {
         dto.setDescription(b.getDescription());
         dto.setType(b.getType());
         dto.setDateCreation(b.getDateCreation());
+        dto.setActif(b.getActif());
 
         if (b.getPhotos() != null && !b.getPhotos().isEmpty()) {
             Photo principal = b.getPrincipalPhoto();

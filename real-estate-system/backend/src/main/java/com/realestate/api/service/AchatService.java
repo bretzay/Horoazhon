@@ -4,8 +4,10 @@ import com.realestate.api.dto.AchatDTO;
 import com.realestate.api.dto.CreateAchatRequest;
 import com.realestate.api.entity.Achat;
 import com.realestate.api.entity.Bien;
+import com.realestate.api.entity.Contrat;
 import com.realestate.api.repository.AchatRepository;
 import com.realestate.api.repository.BienRepository;
+import com.realestate.api.repository.ContratRepository;
 import com.realestate.api.security.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class AchatService {
 
     private final AchatRepository achatRepository;
     private final BienRepository bienRepository;
+    private final ContratRepository contratRepository;
     private final SecurityUtils securityUtils;
 
     @Transactional(readOnly = true)
@@ -53,6 +56,11 @@ public class AchatService {
             throw new IllegalStateException("Bien " + request.getBienId() + " already has a sale listing");
         }
 
+        // Guard: blocked if a SIGNE Achat-type contract exists on the Bien
+        if (contratRepository.existsSignedByBienIdAndType(bien.getId(), Contrat.TypeContrat.ACHAT)) {
+            throw new IllegalStateException("Impossible de creer une offre de vente: un contrat de vente signe existe pour ce bien");
+        }
+
         Achat achat = new Achat();
         achat.setBien(bien);
         achat.setPrix(request.getPrix());
@@ -78,12 +86,15 @@ public class AchatService {
         Achat achat = achatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + id));
         verifyAgencyAccess(achat);
-        if (achat.getContrats() != null && !achat.getContrats().isEmpty()) {
-            throw new IllegalStateException("Impossible de supprimer: des contrats sont liés à cette offre de vente");
+
+        // Guard: blocked if EN_COURS Achat-type contracts exist for the Bien
+        if (contratRepository.existsEnCoursByBienIdAndType(achat.getBien().getId(), Contrat.TypeContrat.ACHAT)) {
+            throw new IllegalStateException("Impossible de supprimer: des contrats de vente en cours existent pour ce bien");
         }
+
         Bien bien = achat.getBien();
         if (bien != null) {
-            bien.setAchat(null);  // orphanRemoval = true on Bien.achat will delete the Achat
+            bien.setAchat(null);
             bienRepository.save(bien);
         } else {
             achatRepository.delete(achat);

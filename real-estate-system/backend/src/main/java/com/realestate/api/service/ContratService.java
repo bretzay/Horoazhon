@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,29 +60,41 @@ public class ContratService {
             throw new IllegalArgumentException("A contract must have at least 2 cosigners");
         }
 
-        if ((request.getLocationId() == null && request.getAchatId() == null) ||
-            (request.getLocationId() != null && request.getAchatId() != null)) {
-            throw new IllegalArgumentException("A contract must have either a locationId or achatId (not both, not neither)");
+        if (request.getBienId() == null || request.getTypeContrat() == null) {
+            throw new IllegalArgumentException("bienId and typeContrat are required");
         }
+
+        Contrat.TypeContrat typeContrat = Contrat.TypeContrat.valueOf(request.getTypeContrat());
+
+        Bien bien = bienRepository.findById(request.getBienId())
+                .orElseThrow(() -> new EntityNotFoundException("Bien not found with id: " + request.getBienId()));
 
         Contrat contrat = new Contrat();
-
-        if (request.getLocationId() != null) {
-            Location loc = locationRepository.findById(request.getLocationId())
-                    .orElseThrow(() -> new EntityNotFoundException("Location not found with id: " + request.getLocationId()));
-            contrat.setLocation(loc);
-        }
-
-        if (request.getAchatId() != null) {
-            Achat achat = achatRepository.findById(request.getAchatId())
-                    .orElseThrow(() -> new EntityNotFoundException("Achat not found with id: " + request.getAchatId()));
-            contrat.setAchat(achat);
-        }
-
+        contrat.setBien(bien);
+        contrat.setTypeContrat(typeContrat);
         contrat.setStatut(Contrat.StatutContrat.EN_COURS);
         contrat.setCreatedBy(securityUtils.getCurrentCompteOrThrow());
 
-        // Add cosigners before first save so cascade persists them
+        // Snapshot fields from the active offer
+        if (typeContrat == Contrat.TypeContrat.LOCATION) {
+            Location loc = bien.getLocation();
+            if (loc == null) {
+                throw new IllegalArgumentException("Bien " + bien.getId() + " has no active rental offer (Location)");
+            }
+            contrat.setSnapMensualite(loc.getMensualite());
+            contrat.setSnapCaution(loc.getCaution());
+            contrat.setSnapDureeMois(loc.getDureeMois());
+            contrat.setSnapDateDispo(loc.getDateDispo());
+        } else {
+            Achat achat = bien.getAchat();
+            if (achat == null) {
+                throw new IllegalArgumentException("Bien " + bien.getId() + " has no active sale offer (Achat)");
+            }
+            contrat.setSnapPrix(achat.getPrix());
+            contrat.setSnapDateDispo(achat.getDateDispo());
+        }
+
+        // Add cosigners
         for (CosignerRequest cr : request.getCosigners()) {
             Personne personne = personneRepository.findById(cr.getPersonneId())
                     .orElseThrow(() -> new EntityNotFoundException("Personne not found with id: " + cr.getPersonneId()));
@@ -107,12 +118,10 @@ public class ContratService {
         Contrat.StatutContrat currentStatut = contrat.getStatut();
         Contrat.StatutContrat newStatut = Contrat.StatutContrat.valueOf(statut);
 
-        // TERMINE contracts are frozen — no modifications allowed
         if (currentStatut == Contrat.StatutContrat.TERMINE) {
             throw new IllegalArgumentException("Un contrat termine ne peut plus etre modifie.");
         }
 
-        // SIGNE contracts can only be terminated
         if (currentStatut == Contrat.StatutContrat.SIGNE && newStatut != Contrat.StatutContrat.TERMINE) {
             throw new IllegalArgumentException("Un contrat signe ne peut qu'etre termine.");
         }
@@ -138,19 +147,11 @@ public class ContratService {
         return convertToDTO(contrat);
     }
 
-    /**
-     * When a purchase contract is completed (TERMINE):
-     * 1. Transfer property ownership from seller to buyer
-     * 2. Terminate any active (SIGNE) rental contracts and create reconduction contracts with the new owner
-     * 3. If no active rental was running, unlink the rental offer (Location) from the property
-     * 4. Cancel any other EN_COURS purchase contracts on the same sale offer
-     * 5. Unlink the sale offer (Achat) from the property
-     */
     private void handlePurchaseCompletion(Contrat purchaseContrat) {
-        Bien bien = purchaseContrat.getAchat().getBien();
+        Bien bien = purchaseContrat.getBien();
         LocalDateTime now = LocalDateTime.now();
 
-        // Find buyer and seller from cosigners
+        // Find buyer from cosigners
         Personne buyer = null;
         for (Cosigner cs : purchaseContrat.getCosigners()) {
             if (cs.getTypeSignataire() == Cosigner.TypeSignataire.BUYER) {
@@ -177,94 +178,75 @@ public class ContratService {
         log.info("Ownership of bien #{} transferred to {} {} (personne #{})",
                 bien.getId(), buyer.getPrenom(), buyer.getNom(), buyer.getId());
 
-        // 2 & 3. Handle active rental contracts on this property
-        Location location = bien.getLocation();
+        // 2. Handle active rental contracts on this property
+        List<Contrat> rentalContracts = contratRepository.findByBienIdAndTypeContrat(bien.getId(), Contrat.TypeContrat.LOCATION);
         boolean hasActiveRental = false;
 
-        if (location != null) {
-            List<Contrat> rentalContracts = contratRepository.findByLocationId(location.getId());
+        for (Contrat rentalContrat : rentalContracts) {
+            if (rentalContrat.getStatut() == Contrat.StatutContrat.SIGNE) {
+                hasActiveRental = true;
+                rentalContrat.setStatut(Contrat.StatutContrat.TERMINE);
+                contratRepository.save(rentalContrat);
+                log.info("Rental contrat #{} terminated early due to sale of bien #{}",
+                        rentalContrat.getId(), bien.getId());
 
-            for (Contrat rentalContrat : rentalContracts) {
-                if (rentalContrat.getStatut() == Contrat.StatutContrat.SIGNE) {
-                    hasActiveRental = true;
-
-                    // Terminate early
-                    rentalContrat.setStatut(Contrat.StatutContrat.TERMINE);
-                    contratRepository.save(rentalContrat);
-
-                    log.info("Rental contrat #{} terminated early due to sale of bien #{}",
-                            rentalContrat.getId(), bien.getId());
-
-                    // Find the renter from the old contract
-                    Personne renter = null;
-                    for (Cosigner cs : rentalContrat.getCosigners()) {
-                        if (cs.getTypeSignataire() == Cosigner.TypeSignataire.RENTER) {
-                            renter = cs.getPersonne();
-                            break;
-                        }
+                Personne renter = null;
+                for (Cosigner cs : rentalContrat.getCosigners()) {
+                    if (cs.getTypeSignataire() == Cosigner.TypeSignataire.RENTER) {
+                        renter = cs.getPersonne();
+                        break;
                     }
-
-                    if (renter != null) {
-                        // Create reconduction contract with new owner
-                        createReconductionContract(rentalContrat, buyer, renter, location, purchaseContrat);
-                    }
-                } else if (rentalContrat.getStatut() == Contrat.StatutContrat.EN_COURS) {
-                    // Cancel any pending rental contracts
-                    rentalContrat.setStatut(Contrat.StatutContrat.ANNULE);
-                    contratRepository.save(rentalContrat);
-
-                    log.info("Rental contrat #{} (EN_COURS) cancelled due to sale of bien #{}",
-                            rentalContrat.getId(), bien.getId());
                 }
-            }
 
-            // Only unlink the rental offer if there was no active rental running.
-            // If a reconduction contract was created, keep the Location linked so the
-            // new owner's rental continues working.
-            if (!hasActiveRental) {
-                bien.setLocation(null);
-                bienRepository.save(bien);
-
-                log.info("Rental offer (location #{}) unlinked from bien #{} after sale (no active rental)",
-                        location.getId(), bien.getId());
+                if (renter != null && bien.getLocation() != null) {
+                    createReconductionContract(rentalContrat, buyer, renter, bien, purchaseContrat);
+                }
+            } else if (rentalContrat.getStatut() == Contrat.StatutContrat.EN_COURS) {
+                rentalContrat.setStatut(Contrat.StatutContrat.ANNULE);
+                contratRepository.save(rentalContrat);
+                log.info("Rental contrat #{} (EN_COURS) cancelled due to sale of bien #{}",
+                        rentalContrat.getId(), bien.getId());
             }
         }
 
-        // 4. Cancel any other EN_COURS purchase contracts on the same sale offer
-        Achat achat = purchaseContrat.getAchat();
-        List<Contrat> purchaseContracts = contratRepository.findByAchatId(achat.getId());
+        // Only unlink the rental offer if there was no active rental running
+        if (!hasActiveRental && bien.getLocation() != null) {
+            bien.setLocation(null);
+            bienRepository.save(bien);
+            log.info("Rental offer unlinked from bien #{} after sale (no active rental)", bien.getId());
+        }
+
+        // 3. Cancel any other EN_COURS purchase contracts on the same bien
+        List<Contrat> purchaseContracts = contratRepository.findByBienIdAndTypeContrat(bien.getId(), Contrat.TypeContrat.ACHAT);
         for (Contrat sibling : purchaseContracts) {
             if (!sibling.getId().equals(purchaseContrat.getId())
                     && sibling.getStatut() == Contrat.StatutContrat.EN_COURS) {
                 sibling.setStatut(Contrat.StatutContrat.ANNULE);
                 contratRepository.save(sibling);
-
                 log.info("Purchase contrat #{} (EN_COURS) cancelled due to sale completion of bien #{}",
                         sibling.getId(), bien.getId());
             }
         }
 
-        // 5. Unlink the sale offer from the property
+        // 4. Unlink the sale offer from the property
         bien.setAchat(null);
         bienRepository.save(bien);
     }
 
-    /**
-     * Create a reconduction rental contract with the new owner after property sale.
-     * The new contract:
-     * - References the same Location
-     * - Has the buyer (new owner) as OWNER and the renter as RENTER
-     * - Is set directly to SIGNE status
-     * - Uses the old contract's signed document + a reconduction note page
-     * - Keeps the same duration (or null if indefinite)
-     */
     private void createReconductionContract(Contrat oldContrat, Personne newOwner,
-                                             Personne renter, Location location,
+                                             Personne renter, Bien bien,
                                              Contrat purchaseContrat) {
         Contrat newContrat = new Contrat();
-        newContrat.setLocation(location);
+        newContrat.setBien(bien);
+        newContrat.setTypeContrat(Contrat.TypeContrat.LOCATION);
         newContrat.setStatut(Contrat.StatutContrat.SIGNE);
         newContrat.setCreatedBy(securityUtils.getCurrentCompteOrThrow());
+
+        // Copy snapshot from old contract
+        newContrat.setSnapMensualite(oldContrat.getSnapMensualite());
+        newContrat.setSnapCaution(oldContrat.getSnapCaution());
+        newContrat.setSnapDureeMois(oldContrat.getSnapDureeMois());
+        newContrat.setSnapDateDispo(oldContrat.getSnapDateDispo());
 
         // Add cosigners: new owner + renter
         Cosigner ownerCosigner = new Cosigner();
@@ -283,7 +265,7 @@ public class ContratService {
         renterCosigner.setDateSignature(LocalDateTime.now());
         newContrat.getCosigners().add(renterCosigner);
 
-        // Generate the reconduction PDF: old contract's document + reconduction note
+        // Generate the reconduction PDF
         try {
             byte[] reconductionPdf = contratPdfService.generateReconductionPdf(
                     oldContrat, purchaseContrat, newOwner);
@@ -291,7 +273,6 @@ public class ContratService {
             Path uploadPath = Paths.get(uploadDir);
             Files.createDirectories(uploadPath);
 
-            // Save temporarily to get the contrat ID after flush
             Contrat saved = contratRepository.saveAndFlush(newContrat);
 
             String filename = "contrat-" + saved.getId() + "-signe.pdf";
@@ -302,20 +283,19 @@ public class ContratService {
             contratRepository.save(saved);
 
             log.info("Reconduction rental contrat #{} created for bien #{} (new owner: {} {}, renter: {} {})",
-                    saved.getId(), location.getBien().getId(),
+                    saved.getId(), bien.getId(),
                     newOwner.getPrenom(), newOwner.getNom(),
                     renter.getPrenom(), renter.getNom());
         } catch (IOException e) {
             log.error("Failed to generate reconduction PDF for contrat #{}: {}",
                     oldContrat.getId(), e.getMessage());
-            // Still create the contract but without the PDF
             Contrat saved = contratRepository.saveAndFlush(newContrat);
             log.warn("Reconduction contrat #{} created without PDF document", saved.getId());
         }
     }
 
     public ContratDTO confirmContrat(Long id) {
-        Contrat contrat = contratRepository.findById(id)
+        Contrat contrat = contratRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new EntityNotFoundException("Contrat not found with id: " + id));
 
         if (contrat.getStatut() != Contrat.StatutContrat.EN_COURS) {
@@ -336,17 +316,26 @@ public class ContratService {
 
         contratRepository.save(contrat);
 
-        // Cancel all other EN_COURS contracts on the same offer
-        List<Contrat> siblings;
-        if (contrat.getLocation() != null) {
-            siblings = contratRepository.findByLocationId(contrat.getLocation().getId());
-        } else {
-            siblings = contratRepository.findByAchatId(contrat.getAchat().getId());
+        // Delete the corresponding offer
+        Bien bien = contrat.getBien();
+        if (contrat.getTypeContrat() == Contrat.TypeContrat.LOCATION && bien.getLocation() != null) {
+            bien.setLocation(null);
+            bienRepository.save(bien);
+            log.info("Location offer deleted for bien #{} after contract #{} signed", bien.getId(), id);
+        } else if (contrat.getTypeContrat() == Contrat.TypeContrat.ACHAT && bien.getAchat() != null) {
+            bien.setAchat(null);
+            bienRepository.save(bien);
+            log.info("Achat offer deleted for bien #{} after contract #{} signed", bien.getId(), id);
         }
+
+        // Cancel all other EN_COURS contracts of the same type for the same Bien
+        List<Contrat> siblings = contratRepository.findByBienIdAndTypeContrat(bien.getId(), contrat.getTypeContrat());
         for (Contrat sibling : siblings) {
             if (!sibling.getId().equals(id) && sibling.getStatut() == Contrat.StatutContrat.EN_COURS) {
                 sibling.setStatut(Contrat.StatutContrat.ANNULE);
                 contratRepository.save(sibling);
+                log.info("Sibling contrat #{} cancelled after contract #{} signed on bien #{}",
+                        sibling.getId(), id, bien.getId());
             }
         }
 
@@ -387,17 +376,18 @@ public class ContratService {
         dto.setDateCreation(c.getDateCreation());
         dto.setDateModification(c.getDateModification());
         dto.setStatut(c.getStatut().name());
-        dto.setType(c.getType() != null ? c.getType().name() : null);
+        dto.setType(c.getTypeContrat() != null ? c.getTypeContrat().name() : null);
         dto.setHasSignedDocument(c.getDocumentSigne() != null && !c.getDocumentSigne().isBlank());
 
-        // Get the associated bien
-        Bien bien = null;
-        if (c.getLocation() != null) {
-            bien = c.getLocation().getBien();
-        } else if (c.getAchat() != null) {
-            bien = c.getAchat().getBien();
-        }
+        // Snapshot fields
+        dto.setSnapMensualite(c.getSnapMensualite());
+        dto.setSnapCaution(c.getSnapCaution());
+        dto.setSnapDureeMois(c.getSnapDureeMois());
+        dto.setSnapPrix(c.getSnapPrix());
+        dto.setSnapDateDispo(c.getSnapDateDispo());
 
+        // Bien reference
+        Bien bien = c.getBien();
         if (bien != null) {
             BienDTO bienDTO = new BienDTO();
             bienDTO.setId(bien.getId());
@@ -405,6 +395,7 @@ public class ContratService {
             bienDTO.setVille(bien.getVille());
             bienDTO.setCodePostal(bien.getCodePostal());
             bienDTO.setType(bien.getType());
+            bienDTO.setActif(bien.getActif());
             dto.setBien(bienDTO);
         }
 
@@ -426,7 +417,6 @@ public class ContratService {
 
     private ContratDetailDTO convertToDetailDTO(Contrat c) {
         ContratDetailDTO dto = new ContratDetailDTO();
-        // Copy base fields
         ContratDTO base = convertToDTO(c);
         dto.setId(base.getId());
         dto.setDateCreation(base.getDateCreation());
@@ -436,34 +426,14 @@ public class ContratService {
         dto.setBien(base.getBien());
         dto.setHasSignedDocument(base.isHasSignedDocument());
         dto.setCosigners(base.getCosigners());
+        dto.setSnapMensualite(base.getSnapMensualite());
+        dto.setSnapCaution(base.getSnapCaution());
+        dto.setSnapDureeMois(base.getSnapDureeMois());
+        dto.setSnapPrix(base.getSnapPrix());
+        dto.setSnapDateDispo(base.getSnapDateDispo());
 
-        if (c.getLocation() != null) {
-            LocationDTO locDTO = new LocationDTO();
-            locDTO.setId(c.getLocation().getId());
-            locDTO.setCaution(c.getLocation().getCaution());
-            locDTO.setDateDispo(c.getLocation().getDateDispo());
-            locDTO.setMensualite(c.getLocation().getMensualite());
-            locDTO.setDureeMois(c.getLocation().getDureeMois());
-            dto.setLocation(locDTO);
-        }
-
-        if (c.getAchat() != null) {
-            AchatDTO achatDTO = new AchatDTO();
-            achatDTO.setId(c.getAchat().getId());
-            achatDTO.setPrix(c.getAchat().getPrix());
-            achatDTO.setDateDispo(c.getAchat().getDateDispo());
-            dto.setAchat(achatDTO);
-        }
-
-        // Count other EN_COURS contracts on the same offer
-        List<Contrat> siblings;
-        if (c.getLocation() != null) {
-            siblings = contratRepository.findByLocationId(c.getLocation().getId());
-        } else if (c.getAchat() != null) {
-            siblings = contratRepository.findByAchatId(c.getAchat().getId());
-        } else {
-            siblings = List.of();
-        }
+        // Count other EN_COURS contracts of same type on same Bien
+        List<Contrat> siblings = contratRepository.findByBienIdAndTypeContrat(c.getBien().getId(), c.getTypeContrat());
         int siblingCount = (int) siblings.stream()
                 .filter(s -> !s.getId().equals(c.getId()) && s.getStatut() == Contrat.StatutContrat.EN_COURS)
                 .count();

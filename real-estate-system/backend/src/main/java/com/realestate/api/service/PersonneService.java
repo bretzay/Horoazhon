@@ -120,9 +120,7 @@ public class PersonneService {
                     dto.setDateCreation(c.getDateCreation());
                     dto.setStatut(c.getStatut().name());
                     dto.setType(c.getType() != null ? c.getType().name() : null);
-                    Bien bien = null;
-                    if (c.getLocation() != null) bien = c.getLocation().getBien();
-                    else if (c.getAchat() != null) bien = c.getAchat().getBien();
+                    Bien bien = c.getBien();
                     if (bien != null) {
                         BienDTO bienDTO = new BienDTO();
                         bienDTO.setId(bien.getId());
