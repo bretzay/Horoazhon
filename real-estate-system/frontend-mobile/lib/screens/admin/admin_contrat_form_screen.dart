@@ -323,7 +323,7 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.slate300),
+              border: Border.all(color: AppColors.slate200),
               borderRadius: AppRadius.mdAll,
             ),
             child: Text(
@@ -349,7 +349,7 @@ class _AdminContratFormScreenState extends State<AdminContratFormScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? AppColors.blue500 : AppColors.white,
-          border: Border.all(color: selected ? AppColors.blue500 : AppColors.slate300),
+          border: Border.all(color: selected ? AppColors.blue500 : AppColors.slate200),
           borderRadius: AppRadius.fullAll,
         ),
         child: Text(
