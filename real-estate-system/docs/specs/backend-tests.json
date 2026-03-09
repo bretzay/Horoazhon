@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "backend",
-  "lastUpdated": "2026-03-06T00:02:08Z",
+  "lastUpdated": "2026-03-09T15:04:27Z",
   "tests": [
     {
       "featureId": "be-auth-login",
@@ -1086,11 +1086,13 @@
       "suites": [
         {
           "id": "be-bien-read-list-public",
-          "title": "GET /api/biens is public and returns paginated results",
+          "title": "Public GET /api/biens returns paginated results with actif field",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
-              "description": "List all properties without authentication",
+              "description": "List properties publicly",
               "method": "GET",
               "url": "http://localhost:8080/api/biens"
             }
@@ -1114,25 +1116,92 @@
               "field": "totalElements"
             },
             {
-              "type": "json_field_exists",
-              "field": "totalPages"
-            },
-            {
               "type": "json_array_min_length",
               "field": "content",
               "value": 1
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content[0].actif"
+            }
+          ]
+        },
+        {
+          "id": "be-bien-read-public-excludes-archived",
+          "title": "Public listing excludes archived properties (actif=false not shown)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN to archive a property first",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a fresh property to archive",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "type": "TERRAIN",
+                "rue": "Archive Test Rue",
+                "codePostal": "75099",
+                "ville": "Paris",
+                "superficie": 100.0,
+                "nbPieces": 0,
+                "nbChambres": 0,
+                "nbSallesDeBain": 0,
+                "description": "Will be archived for filtering test",
+                "agenceId": 1
+              },
+              "extract": "archivedBienId:id"
+            },
+            {
+              "description": "Archive the property",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/$archivedBienId/archive",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Public listing should not contain the archived property",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?size=100"
             }
           ],
-          "status": "passing",
-          "lastResult": null
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_not_contains_id",
+              "field": "content",
+              "id_field": "id",
+              "value": "$archivedBienId"
+            }
+          ]
         },
         {
           "id": "be-bien-read-detail-public",
-          "title": "GET /api/biens/{id} is public and returns full detail",
+          "title": "Public GET /api/biens/{id} returns full detail with actif field",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
-              "description": "Get detail for bien 1 (Appartement Haussmannien)",
+              "description": "Get Bien 1 detail publicly",
               "method": "GET",
               "url": "http://localhost:8080/api/biens/1"
             }
@@ -1147,33 +1216,25 @@
               "field": "id"
             },
             {
+              "type": "json_field_exists",
+              "field": "actif"
+            },
+            {
               "type": "json_field_equals",
-              "field": "type",
-              "value": "APPARTEMENT"
-            },
-            {
-              "type": "json_field_exists",
-              "field": "photos"
-            },
-            {
-              "type": "json_field_exists",
-              "field": "caracteristiques"
-            },
-            {
-              "type": "json_field_exists",
-              "field": "lieux"
+              "field": "actif",
+              "value": true
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-read-detail-not-found",
           "title": "GET /api/biens/{id} for nonexistent ID returns 404",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
-              "description": "Get detail for nonexistent bien",
+              "description": "Get nonexistent property",
               "method": "GET",
               "url": "http://localhost:8080/api/biens/99999"
             }
@@ -1183,19 +1244,19 @@
               "type": "status_code",
               "value": 404
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-read-filter-type",
           "title": "Filter properties by type",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
-              "description": "Search for MAISON type only",
+              "description": "Filter by type APPARTEMENT",
               "method": "GET",
-              "url": "http://localhost:8080/api/biens?type=MAISON"
+              "url": "http://localhost:8080/api/biens?type=APPARTEMENT"
             }
           ],
           "assertions": [
@@ -1204,28 +1265,27 @@
               "value": 200
             },
             {
-              "type": "json_field_type",
-              "field": "content",
-              "value": "array"
+              "type": "json_field_exists",
+              "field": "content"
             },
             {
               "type": "json_array_min_length",
               "field": "content",
               "value": 1
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-read-filter-empty-results",
           "title": "Search with no matches returns empty page, not 404",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
-              "description": "Search for a nonexistent city",
+              "description": "Search with impossible query",
               "method": "GET",
-              "url": "http://localhost:8080/api/biens?search=ZzzNonexistentCityXyz"
+              "url": "http://localhost:8080/api/biens?ville=Nonexistentville999"
             }
           ],
           "assertions": [
@@ -1237,25 +1297,34 @@
               "type": "json_field_equals",
               "field": "totalElements",
               "value": 0
-            },
-            {
-              "type": "json_field_type",
-              "field": "content",
-              "value": "array"
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
-          "id": "be-bien-read-dual-listing",
-          "title": "Bien 3 has both achat and location (dual listing)",
+          "id": "be-bien-read-authenticated-actif-filter",
+          "title": "Authenticated GET /api/biens with actif filter shows only matching properties",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
-              "description": "Get detail for bien 3 (Maison Vincennes — dual listed)",
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "List properties with actif=true filter",
               "method": "GET",
-              "url": "http://localhost:8080/api/biens/3"
+              "url": "http://localhost:8080/api/biens?actif=true",
+              "auth_token": "$token"
             }
           ],
           "assertions": [
@@ -1265,148 +1334,21 @@
             },
             {
               "type": "json_field_exists",
-              "field": "achat"
-            },
-            {
-              "type": "json_field_exists",
-              "field": "location"
-            }
-          ],
-          "status": "passing",
-          "lastResult": null
-        },
-        {
-          "id": "be-bien-read-pagination",
-          "title": "Pagination params work correctly",
-          "type": "http",
-          "steps": [
-            {
-              "description": "Request page 0, size 2",
-              "method": "GET",
-              "url": "http://localhost:8080/api/biens?page=0&size=2"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 200
-            },
-            {
-              "type": "json_field_exists",
-              "field": "totalElements"
-            },
-            {
-              "type": "json_field_exists",
-              "field": "totalPages"
-            },
-            {
-              "type": "json_field_exists",
-              "field": "number"
-            }
-          ],
-          "status": "passing",
-          "lastResult": null
-        },
-        {
-          "id": "be-bien-read-filter-forsale",
-          "title": "Filter properties for sale only",
-          "type": "http",
-          "steps": [
-            {
-              "description": "Filter for sale properties",
-              "method": "GET",
-              "url": "http://localhost:8080/api/biens?forSale=true"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 200
-            },
-            {
-              "type": "json_field_type",
-              "field": "content",
-              "value": "array"
+              "field": "content"
             },
             {
               "type": "json_array_min_length",
               "field": "content",
               "value": 1
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
-          "id": "be-bien-read-search-sql-inject",
-          "title": "Search with SQL injection is safe (200)",
+          "id": "be-bien-read-authenticated-shows-all",
+          "title": "Authenticated GET /api/biens without actif filter shows all (active + archived)",
           "type": "http",
-          "steps": [
-            {
-              "description": "Search with SQL injection",
-              "method": "GET",
-              "url": "http://localhost:8080/api/biens?search=';DROP TABLE Bien;--"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 200
-            }
-          ],
-          "status": "passing",
-          "lastResult": null
-        },
-        {
-          "id": "be-bien-read-negative-page",
-          "title": "Negative page number returns 400 (Spring Pageable rejects negatives)",
-          "type": "http",
-          "steps": [
-            {
-              "description": "Request page -1",
-              "method": "GET",
-              "url": "http://localhost:8080/api/biens?page=-1"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 400
-            }
-          ],
-          "status": "passing",
-          "lastResult": null
-        },
-        {
-          "id": "be-bien-read-huge-page",
-          "title": "Huge page number returns empty (not error)",
-          "type": "http",
-          "steps": [
-            {
-              "description": "Request page 999999",
-              "method": "GET",
-              "url": "http://localhost:8080/api/biens?page=999999"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 200
-            }
-          ],
-          "status": "passing",
-          "lastResult": null
-        }
-      ]
-    },
-    {
-      "featureId": "be-bien-write",
-      "writtenBy": "role-4",
-      "suites": [
-        {
-          "id": "be-bien-write-create-superadmin",
-          "title": "SUPER_ADMIN can create a property",
-          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -1422,7 +1364,161 @@
               "extract": "token"
             },
             {
-              "description": "Create a new property",
+              "description": "List all properties (no actif filter)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "be-bien-read-dual-listing",
+          "title": "Bien 3 has both achat and location (dual listing)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Get Bien 3 detail (has both Achat and Location offers)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens/3"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "actif"
+            }
+          ]
+        },
+        {
+          "id": "be-bien-read-pagination",
+          "title": "Pagination params work correctly",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Request page 0 with size 2",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?page=0&size=2"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalPages"
+            }
+          ]
+        },
+        {
+          "id": "be-bien-read-search-sql-inject",
+          "title": "Search with SQL injection is safe (200)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Search with SQL injection attempt",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens?ville=Paris' OR '1'='1"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ]
+        },
+        {
+          "id": "be-bien-read-public-agence-biens",
+          "title": "Public GET /api/agences/{id}/biens excludes archived properties",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "List properties for agency 1 publicly",
+              "method": "GET",
+              "url": "http://localhost:8080/api/agences/1/biens"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_array_min_length",
+              "field": "content",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "be-bien-write",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "be-bien-write-create-superadmin",
+          "title": "SUPER_ADMIN can create a property",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a property for agency 1",
               "method": "POST",
               "url": "http://localhost:8080/api/biens",
               "headers": {
@@ -1430,16 +1526,17 @@
               },
               "auth_token": "$token",
               "body": {
-                "rue": "99 Rue de Test",
-                "ville": "Paris",
-                "codePostal": "75001",
-                "ecoScore": 5,
-                "superficie": 50,
-                "description": "Test property for QA",
                 "type": "APPARTEMENT",
+                "rue": "123 Rue de Test",
+                "codePostal": "75001",
+                "ville": "Paris",
+                "superficie": 65.0,
+                "nbPieces": 3,
+                "nbChambres": 2,
+                "nbSallesDeBain": 1,
+                "description": "Test property",
                 "agenceId": 1
-              },
-              "extract": "id from id"
+              }
             }
           ],
           "assertions": [
@@ -1453,17 +1550,17 @@
             },
             {
               "type": "json_field_equals",
-              "field": "type",
-              "value": "APPARTEMENT"
+              "field": "actif",
+              "value": true
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-write-create-agent",
           "title": "AGENT can create a property in own agency",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as AGENT",
@@ -1479,7 +1576,7 @@
               "extract": "token"
             },
             {
-              "description": "Create a new property",
+              "description": "Create a property (agenceId silently uses own agency)",
               "method": "POST",
               "url": "http://localhost:8080/api/biens",
               "headers": {
@@ -1487,13 +1584,16 @@
               },
               "auth_token": "$token",
               "body": {
-                "rue": "88 Rue Agent Test",
-                "ville": "Paris",
+                "type": "MAISON",
+                "rue": "456 Rue du Test",
                 "codePostal": "75002",
-                "ecoScore": 6,
-                "superficie": 45,
+                "ville": "Paris",
+                "superficie": 120.0,
+                "nbPieces": 5,
+                "nbChambres": 3,
+                "nbSallesDeBain": 2,
                 "description": "Agent test property",
-                "type": "STUDIO"
+                "agenceId": 1
               }
             }
           ],
@@ -1505,15 +1605,20 @@
             {
               "type": "json_field_exists",
               "field": "id"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "actif",
+              "value": true
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-write-create-unauthenticated",
           "title": "Unauthenticated property creation returns 401/403",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Attempt to create property without auth",
@@ -1523,10 +1628,16 @@
                 "Content-Type": "application/json"
               },
               "body": {
-                "rue": "77 Rue Unauth",
-                "ville": "Paris",
+                "type": "APPARTEMENT",
+                "rue": "Unauth Test",
                 "codePostal": "75001",
-                "type": "APPARTEMENT"
+                "ville": "Paris",
+                "superficie": 50.0,
+                "nbPieces": 2,
+                "nbChambres": 1,
+                "nbSallesDeBain": 1,
+                "description": "Unauth test",
+                "agenceId": 1
               }
             }
           ],
@@ -1535,14 +1646,14 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-write-update-existing",
           "title": "ADMIN_AGENCY can update a property in own agency",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -1558,7 +1669,7 @@
               "extract": "token"
             },
             {
-              "description": "Update bien 1 description",
+              "description": "Update Bien 1 description",
               "method": "PUT",
               "url": "http://localhost:8080/api/biens/1",
               "headers": {
@@ -1566,13 +1677,16 @@
               },
               "auth_token": "$token",
               "body": {
-                "rue": "15 Boulevard Haussmann",
+                "type": "APPARTEMENT",
+                "rue": "15 Rue Saint-Honoré",
+                "codePostal": "75001",
                 "ville": "Paris",
-                "codePostal": "75009",
-                "ecoScore": 7,
-                "superficie": 95,
-                "description": "Magnifique appartement haussmannien avec moulures, parquet et cheminee. Lumineux, au 3eme etage avec ascenseur. Vue degagee sur le boulevard.",
-                "type": "APPARTEMENT"
+                "superficie": 85.0,
+                "nbPieces": 4,
+                "nbChambres": 2,
+                "nbSallesDeBain": 1,
+                "description": "Updated description",
+                "agenceId": 1
               }
             }
           ],
@@ -1582,17 +1696,18 @@
               "value": 200
             },
             {
-              "type": "json_field_exists",
-              "field": "id"
+              "type": "json_field_equals",
+              "field": "description",
+              "value": "Updated description"
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
-          "id": "be-bien-write-delete-not-found",
-          "title": "Delete nonexistent property returns 404",
+          "id": "be-bien-write-delete-no-contracts",
+          "title": "Delete property with no contracts succeeds (204)",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -1608,7 +1723,97 @@
               "extract": "token"
             },
             {
-              "description": "Attempt to delete nonexistent bien",
+              "description": "Create a fresh property to delete",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "type": "TERRAIN",
+                "rue": "999 Rue Ephemere",
+                "codePostal": "75099",
+                "ville": "Paris",
+                "superficie": 200.0,
+                "nbPieces": 0,
+                "nbChambres": 0,
+                "nbSallesDeBain": 0,
+                "description": "To be deleted",
+                "agenceId": 1
+              },
+              "extract": "createdId:id"
+            },
+            {
+              "description": "Delete the freshly created property (no contracts)",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/$createdId",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 204
+            }
+          ]
+        },
+        {
+          "id": "be-bien-write-delete-with-contracts-409",
+          "title": "Delete property with contracts returns 409 (suggests archive)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Try to delete Bien 1 (has Contrat 1 EN_COURS ACHAT)",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-bien-write-delete-not-found",
+          "title": "Delete nonexistent property returns 404",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Delete nonexistent property",
               "method": "DELETE",
               "url": "http://localhost:8080/api/biens/99999",
               "auth_token": "$token"
@@ -1619,14 +1824,14 @@
               "type": "status_code",
               "value": 404
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-write-subresource-caracteristique",
           "title": "Add and remove caracteristique on a property",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -1642,10 +1847,17 @@
               "extract": "token"
             },
             {
-              "description": "Add caracteristique 3 (Parking) to bien 2 (which does not have it)",
+              "description": "Add caracteristique to Bien 1",
               "method": "POST",
-              "url": "http://localhost:8080/api/biens/2/caracteristiques?caracteristiqueId=3&valeur=1&unite=places",
-              "auth_token": "$token"
+              "url": "http://localhost:8080/api/biens/1/caracteristiques",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "nom": "Parking",
+                "valeur": "2 places"
+              }
             }
           ],
           "assertions": [
@@ -1653,14 +1865,14 @@
               "type": "status_code",
               "value": 201
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-bien-write-agent-cross-agency",
           "title": "AGENT creating bien with other agenceId silently uses own agency (201)",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as AGENT of agency 1",
@@ -1676,7 +1888,7 @@
               "extract": "token"
             },
             {
-              "description": "Create bien with agency 2 — backend ignores agenceId and uses agent's own agency",
+              "description": "Create property with agency 2 ID (should silently use own agency 1)",
               "method": "POST",
               "url": "http://localhost:8080/api/biens",
               "headers": {
@@ -1684,10 +1896,15 @@
               },
               "auth_token": "$token",
               "body": {
-                "rue": "1 Rue Cross",
-                "ville": "Lyon",
-                "codePostal": "69001",
                 "type": "APPARTEMENT",
+                "rue": "Cross Agency Test",
+                "codePostal": "75001",
+                "ville": "Paris",
+                "superficie": 50.0,
+                "nbPieces": 2,
+                "nbChambres": 1,
+                "nbSallesDeBain": 1,
+                "description": "Cross agency test",
                 "agenceId": 2
               }
             }
@@ -1697,9 +1914,7 @@
               "type": "status_code",
               "value": 201
             }
-          ],
-          "status": "passing",
-          "lastResult": null
+          ]
         }
       ]
     },
@@ -1711,7 +1926,7 @@
           "id": "be-listing-location-list",
           "title": "List all locations (authenticated)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -1750,7 +1965,7 @@
           "id": "be-listing-achat-list",
           "title": "List all achats (authenticated)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -1787,10 +2002,10 @@
         },
         {
           "id": "be-listing-location-unauthenticated",
-          "status": "passing",
-          "lastResult": null,
           "title": "Unauthenticated access to locations returns 403",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "List locations without authentication",
@@ -1807,10 +2022,10 @@
         },
         {
           "id": "be-listing-achat-unauthenticated",
-          "status": "passing",
-          "lastResult": null,
           "title": "Unauthenticated access to achats returns 403",
           "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
           "steps": [
             {
               "description": "List achats without authentication",
@@ -1829,7 +2044,7 @@
           "id": "be-listing-location-detail",
           "title": "Get location detail by ID",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -1846,7 +2061,7 @@
               "extract": "token"
             },
             {
-              "description": "Get location 1 (Studio Marais)",
+              "description": "Get location 1 (Bien 2 - Studio Marais)",
               "method": "GET",
               "url": "http://localhost:8080/api/locations/1",
               "auth_token": "$token"
@@ -1875,7 +2090,7 @@
           "id": "be-listing-achat-detail",
           "title": "Get achat detail by ID",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -1914,6 +2129,192 @@
             {
               "type": "json_field_exists",
               "field": "bienId"
+            }
+          ]
+        },
+        {
+          "id": "be-listing-delete-location-blocked-en-cours",
+          "title": "Delete location blocked when EN_COURS LOCATION contracts exist on the Bien (409)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Try to delete Location 1 (Bien 2) — Contrat 2 is EN_COURS LOCATION on Bien 2",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/locations/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-listing-delete-achat-blocked-en-cours",
+          "title": "Delete achat blocked when EN_COURS ACHAT contracts exist on the Bien (409)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Try to delete Achat 1 (Bien 1) — Contrat 1 is EN_COURS ACHAT on Bien 1",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/achats/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-listing-create-location-blocked-signe",
+          "title": "Create location blocked when SIGNE LOCATION contract exists on the Bien (409)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload dummy signed document for Contrat 2 (LOCATION on Bien 2) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/2/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 2 to SIGNE status",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/2/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Try to create Location on Bien 2 — should be blocked by SIGNE LOCATION contract",
+              "method": "POST",
+              "url": "http://localhost:8080/api/locations",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 2,
+                "caution": 1000,
+                "dateDispo": "2027-01-01",
+                "mensualite": 500,
+                "dureeMois": 12
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-listing-create-achat-blocked-signe",
+          "title": "Create achat blocked when SIGNE ACHAT contract exists on the Bien (409)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload dummy signed document for Contrat 1 (ACHAT on Bien 1) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 1 to SIGNE status",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Try to create Achat on Bien 1 — should be blocked by SIGNE ACHAT contract",
+              "method": "POST",
+              "url": "http://localhost:8080/api/achats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 1,
+                "prix": 500000,
+                "dateDispo": "2027-01-01"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
             }
           ]
         }
@@ -2344,7 +2745,7 @@
       "suites": [
         {
           "id": "be-contrat-read-list-superadmin",
-          "title": "SUPER_ADMIN can list all contracts",
+          "title": "SUPER_ADMIN can list all contracts with new DTO shape",
           "type": "http",
           "steps": [
             {
@@ -2391,12 +2792,12 @@
               "value": 1
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
-          "id": "be-contrat-read-detail",
-          "title": "Contract detail returns cosigners and nested data",
+          "id": "be-contrat-read-list-has-type-contrat",
+          "title": "Contract list items include typeContrat and snapshot fields",
           "type": "http",
           "steps": [
             {
@@ -2413,7 +2814,57 @@
               "extract": "token"
             },
             {
-              "description": "Get contract 1 detail",
+              "description": "List contracts and check first item shape",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content[0].typeContrat"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content[0].bien"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content[0].statut"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content[0].cosigners"
+            }
+          ],
+          "status": "not_tested",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-detail",
+          "title": "Contract detail returns cosigners, snapshot fields, and bien sub-object",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get contract 1 detail (ACHAT type on Bien 1)",
               "method": "GET",
               "url": "http://localhost:8080/api/contrats/1",
               "auth_token": "$token"
@@ -2433,6 +2884,23 @@
               "field": "statut"
             },
             {
+              "type": "json_field_equals",
+              "field": "typeContrat",
+              "value": "ACHAT"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapPrix"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapDateDispo"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien"
+            },
+            {
               "type": "json_field_exists",
               "field": "cosigners"
             },
@@ -2447,7 +2915,66 @@
               "value": 2
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-detail-location-snapshots",
+          "title": "LOCATION contract detail has rental snapshot fields",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get contract 2 detail (LOCATION type on Bien 2)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/2",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "typeContrat",
+              "value": "LOCATION"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapMensualite"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapCaution"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapDureeMois"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapDateDispo"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien"
+            }
+          ],
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2481,7 +3008,7 @@
               "value": 404
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2501,7 +3028,7 @@
               "value": 403
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2544,7 +3071,7 @@
               "value": "array"
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2587,7 +3114,41 @@
               "value": "array"
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-read-forbidden-client",
+          "title": "CLIENT cannot access contracts (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "client@horoazhon.fr",
+                "password": "Client"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to list contracts as CLIENT",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "not_tested",
           "lastResult": null
         }
       ]
@@ -2598,7 +3159,7 @@
       "suites": [
         {
           "id": "be-contrat-create-valid-achat",
-          "title": "Create a valid sale contract with cosigners",
+          "title": "Create a valid sale contract with bienId + typeContrat=ACHAT",
           "type": "http",
           "steps": [
             {
@@ -2615,7 +3176,7 @@
               "extract": "token"
             },
             {
-              "description": "Create sale contract on achat 1 (bien 1)",
+              "description": "Create sale contract on Bien 1 (has Achat offer, agency 1)",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats",
               "headers": {
@@ -2623,7 +3184,8 @@
               },
               "auth_token": "$token",
               "body": {
-                "achatId": 1,
+                "bienId": 1,
+                "typeContrat": "ACHAT",
                 "cosigners": [
                   {
                     "personneId": 3,
@@ -2650,14 +3212,31 @@
               "type": "json_field_equals",
               "field": "statut",
               "value": "EN_COURS"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "typeContrat",
+              "value": "ACHAT"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapPrix"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapDateDispo"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien"
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
           "id": "be-contrat-create-valid-location",
-          "title": "Create a valid rental contract with cosigners",
+          "title": "Create a valid rental contract with bienId + typeContrat=LOCATION",
           "type": "http",
           "steps": [
             {
@@ -2674,7 +3253,7 @@
               "extract": "token"
             },
             {
-              "description": "Create rental contract on location 1 (bien 2)",
+              "description": "Create rental contract on Bien 2 (has Location offer, agency 1)",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats",
               "headers": {
@@ -2682,7 +3261,8 @@
               },
               "auth_token": "$token",
               "body": {
-                "locationId": 1,
+                "bienId": 2,
+                "typeContrat": "LOCATION",
                 "cosigners": [
                   {
                     "personneId": 4,
@@ -2709,14 +3289,39 @@
               "type": "json_field_equals",
               "field": "statut",
               "value": "EN_COURS"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "typeContrat",
+              "value": "LOCATION"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapMensualite"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapCaution"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapDureeMois"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "snapDateDispo"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien"
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
-          "id": "be-contrat-create-both-ids",
-          "title": "Create contract with both locationId and achatId returns 400",
+          "id": "be-contrat-create-missing-bien-id",
+          "title": "Create contract without bienId returns 400",
           "type": "http",
           "steps": [
             {
@@ -2733,7 +3338,7 @@
               "extract": "token"
             },
             {
-              "description": "Create contract with both IDs",
+              "description": "Create contract without bienId",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats",
               "headers": {
@@ -2741,8 +3346,7 @@
               },
               "auth_token": "$token",
               "body": {
-                "achatId": 1,
-                "locationId": 1,
+                "typeContrat": "ACHAT",
                 "cosigners": [
                   {
                     "personneId": 3,
@@ -2762,12 +3366,12 @@
               "value": 400
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
-          "id": "be-contrat-create-neither-id",
-          "title": "Create contract with neither locationId nor achatId returns 400",
+          "id": "be-contrat-create-missing-type",
+          "title": "Create contract without typeContrat returns 400",
           "type": "http",
           "steps": [
             {
@@ -2784,7 +3388,7 @@
               "extract": "token"
             },
             {
-              "description": "Create contract with no listing ID",
+              "description": "Create contract without typeContrat",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats",
               "headers": {
@@ -2792,6 +3396,7 @@
               },
               "auth_token": "$token",
               "body": {
+                "bienId": 1,
                 "cosigners": [
                   {
                     "personneId": 3,
@@ -2811,7 +3416,58 @@
               "value": 400
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-no-matching-offer",
+          "title": "Create contract when Bien has no offer of requested type returns 400",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create LOCATION contract on Bien 1 (only has Achat offer)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 1,
+                "typeContrat": "LOCATION",
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "OWNER"
+                  },
+                  {
+                    "personneId": 14,
+                    "typeSignataire": "RENTER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 400
+            }
+          ],
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2841,7 +3497,8 @@
               },
               "auth_token": "$token",
               "body": {
-                "achatId": 1,
+                "bienId": 1,
+                "typeContrat": "ACHAT",
                 "cosigners": [
                   {
                     "personneId": 3,
@@ -2857,43 +3514,7 @@
               "value": 400
             }
           ],
-          "status": "passing",
-          "lastResult": null
-        },
-        {
-          "id": "be-contrat-create-unauthenticated",
-          "title": "Unauthenticated contract creation returns 403",
-          "type": "http",
-          "steps": [
-            {
-              "description": "Attempt to create contract without auth",
-              "method": "POST",
-              "url": "http://localhost:8080/api/contrats",
-              "headers": {
-                "Content-Type": "application/json"
-              },
-              "body": {
-                "achatId": 1,
-                "cosigners": [
-                  {
-                    "personneId": 3,
-                    "typeSignataire": "SELLER"
-                  },
-                  {
-                    "personneId": 14,
-                    "typeSignataire": "BUYER"
-                  }
-                ]
-              }
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 403
-            }
-          ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2915,7 +3536,7 @@
               "extract": "token"
             },
             {
-              "description": "Create with empty cosigners",
+              "description": "Create contract with empty cosigners",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats",
               "headers": {
@@ -2923,7 +3544,8 @@
               },
               "auth_token": "$token",
               "body": {
-                "achatId": 1,
+                "bienId": 1,
+                "typeContrat": "ACHAT",
                 "cosigners": []
               }
             }
@@ -2934,7 +3556,7 @@
               "value": 400
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -2956,7 +3578,7 @@
               "extract": "token"
             },
             {
-              "description": "Create with invalid personneId",
+              "description": "Create contract with invalid personneId",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats",
               "headers": {
@@ -2964,7 +3586,8 @@
               },
               "auth_token": "$token",
               "body": {
-                "achatId": 1,
+                "bienId": 1,
+                "typeContrat": "ACHAT",
                 "cosigners": [
                   {
                     "personneId": 99999,
@@ -2984,7 +3607,95 @@
               "value": 404
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-unauthenticated",
+          "title": "Unauthenticated contract creation returns 403",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Attempt to create contract without auth",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "bienId": 1,
+                "typeContrat": "ACHAT",
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 14,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "not_tested",
+          "lastResult": null
+        },
+        {
+          "id": "be-contrat-create-forbidden-client",
+          "title": "CLIENT cannot create contracts (403)",
+          "type": "http",
+          "steps": [
+            {
+              "description": "Login as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "client@horoazhon.fr",
+                "password": "Client"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to create contract as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 1,
+                "typeContrat": "ACHAT",
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 14,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ],
+          "status": "not_tested",
           "lastResult": null
         }
       ]
@@ -3012,7 +3723,7 @@
               "extract": "token"
             },
             {
-              "description": "Cancel contract 6 (EN_COURS contract on bien 5)",
+              "description": "Cancel contract 6 (EN_COURS ACHAT on Bien 3)",
               "method": "POST",
               "url": "http://localhost:8080/api/contrats/6/cancel",
               "auth_token": "$token"
@@ -3027,9 +3738,17 @@
               "type": "json_field_equals",
               "field": "statut",
               "value": "ANNULE"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "typeContrat"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien"
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -3063,7 +3782,7 @@
               "value": 200
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -3097,7 +3816,7 @@
               "value": 404
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -3131,7 +3850,7 @@
               "value": 404
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -3151,7 +3870,7 @@
               "value": 403
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -3185,7 +3904,7 @@
               "value": 200
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         },
         {
@@ -3219,7 +3938,7 @@
               "value": 403
             }
           ],
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null
         }
       ]
@@ -4444,7 +5163,7 @@
           "id": "be-client-dashboard-forbidden-superadmin",
           "title": "SUPER_ADMIN cannot access client dashboard (403)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -4478,7 +5197,7 @@
           "id": "be-client-dashboard-forbidden-admin-agency",
           "title": "ADMIN_AGENCY cannot access client dashboard (403)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -4512,7 +5231,7 @@
           "id": "be-client-dashboard-forbidden-agent",
           "title": "AGENT cannot access client dashboard (403)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -4546,7 +5265,7 @@
           "id": "be-client-dashboard-unauthenticated",
           "title": "Unauthenticated client dashboard access returns 403",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -4566,7 +5285,7 @@
           "id": "be-client-contrats-forbidden-superadmin",
           "title": "SUPER_ADMIN cannot access client contrats (403)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -4600,7 +5319,7 @@
           "id": "be-client-biens-forbidden-agent",
           "title": "AGENT cannot access client biens (403)",
           "type": "http",
-          "status": "passing",
+          "status": "not_tested",
           "lastResult": null,
           "steps": [
             {
@@ -4627,6 +5346,1093 @@
             {
               "type": "status_code",
               "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-client-contrats-shape",
+          "title": "CLIENT contrats endpoint returns Page with new ContratDTO shape (typeContrat, snapshots, bien)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "client@horoazhon.fr",
+                "password": "Client"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get client contrats",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/contrats",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "totalElements"
+            }
+          ]
+        },
+        {
+          "id": "be-client-dashboard-happy",
+          "title": "CLIENT can access dashboard with summary data",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "client@horoazhon.fr",
+                "password": "Client"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Access client dashboard",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/dashboard",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            }
+          ]
+        },
+        {
+          "id": "be-client-biens-active-only",
+          "title": "CLIENT biens endpoint shows only active properties",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "client@horoazhon.fr",
+                "password": "Client"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get client biens",
+              "method": "GET",
+              "url": "http://localhost:8080/api/client/biens",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "content"
+            },
+            {
+              "type": "json_field_type",
+              "field": "content",
+              "value": "array"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "be-bien-archive",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "be-bien-archive-happy-path",
+          "title": "Archive a property with no SIGNE contracts — sets actif=false",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a fresh property with an offer to archive",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "type": "APPARTEMENT",
+                "rue": "Archive Happy Rue",
+                "codePostal": "75001",
+                "ville": "Paris",
+                "superficie": 60.0,
+                "nbPieces": 3,
+                "nbChambres": 2,
+                "nbSallesDeBain": 1,
+                "description": "Archive happy path test",
+                "agenceId": 1
+              },
+              "extract": "bienId:id"
+            },
+            {
+              "description": "Archive the property",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/$bienId/archive",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "actif",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-signe-guard",
+          "title": "Archive blocked when SIGNE contract exists on Bien (409)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload signed document for Contrat 1 (ACHAT on Bien 1) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 1 to SIGNE",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Try to archive Bien 1 — should be blocked by SIGNE contract",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/1/archive",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-cancels-en-cours",
+          "title": "Archive side-effect: auto-cancels EN_COURS contracts on the Bien",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Archive Bien 2 (has Contrat 2 EN_COURS LOCATION)",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/2/archive",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Verify Contrat 2 was auto-cancelled",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/2",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "ANNULE"
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-deletes-offers",
+          "title": "Archive side-effect: deletes Location and Achat offers on the Bien",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create a test property with a location offer",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "type": "APPARTEMENT",
+                "rue": "Offer Delete Test",
+                "codePostal": "75001",
+                "ville": "Paris",
+                "superficie": 50.0,
+                "nbPieces": 2,
+                "nbChambres": 1,
+                "nbSallesDeBain": 1,
+                "description": "Test offer deletion",
+                "agenceId": 1
+              },
+              "extract": "bienId:id"
+            },
+            {
+              "description": "Create a location offer on the test property",
+              "method": "POST",
+              "url": "http://localhost:8080/api/locations",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": "$bienId",
+                "caution": 1000,
+                "dateDispo": "2027-01-01",
+                "mensualite": 500,
+                "dureeMois": 12
+              },
+              "extract": "locationId:id"
+            },
+            {
+              "description": "Archive the property",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/$bienId/archive",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Verify location offer was deleted (should 404)",
+              "method": "GET",
+              "url": "http://localhost:8080/api/locations/$locationId",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-unarchive",
+          "title": "Unarchive a property — sets actif=true, no side-effects",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create and archive a property",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "type": "MAISON",
+                "rue": "Unarchive Test Rue",
+                "codePostal": "75001",
+                "ville": "Paris",
+                "superficie": 80.0,
+                "nbPieces": 4,
+                "nbChambres": 2,
+                "nbSallesDeBain": 1,
+                "description": "Unarchive test",
+                "agenceId": 1
+              },
+              "extract": "bienId:id"
+            },
+            {
+              "description": "Archive it first",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/$bienId/archive",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Unarchive it",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/$bienId/unarchive",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "actif",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-public-detail-404",
+          "title": "Public detail of archived Bien returns 404",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN to set up",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create and archive a property",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "type": "TERRAIN",
+                "rue": "Public 404 Test",
+                "codePostal": "75099",
+                "ville": "Paris",
+                "superficie": 300.0,
+                "nbPieces": 0,
+                "nbChambres": 0,
+                "nbSallesDeBain": 0,
+                "description": "Will be archived for 404 test",
+                "agenceId": 1
+              },
+              "extract": "bienId:id"
+            },
+            {
+              "description": "Archive it",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/$bienId/archive",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Public GET should return 404 for archived Bien",
+              "method": "GET",
+              "url": "http://localhost:8080/api/biens/$bienId"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-unauthenticated",
+          "title": "Unauthenticated archive request returns 403",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Try to archive without auth",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/1/archive"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        },
+        {
+          "id": "be-bien-archive-forbidden-client",
+          "title": "CLIENT cannot archive properties (403)",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as CLIENT",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "client@horoazhon.fr",
+                "password": "Client"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Attempt to archive Bien 1 as CLIENT",
+              "method": "PUT",
+              "url": "http://localhost:8080/api/biens/1/archive",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 403
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureId": "be-contrat-restructure",
+      "writtenBy": "role-4",
+      "suites": [
+        {
+          "id": "be-contrat-restructure-snapshot-achat",
+          "title": "ACHAT contract snapshots prix and dateDispo from the Achat offer",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create ACHAT contract on Bien 1 (Achat: prix=485000, dateDispo=2026-04-01)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 1,
+                "typeContrat": "ACHAT",
+                "cosigners": [
+                  {
+                    "personneId": 3,
+                    "typeSignataire": "SELLER"
+                  },
+                  {
+                    "personneId": 16,
+                    "typeSignataire": "BUYER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_equals",
+              "field": "snapPrix",
+              "value": 485000.0
+            },
+            {
+              "type": "json_field_equals",
+              "field": "snapDateDispo",
+              "value": "2026-04-01"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "typeContrat",
+              "value": "ACHAT"
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-snapshot-location",
+          "title": "LOCATION contract snapshots mensualite, caution, dureeMois, dateDispo from Location offer",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Create LOCATION contract on Bien 2 (Location: mensualite=800, caution=1600, dureeMois=12, dateDispo=2026-03-15)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 2,
+                "typeContrat": "LOCATION",
+                "cosigners": [
+                  {
+                    "personneId": 4,
+                    "typeSignataire": "OWNER"
+                  },
+                  {
+                    "personneId": 16,
+                    "typeSignataire": "RENTER"
+                  }
+                ]
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
+            },
+            {
+              "type": "json_field_equals",
+              "field": "snapMensualite",
+              "value": 800.0
+            },
+            {
+              "type": "json_field_equals",
+              "field": "snapCaution",
+              "value": 1600.0
+            },
+            {
+              "type": "json_field_equals",
+              "field": "snapDureeMois",
+              "value": 12
+            },
+            {
+              "type": "json_field_equals",
+              "field": "snapDateDispo",
+              "value": "2026-03-15"
+            },
+            {
+              "type": "json_field_equals",
+              "field": "typeContrat",
+              "value": "LOCATION"
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-confirm-deletes-achat-offer",
+          "title": "Confirming ACHAT contract deletes the Achat offer for the Bien",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get Achat offer for Bien 1 to note its ID",
+              "method": "GET",
+              "url": "http://localhost:8080/api/achats/1",
+              "auth_token": "$token",
+              "extract": "achatId:id"
+            },
+            {
+              "description": "Upload signed document for Contrat 1 (ACHAT on Bien 1) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 1 to SIGNE",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Verify Achat 1 was deleted",
+              "method": "GET",
+              "url": "http://localhost:8080/api/achats/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-confirm-cancels-siblings",
+          "title": "Confirming contract auto-cancels other EN_COURS contracts of same type on same Bien",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload signed document for Contrat 3 (ACHAT on Bien 5, one of 3 competing) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/3/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 3",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/3/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Verify Contrat 4 was auto-cancelled",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/4",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "ANNULE"
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-confirm-cancels-sibling-5",
+          "title": "Third sibling also cancelled when first sibling is confirmed",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload signed document for Contrat 3 — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/3/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 3 (if not already confirmed from previous test — DB reset needed between features)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/3/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Verify Contrat 5 was also auto-cancelled",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/5",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "ANNULE"
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-confirm-doesnt-cancel-other-type",
+          "title": "Confirming ACHAT contract does NOT cancel LOCATION contracts on same Bien",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload signed document for Contrat 6 (ACHAT on Bien 3, which also has Contrat 7 LOCATION) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/6/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 6 (ACHAT on Bien 3)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/6/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Verify Contrat 7 (LOCATION on Bien 3) is still EN_COURS",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/7",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_equals",
+              "field": "statut",
+              "value": "EN_COURS"
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-bien-sub-object",
+          "title": "ContratDTO contains bien sub-object instead of location/achat",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Get contract 1 detail",
+              "method": "GET",
+              "url": "http://localhost:8080/api/contrats/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 200
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "bien.id"
+            },
+            {
+              "type": "json_field_exists",
+              "field": "typeContrat"
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-create-offer-guard-signe-location",
+          "title": "Cannot create Location offer when SIGNE LOCATION contract exists on Bien",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload signed document for Contrat 2 (LOCATION on Bien 2) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/2/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 2 to SIGNE (this deletes the Location offer for Bien 2)",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/2/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Try to create new Location on Bien 2 — blocked by SIGNE LOCATION contract",
+              "method": "POST",
+              "url": "http://localhost:8080/api/locations",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 2,
+                "caution": 2000,
+                "dateDispo": "2027-06-01",
+                "mensualite": 1000,
+                "dureeMois": 12
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-contrat-restructure-termine-doesnt-block",
+          "title": "TERMINE contracts do not block new offer creation",
+          "type": "http",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as SUPER_ADMIN",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "superadmin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Upload signed doc for Contrat 1 (ACHAT on Bien 1) — multipart file field 'file'",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/document-signe",
+              "auth_token": "$token",
+              "headers": {
+                "Content-Type": "multipart/form-data"
+              },
+              "multipart_file": "file"
+            },
+            {
+              "description": "Confirm Contrat 1 to SIGNE",
+              "method": "POST",
+              "url": "http://localhost:8080/api/contrats/1/confirm",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Terminate Contrat 1 (SIGNE -> TERMINE)",
+              "method": "PATCH",
+              "url": "http://localhost:8080/api/contrats/1/statut?statut=TERMINE",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Create new Achat offer on Bien 1 — should succeed since contract is TERMINE",
+              "method": "POST",
+              "url": "http://localhost:8080/api/achats",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "auth_token": "$token",
+              "body": {
+                "bienId": 1,
+                "prix": 500000,
+                "dateDispo": "2027-06-01"
+              }
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 201
             }
           ]
         }

@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-mobile",
-  "lastUpdated": "2026-03-08T17:56:23Z",
+  "lastUpdated": "2026-03-09T15:07:35Z",
   "tests": [
     {
       "featureId": "fm-public-homepage",
@@ -90,7 +90,7 @@
       "suites": [
         {
           "id": "fm-public-property-list-loads",
-          "title": "Property list screen loads via bottom nav",
+          "title": "Property list screen loads showing only active properties",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -100,7 +100,8 @@
             "Wait for property list to load"
           ],
           "assertions": [
-            "Search field with hint 'Rechercher...' is visible"
+            "Search field with hint 'Rechercher...' is visible",
+            "Only active properties are displayed (no archived)"
           ]
         },
         {
@@ -817,7 +818,7 @@
         },
         {
           "id": "fm-admin-bien-card-actions",
-          "title": "Property cards show popup menu with Modifier and Supprimer options",
+          "title": "Property cards show popup menu with Modifier, Archiver, and Supprimer options",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -828,6 +829,7 @@
           "assertions": [
             "PopupMenuButton is visible on cards",
             "'Modifier' menu item appears",
+            "'Archiver' menu item appears",
             "'Supprimer' menu item appears"
           ]
         },
@@ -876,6 +878,20 @@
             "'Superficie (m²)' label visible",
             "'Score éco' label visible",
             "'Description' label visible"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-actif-badge",
+          "title": "Property cards display actif/archived status badge",
+          "type": "flutter_integration",
+          "status": "not_tested",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Wait for property list to load"
+          ],
+          "assertions": [
+            "Property cards show 'Actif' or 'Archivé' status indicator"
           ]
         }
       ]
@@ -958,7 +974,7 @@
       "suites": [
         {
           "id": "fm-admin-contrat-list-loads",
-          "title": "Contract list loads with CTR- prefixed contract cards",
+          "title": "Contract list loads with CTR- prefixed contract cards showing typeContrat",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -967,12 +983,13 @@
             "Wait for list to load"
           ],
           "assertions": [
-            "Contract cards with CTR- prefix are visible"
+            "Contract cards with CTR- prefix are visible",
+            "Type badge (Location/Achat) visible on cards"
           ]
         },
         {
           "id": "fm-admin-contrat-card-display",
-          "title": "Contract cards display status badge and chevron icon",
+          "title": "Contract cards display status badge, type badge, and Bien reference",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -981,12 +998,14 @@
           ],
           "assertions": [
             "Card widgets visible",
+            "Status badges (EN_COURS etc.) visible",
+            "Bien reference (BI-X) visible on cards",
             "Chevron right icons visible indicating tappable cards"
           ]
         },
         {
           "id": "fm-admin-contrat-detail-loads",
-          "title": "Contract detail screen loads with Dates and Cosignataires sections",
+          "title": "Contract detail screen shows Bien info, snapshot fields, and Cosignataires",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -996,13 +1015,14 @@
           ],
           "assertions": [
             "CTR- ID visible in detail screen",
-            "'Dates' section visible",
+            "'Bien' section visible with property info",
+            "Snapshot fields visible (prix or mensualite depending on type)",
             "'Cosignataires' section visible"
           ]
         },
         {
           "id": "fm-admin-contrat-detail-badges",
-          "title": "Contract detail shows status/type badges and cosigner person icons",
+          "title": "Contract detail shows status and typeContrat badges",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -1011,7 +1031,8 @@
             "Tap first contract card to open detail"
           ],
           "assertions": [
-            "Card widgets visible in detail view",
+            "Status badge visible (EN_COURS/SIGNE/ANNULE/TERMINE)",
+            "Type badge visible (Location/Achat)",
             "Person outlined icons visible for cosigners"
           ]
         }
@@ -1094,7 +1115,7 @@
       "suites": [
         {
           "id": "fm-client-dashboard-content",
-          "title": "Client dashboard loads with welcome message, stat cards, and data sections",
+          "title": "Client dashboard loads with welcome message, stat cards, and data sections with new contract shape",
           "type": "flutter_integration",
           "status": "not_tested",
           "lastResult": null,
@@ -1102,19 +1123,19 @@
             "Login as client@horoazhon.fr / Client",
             "Verify welcome header 'Bonjour, {prenom}' and 'Votre espace client'",
             "Verify stat cards: Biens, Contrats, Actifs",
-            "Scroll to 'Mes biens recents' section",
+            "Scroll to 'Mes biens recents' section (shows only active properties)",
             "Verify biens section shows data or 'Aucun bien' empty state",
             "Scroll to 'Mes contrats recents' section",
-            "Verify contrats section shows data or 'Aucun contrat' empty state"
+            "Verify contrats section shows contract cards with typeContrat badge or 'Aucun contrat' empty state"
           ],
           "assertions": [
             "Welcome header contains 'Bonjour,'",
             "'Votre espace client' subtitle is visible",
             "Stat cards for Biens, Contrats, Actifs are present",
             "'Mes biens recents' section header is visible",
-            "Biens section shows property cards or 'Aucun bien'",
+            "Biens section shows only active property cards or 'Aucun bien'",
             "'Mes contrats recents' section header is visible",
-            "Contrats section shows contract cards or 'Aucun contrat'"
+            "Contract cards show typeContrat badge (Location/Achat) and Bien reference"
           ]
         },
         {
