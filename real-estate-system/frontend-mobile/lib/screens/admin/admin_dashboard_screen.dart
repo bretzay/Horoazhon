@@ -11,6 +11,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
 import '../property_detail_screen.dart';
 import 'admin_bien_form_screen.dart';
+import 'admin_contrat_detail_screen.dart';
 import 'admin_contrats_screen.dart';
 import 'admin_personne_form_screen.dart';
 
@@ -177,33 +178,44 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.space2),
               child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space3),
-                  child: Row(
-                    children: [
-                      Text(
-                        AppFormatters.formatContratId(contrat['id'] as int),
-                        style: AppTextStyles.textSm.w600.withColor(AppColors.slate400),
-                      ),
-                      const SizedBox(width: AppSpacing.space3),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.badgeBg(statut.toLowerCase()),
-                          borderRadius: AppRadius.fullAll,
+                child: InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AdminContratDetailScreen(contratId: contrat['id'] as int),
+                    ),
+                  ),
+                  borderRadius: AppRadius.lgAll,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.space3),
+                    child: Row(
+                      children: [
+                        Text(
+                          AppFormatters.formatContratId(contrat['id'] as int),
+                          style: AppTextStyles.textSm.w600.withColor(AppColors.slate400),
                         ),
-                        child: Text(
-                          statut,
-                          style: AppTextStyles.textSm.w600.withColor(
-                            AppColors.badgeText(statut.toLowerCase()),
+                        const SizedBox(width: AppSpacing.space3),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.badgeBg(statut.toLowerCase()),
+                            borderRadius: AppRadius.fullAll,
+                          ),
+                          child: Text(
+                            statut,
+                            style: AppTextStyles.textSm.w600.withColor(
+                              AppColors.badgeText(statut.toLowerCase()),
+                            ),
                           ),
                         ),
-                      ),
-                      const Spacer(),
-                      if (contrat['dateCreation'] != null)
-                        Text(AppFormatters.formatDateString(contrat['dateCreation'] as String?),
-                            style: AppTextStyles.textSm.w400),
-                    ],
+                        const Spacer(),
+                        if (contrat['dateCreation'] != null)
+                          Text(AppFormatters.formatDateString(contrat['dateCreation'] as String?),
+                              style: AppTextStyles.textSm.w400),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.chevron_right, size: 20, color: AppColors.slate400),
+                      ],
+                    ),
                   ),
                 ),
               ),
