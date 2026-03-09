@@ -85,28 +85,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         padding: const EdgeInsets.all(AppSpacing.space4),
         children: [
           // Welcome header
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Bonjour, ${auth.prenom ?? ''}', style: AppTextStyles.textXl.w700),
-                    const SizedBox(height: AppSpacing.space1),
-                    Text(
-                      auth.agenceNom ?? 'Administration',
-                      style: AppTextStyles.textMd.w400.withColor(AppColors.slate500),
-                    ),
-                  ],
-                ),
-              ),
-              Chip(
-                label: Text(
-                  _roleLabel(auth.role),
-                  style: AppTextStyles.textSm.w600.withColor(AppColors.white),
-                ),
-                backgroundColor: AppColors.roleColor(auth.role ?? ''),
-                visualDensity: VisualDensity.compact,
+              Text('Bonjour, ${auth.prenom ?? ''}', style: AppTextStyles.textXl.w700),
+              const SizedBox(height: AppSpacing.space1),
+              Text(
+                auth.agenceNom ?? 'Administration',
+                style: AppTextStyles.textMd.w400.withColor(AppColors.slate500),
               ),
             ],
           ),
@@ -249,14 +235,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  String _roleLabel(String? role) {
-    switch (role) {
-      case 'SUPER_ADMIN': return 'Super Admin';
-      case 'ADMIN_AGENCY': return 'Admin';
-      case 'AGENT': return 'Agent';
-      default: return '';
-    }
-  }
 }
 
 class _StatData {
