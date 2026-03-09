@@ -69,11 +69,15 @@ class _AdminAgenceFormScreenState extends State<AdminAgenceFormScreen> {
       _descriptionController.text = a['description'] ?? '';
       _logoController.text = a['logo'] ?? '';
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur de chargement')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur de chargement')),
+        );
+      }
     }
-    if (mounted) setState(() => _isLoadingData = false);
+    if (mounted) {
+      setState(() => _isLoadingData = false);
+    }
   }
 
   Future<void> _submit() async {
@@ -106,11 +110,15 @@ class _AdminAgenceFormScreenState extends State<AdminAgenceFormScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors de l\'enregistrement')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'enregistrement')),
+        );
+      }
     }
-    if (mounted) setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override

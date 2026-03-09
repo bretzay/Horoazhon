@@ -10,7 +10,9 @@ import '../widgets/empty_state.dart';
 import 'agency_detail_screen.dart';
 
 class AgencyListScreen extends StatefulWidget {
-  const AgencyListScreen({super.key});
+  final bool showAppBar;
+
+  const AgencyListScreen({super.key, this.showAppBar = false});
 
   @override
   State<AgencyListScreen> createState() => _AgencyListScreenState();
@@ -69,6 +71,17 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final content = _buildBody();
+    if (widget.showAppBar) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Nos agences')),
+        body: content,
+      );
+    }
+    return content;
+  }
+
+  Widget _buildBody() {
     if (_isLoading) return const ShimmerLoading();
     if (_error != null) return ErrorState(message: _error!, onRetry: _loadData);
 
@@ -134,7 +147,6 @@ class _AgencyListCard extends StatelessWidget {
     final nom = agence['nom'] ?? '';
     final ville = agence['ville'] ?? '';
     final telephone = agence['telephone'];
-    final email = agence['email'];
     final logo = agence['logo'] as String?;
 
     return Card(

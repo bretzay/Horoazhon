@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Featured properties
           if (_featuredBiens.isNotEmpty) ...[
             _buildSectionHeader('Biens en vedette', 'Voir tout', () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyListScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyListScreen(showAppBar: true)));
             }),
             const SizedBox(height: AppSpacing.space4),
             _buildPropertyCarousel(),
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Agencies
           if (_agencies.isNotEmpty) ...[
             _buildSectionHeader('Nos agences', 'Voir tout', () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyListScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyListScreen(showAppBar: true)));
             }),
             const SizedBox(height: AppSpacing.space4),
             _buildAgencyCarousel(),
@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
       Navigator.push(context, MaterialPageRoute(
-        builder: (_) => PropertyListScreen(initialSearch: query),
+        builder: (_) => PropertyListScreen(initialSearch: query, showAppBar: true),
       ));
     }
   }
@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.apartment,
             label: 'Voir les biens',
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyListScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyListScreen(showAppBar: true)));
             },
           ),
         ),
@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.location_on_outlined,
             label: 'Voir les agences',
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyListScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyListScreen(showAppBar: true)));
             },
           ),
         ),

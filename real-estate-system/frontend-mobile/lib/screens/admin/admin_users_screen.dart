@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../config/app_colors.dart';
 import '../../config/app_text_styles.dart';
 import '../../config/app_spacing.dart';
 import '../../config/app_radius.dart';
-import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
@@ -59,9 +57,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           _loadData();
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de la désactivation')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erreur lors de la désactivation')),
+          );
+        }
       }
     }
   }

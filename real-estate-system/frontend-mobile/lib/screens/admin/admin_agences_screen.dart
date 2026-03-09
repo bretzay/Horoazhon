@@ -67,9 +67,11 @@ class _AdminAgencesScreenState extends State<AdminAgencesScreen> {
           _loadData();
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impossible de supprimer cette agence')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Impossible de supprimer cette agence')),
+          );
+        }
       }
     }
   }

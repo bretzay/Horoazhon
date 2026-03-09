@@ -59,8 +59,6 @@ void main() {
       await loginAsClient(tester);
 
       // Scroll down to find the sections
-      final listView = find.byType(ListView).first;
-
       await tester.scrollUntilVisible(
         find.text('Mes biens récents'),
         200.0,

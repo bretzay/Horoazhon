@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../config/app_colors.dart';
 import '../../config/app_text_styles.dart';
 import '../../config/app_spacing.dart';
-import '../../config/app_radius.dart';
 import '../../services/api_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/error_state.dart';
@@ -65,9 +64,11 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
       _addCaracController.clear();
       _loadData();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors de l\'ajout')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'ajout')),
+        );
+      }
     }
   }
 
@@ -76,9 +77,11 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
       await _api.deleteCaracteristique(id);
       _loadData();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible de supprimer (utilisée par des biens ?)')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible de supprimer (utilisée par des biens ?)')),
+        );
+      }
     }
   }
 
@@ -90,9 +93,11 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
       _addLieuController.clear();
       _loadData();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors de l\'ajout')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'ajout')),
+        );
+      }
     }
   }
 
@@ -101,9 +106,11 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
       await _api.deleteLieu(id);
       _loadData();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible de supprimer (utilisé par des biens ?)')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Impossible de supprimer (utilisé par des biens ?)')),
+        );
+      }
     }
   }
 

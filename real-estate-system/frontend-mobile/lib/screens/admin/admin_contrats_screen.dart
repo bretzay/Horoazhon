@@ -63,7 +63,11 @@ class _AdminContratsScreenState extends State<AdminContratsScreen> {
       final totalPages = result['totalPages'] as int? ?? 1;
       if (mounted) {
         setState(() {
-          if (page == 0) _contrats = content; else _contrats.addAll(content);
+          if (page == 0) {
+            _contrats = content;
+          } else {
+            _contrats.addAll(content);
+          }
           _currentPage = page;
           _hasMore = page < totalPages - 1;
           _isLoading = false;

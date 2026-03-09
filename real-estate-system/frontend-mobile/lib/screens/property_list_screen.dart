@@ -12,8 +12,9 @@ import 'property_detail_screen.dart';
 
 class PropertyListScreen extends StatefulWidget {
   final String? initialSearch;
+  final bool showAppBar;
 
-  const PropertyListScreen({super.key, this.initialSearch});
+  const PropertyListScreen({super.key, this.initialSearch, this.showAppBar = false});
 
   @override
   State<PropertyListScreen> createState() => _PropertyListScreenState();
@@ -128,7 +129,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final body = Column(
       children: [
         // Filter bar
         _buildFilterBar(),
@@ -137,6 +138,14 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         Expanded(child: _buildContent()),
       ],
     );
+
+    if (widget.showAppBar) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Biens immobiliers')),
+        body: body,
+      );
+    }
+    return body;
   }
 
   Widget _buildFilterBar() {
@@ -257,7 +266,7 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
     }
 
     if (_biens.isEmpty) {
-      return EmptyState(
+      return const EmptyState(
         icon: Icons.apartment,
         title: 'Aucun bien trouvé',
         subtitle: 'Essayez de modifier vos filtres',

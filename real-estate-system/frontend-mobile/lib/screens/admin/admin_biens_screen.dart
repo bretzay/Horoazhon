@@ -74,7 +74,11 @@ class _AdminBiensScreenState extends State<AdminBiensScreen> {
       final totalPages = result['totalPages'] as int? ?? 1;
       if (mounted) {
         setState(() {
-          if (page == 0) _biens = content; else _biens.addAll(content);
+          if (page == 0) {
+            _biens = content;
+          } else {
+            _biens.addAll(content);
+          }
           _currentPage = page;
           _hasMore = page < totalPages - 1;
           _isLoading = false;

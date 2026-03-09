@@ -59,11 +59,15 @@ class _AdminBienFormScreenState extends State<AdminBienFormScreen> {
       _descriptionController.text = bien['description'] ?? '';
       _selectedType = bien['type'] ?? 'APPARTEMENT';
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur de chargement')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur de chargement')),
+        );
+      }
     }
-    if (mounted) setState(() => _isLoadingData = false);
+    if (mounted) {
+      setState(() => _isLoadingData = false);
+    }
   }
 
   Future<void> _submit() async {
@@ -121,7 +125,7 @@ class _AdminBienFormScreenState extends State<AdminBienFormScreen> {
                     Text('Type', style: AppTextStyles.textMd.w500),
                     const SizedBox(height: AppSpacing.labelInputGap),
                     DropdownButtonFormField<String>(
-                      value: _selectedType,
+                      initialValue: _selectedType,
                       items: ['APPARTEMENT', 'MAISON', 'STUDIO', 'TERRAIN']
                           .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                           .toList(),

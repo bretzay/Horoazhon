@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../config/app_colors.dart';
 import '../../config/app_text_styles.dart';
 import '../../config/app_spacing.dart';
-import '../../config/app_radius.dart';
 import '../../services/api_service.dart';
 
 class AdminPersonneFormScreen extends StatefulWidget {
@@ -56,7 +55,7 @@ class _AdminPersonneFormScreenState extends State<AdminPersonneFormScreen> {
         _api.getPersonneById(widget.personneId!),
         _api.getPersonneAccountStatus(widget.personneId!).catchError((_) => <String, dynamic>{}),
       ]);
-      final p = results[0] as Map<String, dynamic>;
+      final p = results[0];
       _nomController.text = p['nom'] ?? '';
       _prenomController.text = p['prenom'] ?? '';
       _rueController.text = p['rue'] ?? '';
@@ -66,11 +65,15 @@ class _AdminPersonneFormScreenState extends State<AdminPersonneFormScreen> {
       if (p['dateNais'] != null) _dateNais = DateTime.tryParse(p['dateNais']);
       _accountStatus = results[1] as Map<String, dynamic>?;
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur de chargement')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur de chargement')),
+        );
+      }
     }
-    if (mounted) setState(() => _isLoadingData = false);
+    if (mounted) {
+      setState(() => _isLoadingData = false);
+    }
   }
 
   Future<void> _submit() async {
@@ -106,11 +109,15 @@ class _AdminPersonneFormScreenState extends State<AdminPersonneFormScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors de l\'enregistrement')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'enregistrement')),
+        );
+      }
     }
-    if (mounted) setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _pickDate() async {
