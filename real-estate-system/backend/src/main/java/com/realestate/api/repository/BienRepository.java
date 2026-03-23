@@ -121,4 +121,8 @@ public interface BienRepository extends JpaRepository<Bien, Long> {
     // Find properties owned by a person
     @Query("SELECT b FROM Bien b JOIN b.proprietaires p WHERE p.personne.id = :personneId")
     Page<Bien> findByProprietaireId(@Param("personneId") Long personneId, Pageable pageable);
+
+    // Find active properties owned by a person (for client dashboard)
+    @Query("SELECT b FROM Bien b JOIN b.proprietaires p WHERE p.personne.id = :personneId AND b.actif = true")
+    Page<Bien> findActiveByProprietaireId(@Param("personneId") Long personneId, Pageable pageable);
 }

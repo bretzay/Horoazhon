@@ -33,7 +33,7 @@ public class ClientDashboardService {
                 .orElseThrow(() -> new EntityNotFoundException("Personne not found: " + personneId));
 
         List<Contrat> allContracts = contratRepository.findAllByPersonneId(personneId);
-        Page<Bien> propertiesPage = bienRepository.findByProprietaireId(personneId, Pageable.unpaged());
+        Page<Bien> propertiesPage = bienRepository.findActiveByProprietaireId(personneId, Pageable.unpaged());
 
         ClientDashboardDTO dashboard = new ClientDashboardDTO();
         dashboard.setPersonneId(personne.getId());
@@ -137,7 +137,7 @@ public class ClientDashboardService {
     }
 
     public Page<BienDTO> getClientProperties(Long personneId, Pageable pageable) {
-        return bienRepository.findByProprietaireId(personneId, pageable)
+        return bienRepository.findActiveByProprietaireId(personneId, pageable)
                 .map(this::convertBienToDTO);
     }
 

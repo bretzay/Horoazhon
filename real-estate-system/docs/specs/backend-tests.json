@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "backend",
-  "lastUpdated": "2026-03-09T15:04:27Z",
+  "lastUpdated": "2026-03-23T09:10:44Z",
   "tests": [
     {
       "featureId": "be-auth-login",
@@ -1088,7 +1088,7 @@
           "id": "be-bien-read-list-public",
           "title": "Public GET /api/biens returns paginated results with actif field",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1130,7 +1130,7 @@
           "id": "be-bien-read-public-excludes-archived",
           "title": "Public listing excludes archived properties (actif=false not shown)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1197,7 +1197,7 @@
           "id": "be-bien-read-detail-public",
           "title": "Public GET /api/biens/{id} returns full detail with actif field",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1230,7 +1230,7 @@
           "id": "be-bien-read-detail-not-found",
           "title": "GET /api/biens/{id} for nonexistent ID returns 404",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1250,7 +1250,7 @@
           "id": "be-bien-read-filter-type",
           "title": "Filter properties by type",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1279,13 +1279,13 @@
           "id": "be-bien-read-filter-empty-results",
           "title": "Search with no matches returns empty page, not 404",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
-              "description": "Search with impossible query",
+              "description": "Search with impossible query using the search parameter",
               "method": "GET",
-              "url": "http://localhost:8080/api/biens?ville=Nonexistentville999"
+              "url": "http://localhost:8080/api/biens?search=Nonexistentville999"
             }
           ],
           "assertions": [
@@ -1304,7 +1304,7 @@
           "id": "be-bien-read-authenticated-actif-filter",
           "title": "Authenticated GET /api/biens with actif filter shows only matching properties",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1347,7 +1347,7 @@
           "id": "be-bien-read-authenticated-shows-all",
           "title": "Authenticated GET /api/biens without actif filter shows all (active + archived)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1390,7 +1390,7 @@
           "id": "be-bien-read-dual-listing",
           "title": "Bien 3 has both achat and location (dual listing)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1418,7 +1418,7 @@
           "id": "be-bien-read-pagination",
           "title": "Pagination params work correctly",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1446,7 +1446,7 @@
           "id": "be-bien-read-search-sql-inject",
           "title": "Search with SQL injection is safe (200)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1466,7 +1466,7 @@
           "id": "be-bien-read-public-agence-biens",
           "title": "Public GET /api/agences/{id}/biens excludes archived properties",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {

@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-web",
-  "lastUpdated": "2026-03-09T15:40:38Z",
+  "lastUpdated": "2026-03-23T08:13:10Z",
   "tests": [
     {
       "featureId": "fe-auth-login",
@@ -1555,6 +1555,202 @@
           ]
         },
         {
+          "id": "fe-admin-bien-filter-tabs",
+          "title": "Admin property list has Actifs/Archives/Tous filter tabs",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Navigate to login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to admin biens",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/biens"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-bien-filter-tabs"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "page_contains",
+              "value": "Actifs"
+            },
+            {
+              "type": "page_contains",
+              "value": "Archives"
+            },
+            {
+              "type": "page_contains",
+              "value": "Tous"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-bien-filter-archives",
+          "title": "Archives filter tab shows only archived properties",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Navigate to login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to admin biens with actif=false",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/biens?actif=false"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-bien-archives"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "url_contains",
+              "value": "actif=false"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-bien-actif-badge",
+          "title": "Admin bien list displays actif/archive status badges",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Navigate to login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to admin biens (all)",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/biens?actif="
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-bien-actif-badge"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "page_contains",
+              "value": "Actif"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-bien-archive-button",
+          "title": "Admin bien list shows archive action button on active properties",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to admin biens",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/biens"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-bien-archive-btn"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "element_exists",
+              "selector": "[title=\"Archiver\"]"
+            }
+          ]
+        },
+        {
           "id": "fe-admin-bien-create-form-loads",
           "title": "Admin property create form loads with fields",
           "type": "browser",
@@ -1606,6 +1802,65 @@
             {
               "type": "page_contains",
               "value": "Nouveau Bien"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-bien-edit-sections",
+          "title": "Edit page shows multi-section grid layout with sub-resource management",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to bien edit",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/biens/1/edit"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "bien-edit-tabs"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "element_exists",
+              "selector": ".compact-grid"
+            },
+            {
+              "type": "element_exists",
+              "selector": ".section"
+            },
+            {
+              "type": "page_contains",
+              "value": "Photos"
+            },
+            {
+              "type": "page_contains",
+              "value": "Caracteristiques"
             }
           ]
         },
@@ -1682,159 +1937,6 @@
             {
               "type": "element_exists",
               "selector": ".bl-stats"
-            }
-          ]
-        },
-        {
-          "id": "fe-admin-bien-edit-sections",
-          "title": "Edit page shows multi-section grid layout with sub-resource management",
-          "type": "browser",
-          "status": "passing",
-          "lastResult": null,
-          "steps": [
-            {
-              "description": "Login",
-              "action": "navigate",
-              "url": "http://127.0.0.1:8001/login"
-            },
-            {
-              "description": "Fill email",
-              "action": "fill",
-              "selector": "input[name='email']",
-              "value": "admin@horoazhon.fr"
-            },
-            {
-              "description": "Fill password",
-              "action": "fill",
-              "selector": "input[name='password']",
-              "value": "Admin"
-            },
-            {
-              "description": "Submit",
-              "action": "click",
-              "selector": "button[type='submit']"
-            },
-            {
-              "description": "Navigate to bien edit",
-              "action": "navigate",
-              "url": "http://127.0.0.1:8001/admin/biens/1/edit"
-            },
-            {
-              "description": "Screenshot",
-              "action": "screenshot",
-              "name": "bien-edit-tabs"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "element_exists",
-              "selector": ".compact-grid"
-            },
-            {
-              "type": "element_exists",
-              "selector": ".section"
-            },
-            {
-              "type": "page_contains",
-              "value": "Photos"
-            },
-            {
-              "type": "page_contains",
-              "value": "Caracteristiques"
-            }
-          ]
-        },
-        {
-          "id": "fe-admin-bien-archive-button",
-          "title": "Admin bien list shows archive/unarchive action buttons",
-          "type": "browser",
-          "status": "passing",
-          "lastResult": null,
-          "steps": [
-            {
-              "description": "Login",
-              "action": "navigate",
-              "url": "http://127.0.0.1:8001/login"
-            },
-            {
-              "description": "Fill email",
-              "action": "fill",
-              "selector": "input[name='email']",
-              "value": "admin@horoazhon.fr"
-            },
-            {
-              "description": "Fill password",
-              "action": "fill",
-              "selector": "input[name='password']",
-              "value": "Admin"
-            },
-            {
-              "description": "Submit",
-              "action": "click",
-              "selector": "button[type='submit']"
-            },
-            {
-              "description": "Navigate to admin biens",
-              "action": "navigate",
-              "url": "http://127.0.0.1:8001/admin/biens"
-            },
-            {
-              "description": "Screenshot",
-              "action": "screenshot",
-              "name": "admin-bien-archive-btn"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "element_exists",
-              "selector": "[title=\"Archiver\"]"
-            }
-          ]
-        },
-        {
-          "id": "fe-admin-bien-actif-badge",
-          "title": "Admin bien list displays actif/archive status badges",
-          "type": "browser",
-          "status": "passing",
-          "lastResult": null,
-          "steps": [
-            {
-              "description": "Login",
-              "action": "navigate",
-              "url": "http://127.0.0.1:8001/login"
-            },
-            {
-              "description": "Fill email",
-              "action": "fill",
-              "selector": "input[name='email']",
-              "value": "admin@horoazhon.fr"
-            },
-            {
-              "description": "Fill password",
-              "action": "fill",
-              "selector": "input[name='password']",
-              "value": "Admin"
-            },
-            {
-              "description": "Submit",
-              "action": "click",
-              "selector": "button[type='submit']"
-            },
-            {
-              "description": "Navigate to admin biens",
-              "action": "navigate",
-              "url": "http://127.0.0.1:8001/admin/biens"
-            },
-            {
-              "description": "Screenshot",
-              "action": "screenshot",
-              "name": "admin-bien-actif-badge"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "page_contains",
-              "value": "Actif"
             }
           ]
         }
@@ -1979,7 +2081,7 @@
       "suites": [
         {
           "id": "fe-admin-contrat-list-loads",
-          "title": "Admin contract list page loads with table showing typeContrat column",
+          "title": "Admin contract list page loads with table showing typeContrat and montant columns",
           "type": "browser",
           "status": "passing",
           "lastResult": null,
@@ -2029,12 +2131,16 @@
             {
               "type": "element_exists",
               "selector": "table"
+            },
+            {
+              "type": "page_contains",
+              "value": "Type"
             }
           ]
         },
         {
           "id": "fe-admin-contrat-list-type-column",
-          "title": "Contract list table shows type column (Location/Achat)",
+          "title": "Contract list table shows type column with Location/Achat from typeContrat",
           "type": "browser",
           "status": "passing",
           "lastResult": null,
@@ -2075,13 +2181,68 @@
           "assertions": [
             {
               "type": "page_contains",
-              "value": "Type"
+              "value": "TYPE"
+            },
+            {
+              "type": "page_contains",
+              "value": "MONTANT"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-contrat-list-filters",
+          "title": "Contract list has type and statut filter dropdowns",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to admin contrats",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/contrats"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-contrat-filters"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "element_exists",
+              "selector": "select"
+            },
+            {
+              "type": "page_contains",
+              "value": "Filtrer"
             }
           ]
         },
         {
           "id": "fe-admin-contrat-create-form-bien-selector",
-          "title": "Contract create form has Bien selector and typeContrat dropdown instead of location/achat ID",
+          "title": "Contract create form has Bien selector and typeContrat radio instead of locationId/achatId",
           "type": "browser",
           "status": "passing",
           "lastResult": null,
@@ -2139,33 +2300,55 @@
           ]
         },
         {
-          "id": "fe-admin-contrat-unauthenticated-redirect",
-          "title": "Unauthenticated access to admin contrats redirects to login",
+          "id": "fe-admin-contrat-create-cosigners",
+          "title": "Contract create form includes cosigners section",
           "type": "browser",
-          "status": "passing",
-          "lastResult": null,
+          "status": "failing",
+          "lastResult": "Backend returns HTTP 500 for GET /api/biens?size=200&actif=true — contract creation page crashes before form renders",
           "steps": [
             {
-              "description": "Navigate without auth",
+              "description": "Login",
               "action": "navigate",
-              "url": "http://127.0.0.1:8001/admin/contrats"
+              "url": "http://127.0.0.1:8001/login"
             },
             {
-              "description": "Screenshot",
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to new contrat form",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/contrats/new"
+            },
+            {
+              "description": "Screenshot full form",
               "action": "screenshot",
-              "name": "admin-contrat-unauth"
+              "name": "admin-contrat-cosigners-full"
             }
           ],
           "assertions": [
             {
-              "type": "url_contains",
-              "value": "/login"
+              "type": "page_contains",
+              "value": "Cosignataire"
             }
           ]
         },
         {
           "id": "fe-admin-contrat-detail-snapshot",
-          "title": "Contract detail page shows snapshot fields and bien info instead of location/achat objects",
+          "title": "Contract detail shows snapshot fields and bien info",
           "type": "browser",
           "status": "passing",
           "lastResult": null,
@@ -2211,12 +2394,67 @@
             {
               "type": "page_contains",
               "value": "Bien"
+            },
+            {
+              "type": "element_exists",
+              "selector": ".badge"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-contrat-detail-type-badge",
+          "title": "Contract detail shows typeContrat and statut badges",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/login"
+            },
+            {
+              "description": "Fill email",
+              "action": "fill",
+              "selector": "input[name='email']",
+              "value": "admin@horoazhon.fr"
+            },
+            {
+              "description": "Fill password",
+              "action": "fill",
+              "selector": "input[name='password']",
+              "value": "Admin"
+            },
+            {
+              "description": "Submit",
+              "action": "click",
+              "selector": "button[type='submit']"
+            },
+            {
+              "description": "Navigate to contract 1 detail",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/contrats/1"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-contrat-detail-badges"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "page_contains",
+              "value": "CTR-1"
+            },
+            {
+              "type": "element_exists",
+              "selector": ".badge"
             }
           ]
         },
         {
           "id": "fe-admin-contrat-detail-cosigners",
-          "title": "Contract detail page shows cosigners table",
+          "title": "Contract detail page shows cosigners table with roles",
           "type": "browser",
           "status": "passing",
           "lastResult": null,
@@ -2258,6 +2496,31 @@
             {
               "type": "page_contains",
               "value": "Signataires"
+            }
+          ]
+        },
+        {
+          "id": "fe-admin-contrat-unauthenticated-redirect",
+          "title": "Unauthenticated access to admin contrats redirects to login",
+          "type": "browser",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Navigate without auth",
+              "action": "navigate",
+              "url": "http://127.0.0.1:8001/admin/contrats"
+            },
+            {
+              "description": "Screenshot",
+              "action": "screenshot",
+              "name": "admin-contrat-unauth"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "url_contains",
+              "value": "/login"
             }
           ]
         }
