@@ -45,12 +45,13 @@
             <div id="offerInfo" style="display:none;"></div>
         </div>
 
-        <div id="partiesSection" style="display:none;">
-            <h3 style="margin: 1.5rem 0 0.75rem;">Parties au contrat</h3>
+        <div id="partiesSection" data-section="cosignataires" style="display:none;">
+            <h3 style="margin: 1.5rem 0 0.75rem;">Cosignataires</h3>
 
             <div class="form-group">
                 <label id="sellerLabel">Vendeur</label>
                 <input type="text" id="ownerDisplay" readonly style="background: #f1f5f9; cursor: not-allowed;" value="">
+                <small id="sellerRole" class="form-text" style="color: #64748b; font-size: 0.75rem;">Rôle : <span id="sellerRoleText">VENDEUR</span></small>
             </div>
 
             <div class="form-group autocomplete-wrapper">
@@ -58,6 +59,7 @@
                 <input type="hidden" name="buyer_personne" id="buyerHidden" required>
                 <input type="text" id="buyerSearch" autocomplete="off" placeholder="Rechercher par nom ou prenom...">
                 <div class="autocomplete-results" id="buyerResults"></div>
+                <small id="buyerRole" class="form-text" style="color: #64748b; font-size: 0.75rem;">Rôle : <span id="buyerRoleText">ACHETEUR</span></small>
             </div>
 
             <div style="margin-top: 1rem;">
@@ -165,6 +167,8 @@ function onTypeChange() {
     document.getElementById('bienSelectGroup').style.display = currentType ? 'block' : 'none';
     document.getElementById('sellerLabel').textContent = currentType === 'LOCATION' ? 'Proprietaire' : 'Vendeur';
     document.getElementById('buyerLabel').textContent = currentType === 'LOCATION' ? 'Locataire *' : 'Acheteur *';
+    document.getElementById('sellerRoleText').textContent = currentType === 'LOCATION' ? 'PROPRIETAIRE' : 'VENDEUR';
+    document.getElementById('buyerRoleText').textContent = currentType === 'LOCATION' ? 'LOCATAIRE' : 'ACHETEUR';
     document.getElementById('offerInfo').style.display = 'none';
     document.getElementById('partiesSection').style.display = 'none';
     document.getElementById('ownerDisplay').value = '';

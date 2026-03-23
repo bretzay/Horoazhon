@@ -2304,7 +2304,7 @@
           "title": "Contract create form includes cosigners section",
           "type": "browser",
           "status": "failing",
-          "lastResult": "Contract creation form renders successfully but does not include a cosigners/cosignataires section — the form only shows contract type selection without any co-signer management UI",
+          "lastResult": "Contract creation form renders successfully but does not include a cosigners/cosignataires section — the form shows contract type selection and bien selector without any co-signer management UI",
           "steps": [
             {
               "description": "Login",

@@ -1,7 +1,7 @@
 {
   "$schema": "spec-v2",
   "role": "frontend-web",
-  "lastUpdated": "2026-03-23T10:46:57Z",
+  "lastUpdated": "2026-03-23T12:20:56Z",
   "features": [
     {
       "title": "Login page",
@@ -118,7 +118,7 @@
       "category": "admin",
       "status": "failing",
       "proposedBy": "orchestrator",
-      "lastTestedAt": "2026-03-23T18:30:00Z",
+      "lastTestedAt": "2026-03-23T21:15:00Z",
       "lastTestedBy": "testing-agent"
     },
     {
