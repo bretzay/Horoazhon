@@ -1,7 +1,7 @@
 {
   "$schema": "spec-v1",
   "role": "frontend-mobile",
-  "lastUpdated": "2026-03-09T16:19:15Z",
+  "lastUpdated": "2026-03-23T08:52:30Z",
   "features": [
     {
       "id": "fm-auth-login",
@@ -99,13 +99,12 @@
     },
     {
       "id": "fm-admin-bien",
-      "title": "Admin property screens (list, create, edit)",
-      "description": "Property CRUD screens for admin users.\n\nScreen 1 — Property list:\n- GET /api/biens with pagination (infinite scroll)\n- Search/filter bar: ville, type, price range\n- Property cards with action menu (edit, delete)\n- FAB (floating action button): '+' to create new property\n- Pull-to-refresh\n- Empty state: 'Aucun bien trouvé'\n\nScreen 2 — Create property:\n- Form fields: rue, ville, codePostal, type (dropdown), superficie, ecoScore, description\n- Agency dropdown (SUPER_ADMIN only — others auto-assigned)\n- POST /api/biens\n- On success: navigate to edit screen for sub-resource management\n\nScreen 3 — Edit property (tabbed):\n- Tab 1 — Informations: edit basic fields (PUT /api/biens/{id})\n- Tab 2 — Vente: manage Achat listing (create/edit/delete via /api/achats)\n- Tab 3 — Location: manage Location listing (create/edit/delete via /api/locations)\n- Tab 4 — Caractéristiques: add/remove from reference list (POST/DELETE /api/biens/{id}/caracteristiques)\n- Tab 5 — Proximité: add/remove lieux (POST/DELETE /api/biens/{id}/lieux)\n- Tab 6 — Propriétaire: assign/remove owner (PUT/DELETE /api/biens/{id}/proprietaire)\n- Tab 7 — Photos: view/add/remove photos (POST/DELETE /api/biens/{id}/photos)\n\nDelete:\n- Confirmation dialog: 'Supprimer ce bien ?'\n- DELETE /api/biens/{id}\n- Error if active contracts exist\n\nAccess: SUPER_ADMIN (all), ADMIN_AGENCY/AGENT (own agency only).\nForm validation: required fields highlighted on submit.",
+      "title": "Admin property screens (list, create, edit, archive)",
+      "description": "Property CRUD and archiving screens for admin users.\n\nScreen 1 — Property list:\n- GET /api/biens with pagination (infinite scroll)\n- Search/filter bar: ville, type, price range\n- Filter chips: Actifs / Archives / Tous (sends ?actif= parameter to backend)\n- Property cards with action menu (edit, archive/unarchive, delete)\n- Archive badge on cards when actif=false\n- FAB (floating action button): '+' to create new property\n- Pull-to-refresh\n- Empty state: 'Aucun bien trouve'\n\nScreen 2 — Create property:\n- Form fields: rue, ville, codePostal, type (dropdown), superficie, ecoScore, description\n- Agency dropdown (SUPER_ADMIN only — others auto-assigned)\n- POST /api/biens\n- On success: navigate to edit screen for sub-resource management\n\nScreen 3 — Edit property (tabbed):\n- Tab 1 — Informations: edit basic fields (PUT /api/biens/{id})\n- Tab 2 — Vente: manage Achat listing (create/edit/delete via /api/achats)\n- Tab 3 — Location: manage Location listing (create/edit/delete via /api/locations)\n- Tab 4 — Caracteristiques: add/remove from reference list (POST/DELETE /api/biens/{id}/caracteristiques)\n- Tab 5 — Proximite: add/remove lieux (POST/DELETE /api/biens/{id}/lieux)\n- Tab 6 — Proprietaire: assign/remove owner (PUT/DELETE /api/biens/{id}/proprietaire)\n- Tab 7 — Photos: view/add/remove photos (POST/DELETE /api/biens/{id}/photos)\n- Archived property: shows archive status banner with Reactiver button. Listing tabs disabled.\n\nArchive/Unarchive:\n- Archive: PUT /api/biens/{id}/archive. Guards: fails if SIGNE contract exists (409). Side-effects: deletes offers, cancels EN_COURS contracts, sets actif=false.\n- Unarchive: PUT /api/biens/{id}/unarchive. Sets actif=true, no side-effects.\n- PopupMenu includes Archive or Unarchive action based on current actif state.\n\nDelete behavior:\n- Confirmation dialog: 'Supprimer ce bien ?'\n- DELETE /api/biens/{id}\n- Returns 409 if property has contracts. SnackBar suggests archiving with an 'Archiver' action button.\n- Hard delete only succeeds if zero contracts ever.\n\nAccess: SUPER_ADMIN (all), ADMIN_AGENCY/AGENT (own agency only).\nBienDTO includes actif boolean field for all display logic.\nForm validation: required fields highlighted on submit.",
       "category": "admin",
       "status": "passing",
       "proposedBy": "orchestrator",
-      "lastUpdated": "2026-03-09T14:00:00Z",
-      "lastTestedAt": "2026-03-09T19:30:00Z",
+      "lastTestedAt": "2026-03-23T08:52:30Z",
       "lastTestedBy": "testing-agent"
     },
     {
@@ -119,12 +118,11 @@
     {
       "id": "fm-admin-contrat",
       "title": "Admin contract screens (list, create, detail)",
-      "description": "Contract management screens.\n\nScreen 1 — Contract list:\n- GET /api/contrats with pagination\n- Filter: statut dropdown (EN_COURS, SIGNE, ANNULE, TERMINE), type (LOCATION, ACHAT)\n- Contract cards: CTR-{id}, type badge, status badge, bien info, cosigners summary\n- FAB: '+' to create new contract\n- Pull-to-refresh\n\nScreen 2 — Create contract:\n- Step 1: Select type (Location or Achat)\n- Step 2: Select the listing (location or achat from dropdowns)\n- Step 3: Add cosigners — search personnes (GET /api/personnes/search), assign type_signataire (BUYER/SELLER/RENTER/OWNER)\n- POST /api/contrats with locationId/achatId + cosigners array\n- On success: navigate to contract detail\n\nScreen 3 — Contract detail:\n- GET /api/contrats/{id}\n- Header: CTR-{id}, status badge, type badge\n- Property info section (linked bien)\n- Listing details (location or achat terms)\n- Cosigners list with roles\n- Actions (based on status):\n  - EN_COURS: 'Confirmer' (POST /confirm), 'Annuler' (POST /cancel)\n  - SIGNE: view PDF, upload signed document\n  - ANNULE/TERMINE: read-only\n- PDF download: GET /api/contrats/{id}/pdf → open in external viewer\n- Signed document: upload (POST), download (GET), delete (DELETE) /api/contrats/{id}/document-signe\n\nAccess: SUPER_ADMIN, ADMIN_AGENCY, AGENT (scoped to own agency by backend).",
+      "description": "Contract management screens adapted to the Bien-direct contract model.\n\nScreen 1 — Contract list:\n- GET /api/contrats with pagination\n- Filter: statut dropdown (EN_COURS, SIGNE, ANNULE, TERMINE), type (LOCATION, ACHAT)\n- Contract cards: CTR-{id}, type badge (from typeContrat), status badge, bien info, snapshot price (snapPrix for ACHAT, snapMensualite for LOCATION), cosigners summary\n- FAB: '+' to create new contract\n- Pull-to-refresh\n\nScreen 2 — Create contract (Bien-direct model):\n- Type selector: ACHAT or LOCATION radio/toggle\n- Bien selector: filters available biens by those with an active offer matching the selected type\n- Read-only offer preview: shows values from BienDetailDTO (salePrice, monthlyRent, caution, dureeMois, dateDispo)\n- Cosigners: search personnes (GET /api/personnes/search), assign type_signataire (BUYER/SELLER/RENTER/OWNER)\n- Sends { bienId, typeContrat, cosigners[] } to POST /api/contrats\n- Backend snapshots offer values at creation. No longer creates Location/Achat offers first.\n- Minimum 2 cosigners enforced client-side\n- On success: navigate to contract detail\n\nScreen 3 — Contract detail:\n- GET /api/contrats/{id}\n- Header: CTR-{id}, status badge, type badge (from typeContrat)\n- Bien info card (linked bien, navigable)\n- Snapshot fields displayed inline: ACHAT shows snapPrix + snapDateDispo; LOCATION shows snapMensualite + snapCaution + snapDureeMois + snapDateDispo\n- Cosigners list with roles\n- Actions (based on status):\n  - EN_COURS: 'Confirmer' (POST /confirm — deletes offer, cancels siblings), 'Annuler' (POST /cancel)\n  - SIGNE: view PDF, upload signed document\n  - ANNULE/TERMINE: read-only\n- PDF download: GET /api/contrats/{id}/pdf -> open in external viewer\n- Signed document: upload (POST), download (GET), delete (DELETE) /api/contrats/{id}/document-signe\n\nModels:\n- Contrat model includes: bienId, typeContrat, snapMensualite, snapCaution, snapDureeMois, snapPrix, snapDateDispo, bien sub-object\n- Bien model includes actif boolean field\n\nAccess: SUPER_ADMIN, ADMIN_AGENCY, AGENT (scoped to own agency by backend).",
       "category": "admin",
       "status": "passing",
       "proposedBy": "orchestrator",
-      "lastUpdated": "2026-03-09T14:00:00Z",
-      "lastTestedAt": "2026-03-09T19:30:00Z",
+      "lastTestedAt": "2026-03-23T08:52:30Z",
       "lastTestedBy": "testing-agent"
     },
     {
@@ -150,22 +148,6 @@
       "category": "admin",
       "status": "passing",
       "proposedBy": "orchestrator"
-    },
-    {
-      "id": "fm-bien-archive",
-      "title": "Property archiving (mobile)",
-      "description": "Mobile property screens support the actif/archived state:\n\n1. AdminBiensScreen: Filter chips (Actifs/Archives/Tous) send ?actif= parameter to GET /api/biens. Archive badge shown on cards for archived properties. PopupMenu includes Archive/Unarchive action calling PUT /api/biens/{id}/archive or /unarchive.\n2. PropertyDetailScreen: Archive status banner when actif=false. Archive/unarchive button in AppBar for admin users.\n3. Delete handling: When DELETE /api/biens/{id} returns 409 (has contracts), SnackBar suggests archiving with an 'Archiver' action button.\n4. ApiService: archiveBien(id), unarchiveBien(id) PUT methods. getBiens() accepts optional actif parameter.\n\nRoles: Archive/unarchive requires SUPER_ADMIN, ADMIN_AGENCY, or AGENT. Filter chips visible to all admin roles.",
-      "category": "bien",
-      "status": "proposed",
-      "proposedBy": "role-3"
-    },
-    {
-      "id": "fm-contrat-bien-direct",
-      "title": "Contract creation references Bien directly (mobile)",
-      "description": "Contract creation and display adapted to the new backend contract model:\n\n1. AdminContratFormScreen: Sends {bienId, typeContrat, cosigners} to POST /api/contrats. No longer creates Location/Achat offers first. Type selector (ACHAT/LOCATION) only enables types with active offers. Read-only offer preview shows values from BienDetailDTO (salePrice, monthlyRent, caution, dureeMois, dateDispo).\n2. AdminContratDetailScreen: Shows linked Bien card (navigable). Displays snapshot values: ACHAT shows snapPrix; LOCATION shows snapMensualite, snapCaution, snapDureeMois. Shows snapDateDispo in dates section.\n3. AdminContratsScreen: Contract list cards show snapshot price (snapPrix for ACHAT, snapMensualite for LOCATION) inline.\n4. Models: Contrat model includes bienId, typeContrat, snapshot fields (snapMensualite, snapCaution, snapDureeMois, snapPrix, snapDateDispo). Bien model includes actif field.\n\nRoles: Contract CRUD requires SUPER_ADMIN, ADMIN_AGENCY, or AGENT. Minimum 2 cosigners enforced client-side.",
-      "category": "contrat",
-      "status": "proposed",
-      "proposedBy": "role-3"
     }
   ]
 }

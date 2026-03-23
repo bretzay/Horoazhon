@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-mobile",
-  "lastUpdated": "2026-03-09T15:07:35Z",
+  "lastUpdated": "2026-03-23T07:56:25Z",
   "tests": [
     {
       "featureId": "fm-public-homepage",
@@ -805,7 +805,7 @@
           "id": "fm-admin-bien-list-loads",
           "title": "Property list loads in admin view with search and property cards",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin and navigate to Biens tab",
@@ -817,10 +817,30 @@
           ]
         },
         {
+          "id": "fm-admin-bien-filter-chips",
+          "title": "Filter chips Actifs/Archives/Tous control property visibility",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Verify filter chips are visible",
+            "Tap Actifs chip",
+            "Tap Archives chip",
+            "Tap Tous chip"
+          ],
+          "assertions": [
+            "Filter chips Actifs, Archives, Tous are visible",
+            "Actifs chip is selected by default",
+            "Tapping Archives reloads list with ?actif=false",
+            "Tapping Tous reloads list without actif filter"
+          ]
+        },
+        {
           "id": "fm-admin-bien-card-actions",
           "title": "Property cards show popup menu with Modifier, Archiver, and Supprimer options",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin and navigate to Biens tab",
@@ -828,16 +848,68 @@
           ],
           "assertions": [
             "PopupMenuButton is visible on cards",
-            "'Modifier' menu item appears",
-            "'Archiver' menu item appears",
-            "'Supprimer' menu item appears"
+            "Modifier menu item appears",
+            "Archiver menu item appears for active properties",
+            "Supprimer menu item appears"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-archive-action",
+          "title": "Tapping Archiver calls PUT /archive and shows confirmation",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Tap popup menu on an active property card",
+            "Tap Archiver menu item",
+            "Confirm the archive action"
+          ],
+          "assertions": [
+            "Confirmation dialog appears before archiving",
+            "After confirmation, SnackBar shows success message",
+            "Property card updates to show Archive badge"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-unarchive-action",
+          "title": "Archived property popup shows Reactiver instead of Archiver",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Switch to Archives filter chip",
+            "Tap popup menu on an archived property card"
+          ],
+          "assertions": [
+            "Reactiver menu item appears instead of Archiver",
+            "Supprimer menu item is still present"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-delete-409-suggests-archive",
+          "title": "Delete returns 409 with SnackBar suggesting archive",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Biens tab",
+            "Tap popup menu on a property with contracts",
+            "Tap Supprimer",
+            "Confirm deletion"
+          ],
+          "assertions": [
+            "SnackBar appears with message about existing contracts",
+            "SnackBar includes Archiver action button",
+            "Property is not deleted from the list"
           ]
         },
         {
           "id": "fm-admin-bien-fab",
           "title": "Add property FAB is visible with add icon",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin and navigate to Biens tab"
@@ -849,49 +921,53 @@
         },
         {
           "id": "fm-admin-bien-form-fields",
-          "title": "Property create form loads with Type, Rue, Ville, Code postal fields",
+          "title": "Property create form loads with required and optional fields",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin, navigate to Biens tab",
-            "Tap FAB to open create form"
+            "Tap FAB to open create form",
+            "Scroll through form"
           ],
           "assertions": [
-            "Title 'Nouveau bien' visible",
+            "Title Nouveau bien visible",
             "Type dropdown visible",
             "Rue, Ville, Code postal labels visible",
-            "'Créer' submit button visible"
-          ]
-        },
-        {
-          "id": "fm-admin-bien-form-optional",
-          "title": "Property form shows optional fields: Superficie, Score eco, Description",
-          "type": "flutter_integration",
-          "status": "not_tested",
-          "lastResult": null,
-          "steps": [
-            "Login as admin, navigate to Biens tab",
-            "Tap FAB, scroll down in form"
-          ],
-          "assertions": [
-            "'Superficie (m²)' label visible",
-            "'Score éco' label visible",
-            "'Description' label visible"
+            "Superficie, Score eco, Description labels visible",
+            "Creer submit button visible"
           ]
         },
         {
           "id": "fm-admin-bien-actif-badge",
           "title": "Property cards display actif/archived status badge",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin and navigate to Biens tab",
             "Wait for property list to load"
           ],
           "assertions": [
-            "Property cards show 'Actif' or 'Archivé' status indicator"
+            "Property cards show Actif or Archive status indicator",
+            "Badge color differentiates active from archived"
+          ]
+        },
+        {
+          "id": "fm-admin-bien-edit-archive-banner",
+          "title": "Edit screen shows archive banner with Reactiver button for archived property",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Biens tab",
+            "Switch to Archives filter",
+            "Tap Modifier on an archived property"
+          ],
+          "assertions": [
+            "Archive status banner is visible at top of edit screen",
+            "Reactiver button is visible in the banner",
+            "Listing tabs (Vente/Location) are disabled or hidden for archived properties"
           ]
         }
       ]
@@ -974,9 +1050,9 @@
       "suites": [
         {
           "id": "fm-admin-contrat-list-loads",
-          "title": "Contract list loads with CTR- prefixed contract cards showing typeContrat",
+          "title": "Contract list loads with CTR- prefixed cards showing typeContrat and snapshot price",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin and navigate to Contrats tab",
@@ -984,30 +1060,97 @@
           ],
           "assertions": [
             "Contract cards with CTR- prefix are visible",
-            "Type badge (Location/Achat) visible on cards"
+            "Type badge (Location/Achat) visible on cards",
+            "Snapshot price visible on cards (snapPrix for ACHAT, snapMensualite for LOCATION)"
           ]
         },
         {
           "id": "fm-admin-contrat-card-display",
           "title": "Contract cards display status badge, type badge, and Bien reference",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin and navigate to Contrats tab"
           ],
           "assertions": [
             "Card widgets visible",
-            "Status badges (EN_COURS etc.) visible",
-            "Bien reference (BI-X) visible on cards",
+            "Status badges (EN_COURS/SIGNE/ANNULE/TERMINE) visible",
+            "Bien reference (address or BI-X) visible on cards",
             "Chevron right icons visible indicating tappable cards"
           ]
         },
         {
-          "id": "fm-admin-contrat-detail-loads",
-          "title": "Contract detail screen shows Bien info, snapshot fields, and Cosignataires",
+          "id": "fm-admin-contrat-list-filters",
+          "title": "Contract list has statut and type filter dropdowns",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin and navigate to Contrats tab",
+            "Look for filter controls"
+          ],
+          "assertions": [
+            "Statut filter dropdown is visible (EN_COURS, SIGNE, ANNULE, TERMINE)",
+            "Type filter dropdown is visible (LOCATION, ACHAT)"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-create-type-selector",
+          "title": "Contract create screen has type selector and Bien selector",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Contrats tab",
+            "Tap FAB to open create form"
+          ],
+          "assertions": [
+            "Type selector (ACHAT/LOCATION) is visible as radio or toggle",
+            "Bien selector/dropdown is visible",
+            "No locationId or achatId fields exist"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-create-offer-preview",
+          "title": "Selecting a Bien shows read-only offer preview",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Contrats tab",
+            "Tap FAB, select type LOCATION",
+            "Select a Bien that has a Location offer"
+          ],
+          "assertions": [
+            "Read-only preview shows mensualite, caution, duree values from the offer",
+            "Preview values are not editable",
+            "Bien address info is displayed"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-create-cosigners",
+          "title": "Contract create form has cosigners section with personne search",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Contrats tab",
+            "Tap FAB, select type and Bien",
+            "Scroll to cosigners section"
+          ],
+          "assertions": [
+            "Cosignataires section is visible",
+            "Add cosigner button is visible",
+            "Type signataire selector (BUYER/SELLER/RENTER/OWNER) exists",
+            "Personne search field is visible"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-detail-loads",
+          "title": "Contract detail shows Bien info card, snapshot fields, and cosignataires",
+          "type": "flutter_integration",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin, navigate to Contrats tab",
@@ -1015,16 +1158,17 @@
           ],
           "assertions": [
             "CTR- ID visible in detail screen",
-            "'Bien' section visible with property info",
-            "Snapshot fields visible (prix or mensualite depending on type)",
-            "'Cosignataires' section visible"
+            "Bien section visible with property address info",
+            "Snapshot fields visible (prix or mensualite depending on typeContrat)",
+            "snapDateDispo visible when present",
+            "Cosignataires section visible with role labels"
           ]
         },
         {
           "id": "fm-admin-contrat-detail-badges",
           "title": "Contract detail shows status and typeContrat badges",
           "type": "flutter_integration",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             "Login as admin, navigate to Contrats tab",
@@ -1032,8 +1176,23 @@
           ],
           "assertions": [
             "Status badge visible (EN_COURS/SIGNE/ANNULE/TERMINE)",
-            "Type badge visible (Location/Achat)",
-            "Person outlined icons visible for cosigners"
+            "Type badge visible (Location/Achat from typeContrat field)"
+          ]
+        },
+        {
+          "id": "fm-admin-contrat-detail-actions",
+          "title": "Contract detail shows context-appropriate action buttons",
+          "type": "flutter_integration",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            "Login as admin, navigate to Contrats tab",
+            "Tap an EN_COURS contract card"
+          ],
+          "assertions": [
+            "Confirmer button visible for EN_COURS contracts",
+            "Annuler button visible for EN_COURS contracts",
+            "PDF download button visible"
           ]
         }
       ]
