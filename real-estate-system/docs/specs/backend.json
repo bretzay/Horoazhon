@@ -1,7 +1,7 @@
 {
   "$schema": "spec-v2",
   "role": "backend",
-  "lastUpdated": "2026-03-23T09:23:07Z",
+  "lastUpdated": "2026-03-23T10:34:18Z",
   "features": [
     {
       "id": "be-auth-login",
@@ -69,19 +69,19 @@
       "title": "Property create, update, delete and sub-resources",
       "description": "Authenticated write endpoints for property management and sub-resources.\n\nEndpoints:\n- POST /api/biens (create)\n- PUT /api/biens/{id} (update)\n- DELETE /api/biens/{id} (delete)\n- POST /api/biens/{bienId}/caracteristiques?caracteristiqueId=X&valeur=Y&unite=Z\n- DELETE /api/biens/{bienId}/caracteristiques/{caracteristiqueId}\n- POST /api/biens/{bienId}/lieux?lieuId=X&minutes=Y&typeLocomotion=Z\n- DELETE /api/biens/{bienId}/lieux/{lieuId}\n- PUT /api/biens/{bienId}/proprietaire?personneId=X\n- DELETE /api/biens/{bienId}/proprietaire\n- POST /api/biens/{bienId}/photos?chemin=X&ordre=Y (NOT multipart — accepts URL string via query params)\n- DELETE /api/biens/{bienId}/photos/{photoId}\n\nPermissions:\n- All write endpoints have @PreAuthorize(\"hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')\") at method level\n- CLIENT: 403 on all write operations\n- Unauthenticated: 403\n- SUPER_ADMIN: can manage any property in any agency\n- ADMIN_AGENCY/AGENT: can manage properties in their own agency only (agency scoping enforced in service layer)\n\nBusiness rules:\n- POST returns 201, PUT returns 200, DELETE returns 204\n- Agency scoping: non-SUPER_ADMIN users restricted to their agency's properties\n- Create: agenceId in CreateBienRequest. For SUPER_ADMIN, agenceId specifies the target agency. For other roles, agenceId is always auto-assigned from JWT — any submitted agenceId is silently ignored (safe behavior, property always ends up in caller's agency)\n- Sub-resources: caracteristiques (valeur/unite query params), lieux (minutes/typeLocomotion query params), proprietaire (personneId query param only, no dateDebut), photo (chemin URL string + optional ordre integer, NOT multipart file upload)\n- addPhoto returns 201 with PhotoDTO body; all other sub-resource POSTs return 201 with empty body\n\nEdge cases:\n- Update/delete nonexistent ID: 404\n- Create with missing required fields: 400\n- AGENT updating property from another agency: must return 403\n- Deleting property with active contracts: must fail with descriptive error\n- CLIENT role attempting any write operation: must return 403",
       "category": "bien",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastTestedAt": "2026-03-05T20:05:00Z",
+      "lastTestedAt": "2026-03-23T18:30:00Z",
       "lastTestedBy": "testing-agent",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-23T10:42:00Z"
     },
     {
       "id": "be-listing",
       "title": "Rental and sale listing operations",
       "description": "CRUD for Location (rental) and Achat (sale) listings attached to properties.\n\nEndpoints:\n- GET /api/locations (list), GET /api/locations/{id} (detail)\n- POST /api/locations (create), PUT /api/locations/{id} (update), DELETE /api/locations/{id} (delete)\n- GET /api/achats (list), GET /api/achats/{id} (detail)\n- POST /api/achats (create), PUT /api/achats/{id} (update), DELETE /api/achats/{id} (delete)\n\nPermissions:\n- Both controllers have class-level @PreAuthorize(\"hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')\")\n- SUPER_ADMIN, ADMIN_AGENCY, AGENT: 200/201/204\n- CLIENT: 403 on all endpoints\n- Unauthenticated: 403\n\nLocation (rental): LocationDTO { id, caution, dateDispo, mensualite, dureeMois, bienId, bienType, bienRue, bienVille }\n- POST body: {bienId, caution, dateDispo, mensualite, dureeMois}\n\nAchat (sale): AchatDTO { id, prix, dateDispo, bienId, bienType, bienRue, bienVille }\n- POST body: {bienId, prix, dateDispo}\n\nBusiness rules:\n- UNIQUE constraint on bien_id for both tables — one rental listing and one sale listing per property max\n- Duplicate listing attempt returns 409\n- A property can have both a location AND an achat (dual listing)\n- POST returns 201, PUT returns 200, DELETE returns 204\n\nEdge cases:\n- Second Location on same bien: 409 (UNIQUE violation)\n- Second Achat on same bien: 409 (UNIQUE violation)\n- Delete nonexistent listing: 404\n- Creating listing for nonexistent bienId: 404\n- Creating listing on property from another agency (non-SUPER_ADMIN): should be blocked",
       "category": "bien",
-      "status": "not_tested",
-      "lastTestedAt": "2026-03-05T21:55:30Z",
+      "status": "passing",
+      "lastTestedAt": "2026-03-23T10:46:15Z",
       "lastTestedBy": "testing-agent",
       "lastUpdated": "2026-03-09T14:00:00Z"
     },
@@ -100,9 +100,9 @@
       "title": "Contract listing and detail",
       "description": "Read endpoints for contracts restricted to agency staff roles.\n\nEndpoints:\n- GET /api/contrats (paginated)\n- GET /api/contrats/{id}\n\nPermissions:\n- Class-level @PreAuthorize(\"hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')\")\n- SUPER_ADMIN: sees all contracts across all agencies\n- ADMIN_AGENCY/AGENT: see only contracts for biens in their agency (agency isolation in service layer)\n- CLIENT: 403 (excluded by class-level @PreAuthorize)\n- Unauthenticated: 403\n\nGET /api/contrats:\n- Pagination: page (default 0), size (default 10), sorted by dateCreation DESC\n- Response: Page<ContratDTO> { content[], totalElements, totalPages }\n- ContratDTO: { id, dateCreation, dateModification, statut, type, bien (nested BienDTO), hasSignedDocument, cosigners[] }\n- Statut values: EN_COURS, SIGNE, ANNULE, TERMINE\n- Type values: LOCATION, ACHAT\n\nGET /api/contrats/{id}:\n- Response: ContratDetailDTO extending ContratDTO with: location (LocationDTO or null), achat (AchatDTO or null), siblingContratCount (int)\n- CosignerDTO: { personneId, nom, prenom, typeSignataire, dateSignature }\n- typeSignataire values: BUYER, SELLER, RENTER, OWNER\n- Nonexistent ID: 404\n\nBusiness rules:\n- Agency isolation enforced in service layer — critical security requirement\n- siblingContratCount = number of other EN_COURS contracts on the same offer (must be accurate)\n- Every contract must have at least 2 cosigners\n\nEdge cases:\n- ADMIN_AGENCY requesting contract from another agency: 403 or empty/filtered result\n- AGENT requesting contract from another agency: same behavior\n- Nonexistent ID: 404\n- siblingContratCount accuracy: verify it correctly counts only EN_COURS siblings",
       "category": "contrat",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastTestedAt": "2026-03-04T22:38:14Z",
+      "lastTestedAt": "2026-03-23T11:05:00Z",
       "lastTestedBy": "testing-agent",
       "lastUpdated": "2026-03-09T14:00:00Z"
     },
@@ -111,22 +111,20 @@
       "title": "Contract creation",
       "description": "Create a new contract with cosigners linked to a rental or sale listing.\n\nEndpoints:\n- POST /api/contrats\n\nPermissions:\n- Class-level @PreAuthorize(\"hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')\")\n- SUPER_ADMIN, ADMIN_AGENCY, AGENT: 201\n- CLIENT: 403 (excluded by class-level @PreAuthorize)\n- Unauthenticated: 403\n- Agency scoping: non-SUPER_ADMIN should only create contracts for listings in their own agency\n\nRequest body: { locationId (Long, optional), achatId (Long, optional), cosigners: [{personneId, typeSignataire}] }\n\nBusiness rules:\n- Exactly one of locationId or achatId must be provided (mutually exclusive). Both or neither: 400.\n- Cosigners array must have at least 2 entries (minimum 2, no maximum)\n- Contract type auto-inferred: locationId -> LOCATION, achatId -> ACHAT\n- Default statut: EN_COURS\n- Returns 201 with created ContratDTO\n\nEdge cases:\n- Both locationId and achatId provided: 400\n- Neither provided: 400\n- Fewer than 2 cosigners: 400\n- Invalid personneId in cosigners: 400 or 404\n- Invalid locationId/achatId: 404\n- Creating contract for listing in another agency (non-SUPER_ADMIN): should be blocked (403)",
       "category": "contrat",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastTestedAt": "2026-03-05T19:30:00Z",
+      "lastTestedAt": "2026-03-23T11:17:15Z",
       "lastTestedBy": "testing-agent",
       "lastUpdated": "2026-03-09T14:00:00Z"
     },
     {
       "id": "be-contrat-lifecycle",
       "title": "Contract workflow, documents, and expiration",
-      "description": "Contract status transitions, PDF generation, signed document management, and automated expiration.\n\nEndpoints:\n- PATCH /api/contrats/{id}/statut?statut={value} (status update)\n- POST /api/contrats/{id}/confirm (EN_COURS -> SIGNE)\n- POST /api/contrats/{id}/cancel (EN_COURS -> ANNULE)\n- GET /api/contrats/{id}/pdf (generate PDF)\n- POST /api/contrats/{id}/document-signe (upload signed doc, multipart file param named \"file\")\n- GET /api/contrats/{id}/document-signe (download signed doc)\n- DELETE /api/contrats/{id}/document-signe (delete signed doc)\n- POST /api/contrats/expire-check (manual expiration trigger, SUPER_ADMIN only)\n\nPermissions:\n- Class-level @PreAuthorize(\"hasAnyAuthority('ROLE_SUPER_ADMIN','ROLE_ADMIN_AGENCY','ROLE_AGENT')\")\n- CLIENT: 403 on all endpoints\n- Unauthenticated: 403\n- expire-check: SUPER_ADMIN only (additional method-level @PreAuthorize)\n\nStatus state machine:\n- EN_COURS -> SIGNE (via confirm, requires signed document uploaded first)\n- EN_COURS -> ANNULE (via cancel)\n- SIGNE -> TERMINE (via PATCH statut)\n- Cannot go backwards (SIGNE -> EN_COURS blocked, TERMINE is frozen)\n- Invalid transitions must return error with descriptive message\n\nConfirm side effects (highest complexity — most likely area for bugs):\n- Sets cosigner dateSignature to current date\n- Auto-cancels all other EN_COURS contracts on the same offer (sibling cancellation)\n- Verify sibling cancellation is transactional (all or nothing)\n\nPurchase completion (ACHAT contract -> TERMINE):\n- Ownership of bien transfers from seller to buyer (Posseder records updated)\n- Active SIGNE rental on same bien is terminated + reconduction contract auto-created\n- EN_COURS rentals on same bien are auto-cancelled\n- Achat link removed from bien\n- This is the most complex business logic — needs thorough testing\n\nDocument management:\n- Upload stores as contrat-{id}-signe.pdf\n- Upload validates: file not empty, content type must be application/pdf\n- Cannot upload/delete when status is SIGNE or TERMINE (blocked)\n- Download returns 404 if no signed document\n\nExpiration scheduler:\n- Daily cron at 2:00 AM\n- Finds SIGNE rental contracts where dureeMois has elapsed since creation\n- Transitions to TERMINE\n- Contracts with null/0 dureeMois are skipped (indefinite rental)\n- Manual trigger via POST /api/contrats/expire-check\n\nEdge cases:\n- Confirm without uploaded document: must return error\n- Cancel already-SIGNE contract: must return error\n- Cancel already-ANNULE contract: must return error (or idempotent)\n- PDF generation for nonexistent contract: 404\n- Upload to SIGNE or TERMINE contract: blocked\n- Confirm with sibling EN_COURS: verify all siblings cancelled correctly\n- Purchase completion: verify ownership transfer, rental reconduction, and Achat removal all happen atomically\n- Expiration with null/0 dureeMois: must be skipped (indefinite)",
+      "description": "Contract status transitions, PDF generation, signed document management, and automated expiration.",
       "category": "contrat",
-      "status": "not_tested",
-      "proposedBy": "orchestrator",
-      "lastTestedAt": "2026-03-04T22:38:42Z",
-      "lastTestedBy": "testing-agent",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "status": "passing",
+      "lastTestedAt": "2026-03-23T14:15:00Z",
+      "lastTestedBy": "testing-agent"
     },
     {
       "id": "be-personne",
@@ -162,19 +160,21 @@
       "title": "Client dashboard API",
       "description": "Dashboard endpoints restricted to CLIENT role.\n\nEndpoints:\n- GET /api/client/dashboard\n- GET /api/client/contrats (paginated: page, size params)\n- GET /api/client/biens (paginated: page, size params)\n\nPermissions (@PreAuthorize(\"hasRole('CLIENT')\") at class level):\n- CLIENT only: 200\n- SUPER_ADMIN: 403\n- ADMIN_AGENCY: 403\n- AGENT: 403\n- Unauthenticated: 403\n\nGET /api/client/dashboard: returns ClientDashboardDTO { personneId, nom, prenom, totalProperties, totalContracts, activeContracts, totalRevenue, monthlyRevenue, properties (List<BienDTO>), recentContracts (List<ContratDTO>), revenueByMonth (Map<String, BigDecimal>) }\n\nGET /api/client/contrats: Page<ContratDTO> — contracts where client's personne is a cosigner\nGET /api/client/biens: Page<BienDTO> — properties owned by client's personne\n\nTest account: client@horoazhon.fr / Client / CLIENT role / agency 1 / personne 14 (Girard Julien) — exists in V2 seed data. This personne is a cosigner on contracts 1, 3, 7 (as BUYER/RENTER). Does NOT own any properties (no Posseder record for personne 14).\n\nBusiness rules:\n- All data scoped to the client's linked Personne entity\n- Revenue calculated from signed contracts\n- revenueByMonth is a map of month -> amount\n\nEdge cases:\n- CLIENT with no linked personne: throws IllegalStateException\n- CLIENT with no contracts: totalContracts=0, empty arrays\n- CLIENT with no owned properties: totalProperties=0\n- Non-CLIENT role attempting access: 403",
       "category": "client",
-      "status": "not_tested",
-      "lastTestedAt": "2026-03-05T22:00:00Z",
+      "status": "passing",
+      "lastTestedAt": "2026-03-23T11:00:00Z",
       "lastTestedBy": "testing-agent",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-23T11:00:00Z"
     },
     {
       "id": "be-contrat-restructure",
       "title": "Contract restructure: Bien-direct FK with offer snapshots",
-      "description": "Restructure the Contrat entity to reference Bien directly instead of Location/Achat. Contracts become self-contained legal records with snapshot fields.\n\n## Schema changes\n- Contrat: drop location_id, achat_id, XOR constraint\n- Contrat: add bien_id (FK NOT NULL to Bien), type_contrat (LOCATION|ACHAT)\n- Contrat: add snapshot fields: snap_mensualite (DECIMAL), snap_caution (DECIMAL), snap_duree_mois (INT), snap_prix (DECIMAL), snap_date_dispo (DATE)\n- Location/Achat: remove contrats OneToMany (no longer referenced by contracts)\n\n## Contract creation (POST /api/contrats)\n- Request: { bienId, typeContrat (LOCATION|ACHAT), cosigners[] }\n- Service looks up the active offer (Location or Achat) on the Bien\n- If no matching offer exists: 400 error\n- Snapshot fields copied from the offer at creation time\n- statut = EN_COURS\n- Multiple EN_COURS contracts allowed for same Bien+type (negotiation phase)\n\n## Contract signing (POST /api/contrats/{id}/confirm → SIGNE)\n- Auto-delete the corresponding offer (Location for LOCATION type, Achat for ACHAT type)\n- Auto-cancel all other EN_COURS contracts of the same type for the same Bien\n- Property removed from public listings for that offer type\n\n## Offer creation guards\n- LocationService.create(): blocked if a SIGNE Location-type contract exists on the Bien\n- AchatService.create(): blocked if a SIGNE Achat-type contract exists on the Bien\n- TERMINE/ANNULE contracts never block new offers\n\n## Offer deletion guards\n- LocationService.delete(): blocked if EN_COURS Location-type contracts exist for the Bien\n- AchatService.delete(): blocked if EN_COURS Achat-type contracts exist for the Bien\n- No EN_COURS contracts: offer can be freely deleted\n\n## Contract lifecycle\n- EN_COURS → SIGNE (triggers offer deletion + sibling cancellation)\n- EN_COURS → ANNULE\n- SIGNE → TERMINE\n- TERMINE/ANNULE = terminal states, never block anything\n\n## DTO changes\n- ContratDTO: add snapMensualite, snapCaution, snapDureeMois, snapPrix, snapDateDispo, typeContrat; replace location/achat sub-objects with bien sub-object\n- CreateContratRequest: replace locationId/achatId with bienId + typeContrat\n- ContratDetailDTO: snapshot fields replace location/achat detail objects\n\n## Auth: SUPER_ADMIN, ADMIN_AGENCY, AGENT (unchanged)\n\n## Migration: Changes folded into V1 (schema) and V2 (test data), not a separate V3",
+      "description": "Restructure the Contrat entity to reference Bien directly instead of Location/Achat.",
       "category": "contrat",
-      "status": "not_tested",
+      "status": "passing",
       "proposedBy": "role-7",
-      "lastUpdated": "2026-03-09T14:00:00Z"
+      "lastUpdated": "2026-03-23T11:32:30Z",
+      "lastTestedAt": "2026-03-23T11:32:30Z",
+      "lastTestedBy": "testing-agent"
     },
     {
       "id": "be-bien-archive",

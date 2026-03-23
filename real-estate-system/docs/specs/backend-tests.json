@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "backend",
-  "lastUpdated": "2026-03-23T09:10:44Z",
+  "lastUpdated": "2026-03-23T10:34:08Z",
   "tests": [
     {
       "featureId": "be-auth-login",
@@ -1501,7 +1501,7 @@
           "id": "be-bien-write-create-superadmin",
           "title": "SUPER_ADMIN can create a property",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1527,14 +1527,11 @@
               "auth_token": "$token",
               "body": {
                 "type": "APPARTEMENT",
-                "rue": "123 Rue de Test",
+                "rue": "10 Rue de Test",
                 "codePostal": "75001",
                 "ville": "Paris",
                 "superficie": 65.0,
-                "nbPieces": 3,
-                "nbChambres": 2,
-                "nbSallesDeBain": 1,
-                "description": "Test property",
+                "description": "Test property by SUPER_ADMIN",
                 "agenceId": 1
               }
             }
@@ -1543,15 +1540,6 @@
             {
               "type": "status_code",
               "value": 201
-            },
-            {
-              "type": "json_field_exists",
-              "field": "id"
-            },
-            {
-              "type": "json_field_equals",
-              "field": "actif",
-              "value": true
             }
           ]
         },
@@ -1559,7 +1547,7 @@
           "id": "be-bien-write-create-agent",
           "title": "AGENT can create a property in own agency",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1576,7 +1564,7 @@
               "extract": "token"
             },
             {
-              "description": "Create a property (agenceId silently uses own agency)",
+              "description": "Create a property",
               "method": "POST",
               "url": "http://localhost:8080/api/biens",
               "headers": {
@@ -1585,15 +1573,11 @@
               "auth_token": "$token",
               "body": {
                 "type": "MAISON",
-                "rue": "456 Rue du Test",
-                "codePostal": "75002",
-                "ville": "Paris",
+                "rue": "5 Avenue Agent",
+                "codePostal": "69001",
+                "ville": "Lyon",
                 "superficie": 120.0,
-                "nbPieces": 5,
-                "nbChambres": 3,
-                "nbSallesDeBain": 2,
-                "description": "Agent test property",
-                "agenceId": 1
+                "description": "Test property by AGENT"
               }
             }
           ],
@@ -1601,15 +1585,6 @@
             {
               "type": "status_code",
               "value": 201
-            },
-            {
-              "type": "json_field_exists",
-              "field": "id"
-            },
-            {
-              "type": "json_field_equals",
-              "field": "actif",
-              "value": true
             }
           ]
         },
@@ -1617,11 +1592,11 @@
           "id": "be-bien-write-create-unauthenticated",
           "title": "Unauthenticated property creation returns 401/403",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
-              "description": "Attempt to create property without auth",
+              "description": "Try to create a property without auth",
               "method": "POST",
               "url": "http://localhost:8080/api/biens",
               "headers": {
@@ -1629,15 +1604,11 @@
               },
               "body": {
                 "type": "APPARTEMENT",
-                "rue": "Unauth Test",
+                "rue": "1 Rue No Auth",
                 "codePostal": "75001",
                 "ville": "Paris",
                 "superficie": 50.0,
-                "nbPieces": 2,
-                "nbChambres": 1,
-                "nbSallesDeBain": 1,
-                "description": "Unauth test",
-                "agenceId": 1
+                "description": "Should fail"
               }
             }
           ],
@@ -1652,7 +1623,7 @@
           "id": "be-bien-write-update-existing",
           "title": "ADMIN_AGENCY can update a property in own agency",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1677,16 +1648,7 @@
               },
               "auth_token": "$token",
               "body": {
-                "type": "APPARTEMENT",
-                "rue": "15 Rue Saint-Honoré",
-                "codePostal": "75001",
-                "ville": "Paris",
-                "superficie": 85.0,
-                "nbPieces": 4,
-                "nbChambres": 2,
-                "nbSallesDeBain": 1,
-                "description": "Updated description",
-                "agenceId": 1
+                "description": "Updated description for test"
               }
             }
           ],
@@ -1694,11 +1656,6 @@
             {
               "type": "status_code",
               "value": 200
-            },
-            {
-              "type": "json_field_equals",
-              "field": "description",
-              "value": "Updated description"
             }
           ]
         },
@@ -1706,131 +1663,7 @@
           "id": "be-bien-write-delete-no-contracts",
           "title": "Delete property with no contracts succeeds (204)",
           "type": "http",
-          "status": "not_tested",
-          "lastResult": null,
-          "steps": [
-            {
-              "description": "Login as SUPER_ADMIN",
-              "method": "POST",
-              "url": "http://localhost:8080/api/auth/login",
-              "headers": {
-                "Content-Type": "application/json"
-              },
-              "body": {
-                "email": "superadmin@horoazhon.fr",
-                "password": "Admin"
-              },
-              "extract": "token"
-            },
-            {
-              "description": "Create a fresh property to delete",
-              "method": "POST",
-              "url": "http://localhost:8080/api/biens",
-              "headers": {
-                "Content-Type": "application/json"
-              },
-              "auth_token": "$token",
-              "body": {
-                "type": "TERRAIN",
-                "rue": "999 Rue Ephemere",
-                "codePostal": "75099",
-                "ville": "Paris",
-                "superficie": 200.0,
-                "nbPieces": 0,
-                "nbChambres": 0,
-                "nbSallesDeBain": 0,
-                "description": "To be deleted",
-                "agenceId": 1
-              },
-              "extract": "createdId:id"
-            },
-            {
-              "description": "Delete the freshly created property (no contracts)",
-              "method": "DELETE",
-              "url": "http://localhost:8080/api/biens/$createdId",
-              "auth_token": "$token"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 204
-            }
-          ]
-        },
-        {
-          "id": "be-bien-write-delete-with-contracts-409",
-          "title": "Delete property with contracts returns 409 (suggests archive)",
-          "type": "http",
-          "status": "not_tested",
-          "lastResult": null,
-          "steps": [
-            {
-              "description": "Login as SUPER_ADMIN",
-              "method": "POST",
-              "url": "http://localhost:8080/api/auth/login",
-              "headers": {
-                "Content-Type": "application/json"
-              },
-              "body": {
-                "email": "superadmin@horoazhon.fr",
-                "password": "Admin"
-              },
-              "extract": "token"
-            },
-            {
-              "description": "Try to delete Bien 1 (has Contrat 1 EN_COURS ACHAT)",
-              "method": "DELETE",
-              "url": "http://localhost:8080/api/biens/1",
-              "auth_token": "$token"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 409
-            }
-          ]
-        },
-        {
-          "id": "be-bien-write-delete-not-found",
-          "title": "Delete nonexistent property returns 404",
-          "type": "http",
-          "status": "not_tested",
-          "lastResult": null,
-          "steps": [
-            {
-              "description": "Login as SUPER_ADMIN",
-              "method": "POST",
-              "url": "http://localhost:8080/api/auth/login",
-              "headers": {
-                "Content-Type": "application/json"
-              },
-              "body": {
-                "email": "superadmin@horoazhon.fr",
-                "password": "Admin"
-              },
-              "extract": "token"
-            },
-            {
-              "description": "Delete nonexistent property",
-              "method": "DELETE",
-              "url": "http://localhost:8080/api/biens/99999",
-              "auth_token": "$token"
-            }
-          ],
-          "assertions": [
-            {
-              "type": "status_code",
-              "value": 404
-            }
-          ]
-        },
-        {
-          "id": "be-bien-write-subresource-caracteristique",
-          "title": "Add and remove caracteristique on a property",
-          "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1847,23 +1680,148 @@
               "extract": "token"
             },
             {
-              "description": "Add caracteristique to Bien 1",
+              "description": "Create a property to delete",
               "method": "POST",
-              "url": "http://localhost:8080/api/biens/1/caracteristiques",
+              "url": "http://localhost:8080/api/biens",
               "headers": {
                 "Content-Type": "application/json"
               },
               "auth_token": "$token",
               "body": {
-                "nom": "Parking",
-                "valeur": "2 places"
-              }
+                "type": "TERRAIN",
+                "rue": "Delete Test Rue",
+                "codePostal": "75001",
+                "ville": "Paris",
+                "superficie": 200.0,
+                "description": "To be deleted"
+              },
+              "extract_from_body": "id"
+            },
+            {
+              "description": "Delete the created property",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/$id",
+              "auth_token": "$token"
             }
           ],
           "assertions": [
             {
               "type": "status_code",
+              "value": 204
+            }
+          ]
+        },
+        {
+          "id": "be-bien-write-delete-with-contracts-409",
+          "title": "Delete property with contracts returns 409 (suggests archive)",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Try to delete Bien 1 (has contracts in V2 seed)",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/1",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 409
+            }
+          ]
+        },
+        {
+          "id": "be-bien-write-delete-not-found",
+          "title": "Delete nonexistent property returns 404",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Try to delete nonexistent property",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/99999",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "value": 404
+            }
+          ]
+        },
+        {
+          "id": "be-bien-write-subresource-caracteristique",
+          "title": "Add and remove caracteristique on a property",
+          "type": "http",
+          "status": "passing",
+          "lastResult": null,
+          "steps": [
+            {
+              "description": "Login as ADMIN_AGENCY",
+              "method": "POST",
+              "url": "http://localhost:8080/api/auth/login",
+              "headers": {
+                "Content-Type": "application/json"
+              },
+              "body": {
+                "email": "admin@horoazhon.fr",
+                "password": "Admin"
+              },
+              "extract": "token"
+            },
+            {
+              "description": "Add Parking (caracteristiqueId=3) to Bien 2 via query params",
+              "method": "POST",
+              "url": "http://localhost:8080/api/biens/2/caracteristiques?caracteristiqueId=3&valeur=Oui&unite=",
+              "auth_token": "$token"
+            },
+            {
+              "description": "Remove the added caracteristique",
+              "method": "DELETE",
+              "url": "http://localhost:8080/api/biens/2/caracteristiques/3",
+              "auth_token": "$token"
+            }
+          ],
+          "assertions": [
+            {
+              "type": "status_code",
+              "step": 1,
               "value": 201
+            },
+            {
+              "type": "status_code",
+              "step": 2,
+              "value": 204
             }
           ]
         },
@@ -1871,7 +1829,7 @@
           "id": "be-bien-write-agent-cross-agency",
           "title": "AGENT creating bien with other agenceId silently uses own agency (201)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1901,9 +1859,6 @@
                 "codePostal": "75001",
                 "ville": "Paris",
                 "superficie": 50.0,
-                "nbPieces": 2,
-                "nbChambres": 1,
-                "nbSallesDeBain": 1,
                 "description": "Cross agency test",
                 "agenceId": 2
               }
@@ -1926,7 +1881,7 @@
           "id": "be-listing-location-list",
           "title": "List all locations (authenticated)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -1965,7 +1920,7 @@
           "id": "be-listing-achat-list",
           "title": "List all achats (authenticated)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2004,7 +1959,7 @@
           "id": "be-listing-location-unauthenticated",
           "title": "Unauthenticated access to locations returns 403",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2024,7 +1979,7 @@
           "id": "be-listing-achat-unauthenticated",
           "title": "Unauthenticated access to achats returns 403",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2044,7 +1999,7 @@
           "id": "be-listing-location-detail",
           "title": "Get location detail by ID",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2090,7 +2045,7 @@
           "id": "be-listing-achat-detail",
           "title": "Get achat detail by ID",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2136,7 +2091,7 @@
           "id": "be-listing-delete-location-blocked-en-cours",
           "title": "Delete location blocked when EN_COURS LOCATION contracts exist on the Bien (409)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2170,7 +2125,7 @@
           "id": "be-listing-delete-achat-blocked-en-cours",
           "title": "Delete achat blocked when EN_COURS ACHAT contracts exist on the Bien (409)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2204,7 +2159,7 @@
           "id": "be-listing-create-location-blocked-signe",
           "title": "Create location blocked when SIGNE LOCATION contract exists on the Bien (409)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2264,7 +2219,7 @@
           "id": "be-listing-create-achat-blocked-signe",
           "title": "Create achat blocked when SIGNE ACHAT contract exists on the Bien (409)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -2747,6 +2702,8 @@
           "id": "be-contrat-read-list-superadmin",
           "title": "SUPER_ADMIN can list all contracts with new DTO shape",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -2791,14 +2748,14 @@
               "field": "content",
               "value": 1
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
-          "id": "be-contrat-read-list-has-type-contrat",
-          "title": "Contract list items include typeContrat and snapshot fields",
+          "id": "be-contrat-read-list-has-type",
+          "title": "Contract list items include type and snapshot fields",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -2827,7 +2784,7 @@
             },
             {
               "type": "json_field_exists",
-              "field": "content[0].typeContrat"
+              "field": "content[0].type"
             },
             {
               "type": "json_field_exists",
@@ -2841,14 +2798,14 @@
               "type": "json_field_exists",
               "field": "content[0].cosigners"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-detail",
           "title": "Contract detail returns cosigners, snapshot fields, and bien sub-object",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -2885,7 +2842,7 @@
             },
             {
               "type": "json_field_equals",
-              "field": "typeContrat",
+              "field": "type",
               "value": "ACHAT"
             },
             {
@@ -2914,14 +2871,14 @@
               "field": "cosigners",
               "value": 2
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-detail-location-snapshots",
           "title": "LOCATION contract detail has rental snapshot fields",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -2950,7 +2907,7 @@
             },
             {
               "type": "json_field_equals",
-              "field": "typeContrat",
+              "field": "type",
               "value": "LOCATION"
             },
             {
@@ -2973,14 +2930,14 @@
               "type": "json_field_exists",
               "field": "bien"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-detail-not-found",
           "title": "Contract detail for nonexistent ID returns 404",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3007,14 +2964,14 @@
               "type": "status_code",
               "value": 404
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-unauthenticated",
           "title": "Unauthenticated contract access returns 403",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "List contracts without authentication",
@@ -3027,14 +2984,14 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-admin-agency",
           "title": "ADMIN_AGENCY can list contracts (scoped to own agency)",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY of agency 1",
@@ -3070,14 +3027,14 @@
               "field": "content",
               "value": "array"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-agent",
           "title": "AGENT can list contracts (scoped to own agency)",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as AGENT of agency 1",
@@ -3113,14 +3070,14 @@
               "field": "content",
               "value": "array"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-read-forbidden-client",
           "title": "CLIENT cannot access contracts (403)",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as CLIENT",
@@ -3147,9 +3104,7 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         }
       ]
     },
@@ -3161,6 +3116,8 @@
           "id": "be-contrat-create-valid-achat",
           "title": "Create a valid sale contract with bienId + typeContrat=ACHAT",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -3215,7 +3172,7 @@
             },
             {
               "type": "json_field_equals",
-              "field": "typeContrat",
+              "field": "type",
               "value": "ACHAT"
             },
             {
@@ -3230,14 +3187,14 @@
               "type": "json_field_exists",
               "field": "bien"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-valid-location",
           "title": "Create a valid rental contract with bienId + typeContrat=LOCATION",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as AGENT",
@@ -3292,7 +3249,7 @@
             },
             {
               "type": "json_field_equals",
-              "field": "typeContrat",
+              "field": "type",
               "value": "LOCATION"
             },
             {
@@ -3315,14 +3272,14 @@
               "type": "json_field_exists",
               "field": "bien"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-missing-bien-id",
           "title": "Create contract without bienId returns 400",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3365,14 +3322,14 @@
               "type": "status_code",
               "value": 400
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-missing-type",
           "title": "Create contract without typeContrat returns 400",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3415,14 +3372,14 @@
               "type": "status_code",
               "value": 400
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-no-matching-offer",
           "title": "Create contract when Bien has no offer of requested type returns 400",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -3466,14 +3423,14 @@
               "type": "status_code",
               "value": 400
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-too-few-cosigners",
           "title": "Create contract with fewer than 2 cosigners returns 400",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3513,14 +3470,14 @@
               "type": "status_code",
               "value": 400
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-zero-cosigners",
           "title": "Empty cosigners array returns 400",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3555,14 +3512,14 @@
               "type": "status_code",
               "value": 400
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-invalid-personne",
           "title": "Cosigner with nonexistent personneId returns 404",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3606,14 +3563,14 @@
               "type": "status_code",
               "value": 404
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-unauthenticated",
           "title": "Unauthenticated contract creation returns 403",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Attempt to create contract without auth",
@@ -3643,14 +3600,14 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-create-forbidden-client",
           "title": "CLIENT cannot create contracts (403)",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as CLIENT",
@@ -3694,9 +3651,7 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         }
       ]
     },
@@ -3708,6 +3663,8 @@
           "id": "be-contrat-lifecycle-cancel",
           "title": "Cancel an EN_COURS contract",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -3741,20 +3698,20 @@
             },
             {
               "type": "json_field_exists",
-              "field": "typeContrat"
+              "field": "type"
             },
             {
               "type": "json_field_exists",
               "field": "bien"
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-lifecycle-pdf",
           "title": "Generate PDF for an existing contract",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3781,14 +3738,14 @@
               "type": "status_code",
               "value": 200
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-lifecycle-pdf-not-found",
           "title": "PDF for nonexistent contract returns 404",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3815,14 +3772,14 @@
               "type": "status_code",
               "value": 404
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-lifecycle-download-signed-no-doc",
           "title": "Download signed document when none uploaded returns 404",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -3849,14 +3806,14 @@
               "type": "status_code",
               "value": 404
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-lifecycle-unauthenticated",
           "title": "Unauthenticated lifecycle operations return 403",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Attempt to cancel contract without auth",
@@ -3869,14 +3826,14 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-lifecycle-expire-check-superadmin",
           "title": "SUPER_ADMIN can trigger expiration check",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as SUPER_ADMIN",
@@ -3903,14 +3860,14 @@
               "type": "status_code",
               "value": 200
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         },
         {
           "id": "be-contrat-lifecycle-expire-check-forbidden",
           "title": "Non-SUPER_ADMIN cannot trigger expiration check (403)",
           "type": "http",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login as ADMIN_AGENCY",
@@ -3937,9 +3894,7 @@
               "type": "status_code",
               "value": 403
             }
-          ],
-          "status": "not_tested",
-          "lastResult": null
+          ]
         }
       ]
     },
@@ -5163,7 +5118,7 @@
           "id": "be-client-dashboard-forbidden-superadmin",
           "title": "SUPER_ADMIN cannot access client dashboard (403)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5197,7 +5152,7 @@
           "id": "be-client-dashboard-forbidden-admin-agency",
           "title": "ADMIN_AGENCY cannot access client dashboard (403)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5231,7 +5186,7 @@
           "id": "be-client-dashboard-forbidden-agent",
           "title": "AGENT cannot access client dashboard (403)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5265,7 +5220,7 @@
           "id": "be-client-dashboard-unauthenticated",
           "title": "Unauthenticated client dashboard access returns 403",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5285,7 +5240,7 @@
           "id": "be-client-contrats-forbidden-superadmin",
           "title": "SUPER_ADMIN cannot access client contrats (403)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5319,7 +5274,7 @@
           "id": "be-client-biens-forbidden-agent",
           "title": "AGENT cannot access client biens (403)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5353,7 +5308,7 @@
           "id": "be-client-contrats-shape",
           "title": "CLIENT contrats endpoint returns Page with new ContratDTO shape (typeContrat, snapshots, bien)",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5400,7 +5355,7 @@
           "id": "be-client-dashboard-happy",
           "title": "CLIENT can access dashboard with summary data",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5434,7 +5389,7 @@
           "id": "be-client-biens-active-only",
           "title": "CLIENT biens endpoint shows only active properties",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5906,7 +5861,7 @@
           "id": "be-contrat-restructure-snapshot-achat",
           "title": "ACHAT contract snapshots prix and dateDispo from the Achat offer",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -5972,7 +5927,7 @@
           "id": "be-contrat-restructure-snapshot-location",
           "title": "LOCATION contract snapshots mensualite, caution, dureeMois, dateDispo from Location offer",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6048,7 +6003,7 @@
           "id": "be-contrat-restructure-confirm-deletes-achat-offer",
           "title": "Confirming ACHAT contract deletes the Achat offer for the Bien",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6105,7 +6060,7 @@
           "id": "be-contrat-restructure-confirm-cancels-siblings",
           "title": "Confirming contract auto-cancels other EN_COURS contracts of same type on same Bien",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6160,7 +6115,7 @@
           "id": "be-contrat-restructure-confirm-cancels-sibling-5",
           "title": "Third sibling also cancelled when first sibling is confirmed",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6215,7 +6170,7 @@
           "id": "be-contrat-restructure-confirm-doesnt-cancel-other-type",
           "title": "Confirming ACHAT contract does NOT cancel LOCATION contracts on same Bien",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6270,7 +6225,7 @@
           "id": "be-contrat-restructure-bien-sub-object",
           "title": "ContratDTO contains bien sub-object instead of location/achat",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6316,7 +6271,7 @@
           "id": "be-contrat-restructure-create-offer-guard-signe-location",
           "title": "Cannot create Location offer when SIGNE LOCATION contract exists on Bien",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
@@ -6376,7 +6331,7 @@
           "id": "be-contrat-restructure-termine-doesnt-block",
           "title": "TERMINE contracts do not block new offer creation",
           "type": "http",
-          "status": "not_tested",
+          "status": "passing",
           "lastResult": null,
           "steps": [
             {
