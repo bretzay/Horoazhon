@@ -140,9 +140,15 @@ class _AdminContratDetailScreenState extends State<AdminContratDetailScreen> {
                               AppFormatters.formatBienId(bien['id'] as int),
                               style: AppTextStyles.textMd.w600,
                             ),
-                            Text(
-                              '${bien['type'] ?? ''} — ${bien['ville'] ?? ''}',
-                              style: AppTextStyles.textSm.w400.withColor(AppColors.slate500),
+                            Row(
+                              children: [
+                                Icon(AppFormatters.typeIcon(bien['type'] as String?), size: 16, color: AppColors.slate500),
+                                const SizedBox(width: 4),
+                                Text(
+                                  bien['ville'] ?? '',
+                                  style: AppTextStyles.textSm.w400.withColor(AppColors.slate500),
+                                ),
+                              ],
                             ),
                           ],
                         ),

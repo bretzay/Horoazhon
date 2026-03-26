@@ -101,16 +101,17 @@ class _AdminPersonneFormScreenState extends State<AdminPersonneFormScreen> {
     };
 
     try {
+      Map<String, dynamic> result;
       if (isEditing) {
-        await _api.updatePersonne(widget.personneId!, data);
+        result = await _api.updatePersonne(widget.personneId!, data);
       } else {
-        await _api.createPersonne(data);
+        result = await _api.createPersonne(data);
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(isEditing ? 'Personne mise à jour' : 'Personne créée')),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, result);
       }
     } catch (e) {
       if (mounted) {

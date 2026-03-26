@@ -143,6 +143,16 @@ class ApiService {
     return response.data as Map<String, dynamic>;
   }
 
+  Future<void> setBienProprietaire(int bienId, int personneId) async {
+    await _dio.put('/biens/$bienId/proprietaire', queryParameters: {
+      'personneId': personneId,
+    });
+  }
+
+  Future<void> removeBienProprietaire(int bienId) async {
+    await _dio.delete('/biens/$bienId/proprietaire');
+  }
+
   // --- Agences ---
 
   Future<List<dynamic>> getAgences() async {

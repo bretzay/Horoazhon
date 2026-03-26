@@ -40,8 +40,8 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
     super.dispose();
   }
 
-  Future<void> _loadData() async {
-    setState(() { _isLoading = true; _error = null; });
+  Future<void> _loadData({bool silent = false}) async {
+    if (!silent) setState(() { _isLoading = true; _error = null; });
     try {
       final results = await Future.wait([_api.getCaracteristiques(), _api.getLieux()]);
       if (mounted) {
@@ -62,7 +62,7 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
     try {
       await _api.createCaracteristique({'nom': nom});
       _addCaracController.clear();
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -75,7 +75,7 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
   Future<void> _deleteCaracteristique(int id) async {
     try {
       await _api.deleteCaracteristique(id);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -91,7 +91,7 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
     try {
       await _api.createLieu({'nom': nom});
       _addLieuController.clear();
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +104,7 @@ class _AdminReferencesScreenState extends State<AdminReferencesScreen> with Sing
   Future<void> _deleteLieu(int id) async {
     try {
       await _api.deleteLieu(id);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

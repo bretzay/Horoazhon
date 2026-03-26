@@ -152,10 +152,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           style: AppTextStyles.textSm.w600.withColor(AppColors.slate400),
                         ),
                         const SizedBox(width: AppSpacing.space3),
+                        Icon(AppFormatters.typeIcon(bien['type'] as String?), size: 18, color: AppColors.slate500),
+                        const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            '${bien['type'] ?? ''} - ${bien['ville'] ?? ''}',
+                            bien['ville'] ?? '',
                             style: AppTextStyles.textMd.w500,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const Icon(Icons.chevron_right, size: 20, color: AppColors.slate400),

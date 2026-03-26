@@ -141,9 +141,12 @@ class _ClientDashboardScreenState extends State<ClientDashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${bien['type'] ?? ''} - ${bien['ville'] ?? ''}',
-                                  style: AppTextStyles.textMd.w600,
+                                Row(
+                                  children: [
+                                    Icon(AppFormatters.typeIcon(bien['type'] as String?), size: 18, color: AppColors.slate500),
+                                    const SizedBox(width: 6),
+                                    Expanded(child: Text(bien['ville'] ?? '', style: AppTextStyles.textMd.w600, overflow: TextOverflow.ellipsis)),
+                                  ],
                                 ),
                                 Text(
                                   AppFormatters.formatBienId(bien['id'] as int),

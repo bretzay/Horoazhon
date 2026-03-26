@@ -372,7 +372,13 @@ class _AdminBienCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text('${bien['type'] ?? ''} - ${bien['ville'] ?? ''}', style: AppTextStyles.textMd.w500),
+                    Row(
+                      children: [
+                        Icon(AppFormatters.typeIcon(bien['type'] as String?), size: 18, color: AppColors.slate500),
+                        const SizedBox(width: 6),
+                        Expanded(child: Text(bien['ville'] ?? '', style: AppTextStyles.textMd.w500, overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
                     if (prix != null)
                       Text(
                         isForSale

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
@@ -34,12 +35,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     _loadData();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool silent = false}) async {
     if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
     try {
       final data = await _api.getBienById(widget.bienId);
       if (mounted) setState(() { _bien = data; _isLoading = false; });
@@ -61,7 +64,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(isActif ? 'Bien archivé' : 'Bien désarchivé')),
         );
-        _loadData();
+        _loadData(silent: true);
       }
     } catch (e) {
       if (mounted) {
@@ -97,7 +100,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   context,
                   MaterialPageRoute(builder: (_) => AdminBienFormScreen(bienId: widget.bienId)),
                 );
-                _loadData();
+                _loadData(silent: true);
               },
             ),
           ],
@@ -199,10 +202,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         child: Text('Location', style: AppTextStyles.textSm.w600.withColor(AppColors.white)),
                       ),
                     const SizedBox(width: AppSpacing.space1),
-                    Text(
-                      bien['type'] ?? '',
-                      style: AppTextStyles.textSm.w500.withColor(AppColors.slate500),
-                    ),
+                    Icon(AppFormatters.typeIcon(bien['type'] as String?), size: 18, color: AppColors.slate500),
+                    const SizedBox(width: 4),
+                    Text(AppFormatters.typeLabel(bien['type'] as String?), style: AppTextStyles.textSm.w500.withColor(AppColors.slate500)),
                     const Spacer(),
                     Text(
                       AppFormatters.formatBienId(widget.bienId),
@@ -500,7 +502,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                           ),
                         );
                         if (result == true) {
-                          _loadData();
+                          _loadData(silent: true);
                         }
                       },
                       icon: const Icon(Icons.note_add_outlined),
@@ -569,7 +571,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     if (confirm != true) return;
     try {
       await _api.removeBienCaracteristique(widget.bienId, caracId);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
@@ -594,7 +596,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     if (confirm != true) return;
     try {
       await _api.removeBienLieu(widget.bienId, lieuId);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
@@ -630,7 +632,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final uniteCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -693,11 +695,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                             ? null
                             : () {
                                 if (!formKey.currentState!.validate()) return;
-                                final id = selectedId!;
-                                final valeur = valeurCtrl.text.trim();
-                                final unite = uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim();
-                                Navigator.pop(ctx);
-                                WidgetsBinding.instance.addPostFrameCallback((_) => _doAddCaracteristique(id, valeur, unite));
+                                Navigator.pop(ctx, {
+                                  'id': selectedId!,
+                                  'valeur': valeurCtrl.text.trim(),
+                                  'unite': uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim(),
+                                });
                               },
                         child: const Text('Ajouter'),
                       ),
@@ -710,8 +712,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         });
       },
     );
-    valeurCtrl.dispose();
-    uniteCtrl.dispose();
+    if (result != null) {
+      _doAddCaracteristique(result['id'] as int, result['valeur'] as String, result['unite'] as String?);
+    }
   }
 
   // --- Add lieu bottom sheet ---
@@ -742,7 +745,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     String locomotion = 'A_PIED';
     final formKey = GlobalKey<FormState>();
 
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -818,11 +821,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                             ? null
                             : () {
                                 if (!formKey.currentState!.validate()) return;
-                                final id = selectedId!;
-                                final mins = int.tryParse(minutesCtrl.text.trim()) ?? 0;
-                                final loco = locomotion;
-                                Navigator.pop(ctx);
-                                WidgetsBinding.instance.addPostFrameCallback((_) => _doAddLieu(id, mins, loco));
+                                Navigator.pop(ctx, {
+                                  'id': selectedId!,
+                                  'mins': int.tryParse(minutesCtrl.text.trim()) ?? 0,
+                                  'loco': locomotion,
+                                });
                               },
                         child: const Text('Ajouter'),
                       ),
@@ -835,7 +838,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         });
       },
     );
-    minutesCtrl.dispose();
+    if (result != null) {
+      _doAddLieu(result['id'] as int, result['mins'] as int, result['loco'] as String);
+    }
   }
 
   // --- Edit offer bottom sheet ---
@@ -854,7 +859,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
     final formKey = GlobalKey<FormState>();
 
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<_OfferSheetResult>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -983,18 +988,16 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     child: ElevatedButton(
                       onPressed: (!saleOn && !rentOn)
                           ? () {
-                              final data = _OfferSheetResult(
+                              Navigator.pop(ctx, _OfferSheetResult(
                                 saleOn: false, rentOn: false,
                                 prix: null, mensualite: null, caution: null, dureeMois: null,
                                 existingAchatId: achat?['id'] as int?,
                                 existingLocationId: location?['id'] as int?,
-                              );
-                              Navigator.pop(ctx);
-                              WidgetsBinding.instance.addPostFrameCallback((_) => _doUpdateOffers(data));
+                              ));
                             }
                           : () {
                               if (!formKey.currentState!.validate()) return;
-                              final data = _OfferSheetResult(
+                              Navigator.pop(ctx, _OfferSheetResult(
                                 saleOn: saleOn,
                                 rentOn: rentOn,
                                 prix: double.tryParse(prixCtrl.text.trim()),
@@ -1003,9 +1006,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                                 dureeMois: int.tryParse(dureeCtrl.text.trim()),
                                 existingAchatId: achat?['id'] as int?,
                                 existingLocationId: location?['id'] as int?,
-                              );
-                              Navigator.pop(ctx);
-                              WidgetsBinding.instance.addPostFrameCallback((_) => _doUpdateOffers(data));
+                              ));
                             },
                       child: const Text('Enregistrer'),
                     ),
@@ -1017,10 +1018,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         });
       },
     );
-    prixCtrl.dispose();
-    mensualiteCtrl.dispose();
-    cautionCtrl.dispose();
-    dureeCtrl.dispose();
+    if (result != null) {
+      _doUpdateOffers(result);
+    }
   }
 
   // --- Edit caractéristique bottom sheet ---
@@ -1031,7 +1031,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final uniteCtrl = TextEditingController(text: carac['unite'] as String? ?? '');
     final formKey = GlobalKey<FormState>();
 
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -1067,10 +1067,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            WidgetsBinding.instance.addPostFrameCallback((_) => _removeCaracteristique(caracId));
-                          },
+                          onPressed: () => Navigator.pop(ctx, {'action': 'delete'}),
                           style: OutlinedButton.styleFrom(foregroundColor: AppColors.slate500),
                           child: const Text('Supprimer'),
                         ),
@@ -1082,10 +1079,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               ? null
                               : () {
                                   if (!formKey.currentState!.validate()) return;
-                                  final valeur = valeurCtrl.text.trim();
-                                  final unite = uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim();
-                                  Navigator.pop(ctx);
-                                  WidgetsBinding.instance.addPostFrameCallback((_) => _doEditCaracteristique(caracId, valeur, unite));
+                                  Navigator.pop(ctx, {
+                                    'action': 'edit',
+                                    'valeur': valeurCtrl.text.trim(),
+                                    'unite': uniteCtrl.text.trim().isEmpty ? null : uniteCtrl.text.trim(),
+                                  });
                                 },
                           child: const Text('Enregistrer'),
                         ),
@@ -1099,8 +1097,12 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         });
       },
     );
-    valeurCtrl.dispose();
-    uniteCtrl.dispose();
+    if (result == null) return;
+    if (result['action'] == 'delete') {
+      _removeCaracteristique(caracId);
+    } else {
+      _doEditCaracteristique(caracId, result['valeur'] as String, result['unite'] as String?);
+    }
   }
 
   // --- Edit lieu bottom sheet ---
@@ -1111,7 +1113,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     String locomotion = lieu['typeLocomotion'] as String? ?? 'A_PIED';
     final formKey = GlobalKey<FormState>();
 
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -1160,10 +1162,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            WidgetsBinding.instance.addPostFrameCallback((_) => _removeLieu(lieuId));
-                          },
+                          onPressed: () => Navigator.pop(ctx, {'action': 'delete'}),
                           style: OutlinedButton.styleFrom(foregroundColor: AppColors.slate500),
                           child: const Text('Supprimer'),
                         ),
@@ -1175,10 +1174,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               ? null
                               : () {
                                   if (!formKey.currentState!.validate()) return;
-                                  final mins = int.tryParse(minutesCtrl.text.trim()) ?? 0;
-                                  final loco = locomotion;
-                                  Navigator.pop(ctx);
-                                  WidgetsBinding.instance.addPostFrameCallback((_) => _doEditLieu(lieuId, mins, loco));
+                                  Navigator.pop(ctx, {
+                                    'action': 'edit',
+                                    'mins': int.tryParse(minutesCtrl.text.trim()) ?? 0,
+                                    'loco': locomotion,
+                                  });
                                 },
                           child: const Text('Enregistrer'),
                         ),
@@ -1192,7 +1192,12 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         });
       },
     );
-    minutesCtrl.dispose();
+    if (result == null) return;
+    if (result['action'] == 'delete') {
+      _removeLieu(lieuId);
+    } else {
+      _doEditLieu(lieuId, result['mins'] as int, result['loco'] as String);
+    }
   }
 
   // --- Async edit helpers (remove + re-add) ---
@@ -1201,7 +1206,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     try {
       await _api.removeBienCaracteristique(widget.bienId, caracId);
       await _api.addBienCaracteristique(widget.bienId, caracId, valeur, unite: unite);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
@@ -1213,7 +1218,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     try {
       await _api.removeBienLieu(widget.bienId, lieuId);
       await _api.addBienLieu(widget.bienId, lieuId, minutes, typeLocomotion: locomotion);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
@@ -1224,7 +1229,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   Future<void> _doAddCaracteristique(int caracId, String valeur, String? unite) async {
     try {
       await _api.addBienCaracteristique(widget.bienId, caracId, valeur, unite: unite);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
@@ -1235,7 +1240,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   Future<void> _doAddLieu(int lieuId, int minutes, String locomotion) async {
     try {
       await _api.addBienLieu(widget.bienId, lieuId, minutes, typeLocomotion: locomotion);
-      _loadData();
+      _loadData(silent: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
@@ -1292,17 +1297,18 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         await _api.deleteLocation(currentLocationId);
       }
 
-      _loadData();
+      _loadData(silent: true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Offres mises à jour')),
         );
       }
     } catch (e) {
-      _loadData();
+      _loadData(silent: true);
       if (mounted) {
         final msg = e.toString();
-        final userMsg = msg.contains('contrats')
+        final is409 = (e is DioException && e.response?.statusCode == 409);
+        final userMsg = (is409 || msg.contains('contrats') || msg.contains('409'))
             ? 'Impossible de supprimer : des contrats sont liés à cette offre'
             : 'Erreur: ${msg.replaceAll('Exception: ', '')}';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userMsg)));

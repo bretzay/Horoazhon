@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class AppFormatters {
@@ -39,4 +40,28 @@ class AppFormatters {
   static String formatArea(double area) {
     return '${area.toStringAsFixed(0)} m\u00B2';
   }
+
+  // --- Property type icons & labels ---
+
+  static const _typeIcons = <String, IconData>{
+    'APPARTEMENT': Icons.apartment,
+    'MAISON': Icons.house,
+    'STUDIO': Icons.weekend,
+    'TERRAIN': Icons.terrain,
+  };
+
+  static const _typeLabels = <String, String>{
+    'APPARTEMENT': 'Appartement',
+    'MAISON': 'Maison',
+    'STUDIO': 'Studio',
+    'TERRAIN': 'Terrain',
+  };
+
+  static IconData typeIcon(String? type) =>
+      _typeIcons[type] ?? Icons.home_outlined;
+
+  static String typeLabel(String? type) =>
+      _typeLabels[type] ?? type ?? '';
+
+  static const typeKeys = ['APPARTEMENT', 'MAISON', 'STUDIO', 'TERRAIN'];
 }

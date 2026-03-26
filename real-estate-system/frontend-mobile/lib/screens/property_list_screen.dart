@@ -37,8 +37,6 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   bool? _forSale;
   bool? _forRent;
 
-  final _types = ['APPARTEMENT', 'MAISON', 'STUDIO', 'TERRAIN'];
-
   @override
   void initState() {
     super.initState();
@@ -241,8 +239,9 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
                 _loadData();
               },
             ),
-            ..._types.map((type) => ListTile(
-                  title: Text(type),
+            ...AppFormatters.typeKeys.map((type) => ListTile(
+                  leading: Icon(AppFormatters.typeIcon(type), size: 22),
+                  title: Text(AppFormatters.typeLabel(type)),
                   selected: _selectedType == type,
                   onTap: () {
                     Navigator.pop(ctx);
@@ -414,7 +413,10 @@ class _PropertyListCard extends StatelessWidget {
                               style: AppTextStyles.textSm.w600.withColor(AppColors.white),
                             ),
                           ),
-                        Flexible(child: Text(type, style: AppTextStyles.textSm.w400, overflow: TextOverflow.ellipsis)),
+                        Tooltip(
+                          message: AppFormatters.typeLabel(type),
+                          child: Icon(AppFormatters.typeIcon(type), size: 18, color: AppColors.slate500),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),

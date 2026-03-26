@@ -201,9 +201,12 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${bien['type'] ?? ''} - ${bien['ville'] ?? ''}',
-                                  style: AppTextStyles.textMd.w500,
+                                Row(
+                                  children: [
+                                    Icon(AppFormatters.typeIcon(bien['type'] as String?), size: 18, color: AppColors.slate500),
+                                    const SizedBox(width: 6),
+                                    Expanded(child: Text(bien['ville'] ?? '', style: AppTextStyles.textMd.w500, overflow: TextOverflow.ellipsis)),
+                                  ],
                                 ),
                                 if (prix != null)
                                   Text(
