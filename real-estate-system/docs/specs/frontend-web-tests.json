@@ -1,7 +1,7 @@
 {
   "$schema": "spec-tests-v1",
   "role": "frontend-web",
-  "lastUpdated": "2026-03-23T08:13:10Z",
+  "lastUpdated": "2026-03-23T12:35:26Z",
   "tests": [
     {
       "featureId": "fe-auth-login",
@@ -2303,8 +2303,8 @@
           "id": "fe-admin-contrat-create-cosigners",
           "title": "Contract create form includes cosigners section",
           "type": "browser",
-          "status": "failing",
-          "lastResult": "Contract creation form renders successfully but does not include a cosigners/cosignataires section — the form shows contract type selection and bien selector without any co-signer management UI",
+          "status": "passing",
+          "lastResult": null,
           "steps": [
             {
               "description": "Login",

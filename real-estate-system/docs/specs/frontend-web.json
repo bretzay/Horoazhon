@@ -1,7 +1,7 @@
 {
   "$schema": "spec-v2",
   "role": "frontend-web",
-  "lastUpdated": "2026-03-23T12:20:56Z",
+  "lastUpdated": "2026-03-23T12:35:36Z",
   "features": [
     {
       "title": "Login page",
@@ -116,9 +116,9 @@
       "title": "Admin contract pages (list, create, detail)",
       "description": "",
       "category": "admin",
-      "status": "failing",
+      "status": "passing",
       "proposedBy": "orchestrator",
-      "lastTestedAt": "2026-03-23T21:15:00Z",
+      "lastTestedAt": "2026-03-23T23:45:00Z",
       "lastTestedBy": "testing-agent"
     },
     {
