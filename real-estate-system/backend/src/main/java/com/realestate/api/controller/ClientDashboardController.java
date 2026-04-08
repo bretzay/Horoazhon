@@ -3,9 +3,13 @@ package com.realestate.api.controller;
 import com.realestate.api.dto.BienDTO;
 import com.realestate.api.dto.ClientDashboardDTO;
 import com.realestate.api.dto.ContratDTO;
+import com.realestate.api.dto.CreatePersonneRequest;
+import com.realestate.api.dto.PersonneDTO;
 import com.realestate.api.entity.Compte;
 import com.realestate.api.security.CompteUserDetailsService;
 import com.realestate.api.service.ClientDashboardService;
+import com.realestate.api.service.PersonneService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +28,7 @@ public class ClientDashboardController {
 
     private final ClientDashboardService dashboardService;
     private final CompteUserDetailsService userDetailsService;
+    private final PersonneService personneService;
 
     @GetMapping("/dashboard")
     public ResponseEntity<ClientDashboardDTO> getDashboard(Authentication authentication) {
@@ -54,6 +59,21 @@ public class ClientDashboardController {
         Pageable pageable = PageRequest.of(page, size);
         Page<BienDTO> properties = dashboardService.getClientProperties(personneId, pageable);
         return ResponseEntity.ok(properties);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<PersonneDTO> getProfile(Authentication authentication) {
+        Long personneId = getPersonneId(authentication);
+        return ResponseEntity.ok(personneService.findById(personneId));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<PersonneDTO> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody CreatePersonneRequest request
+    ) {
+        Long personneId = getPersonneId(authentication);
+        return ResponseEntity.ok(personneService.update(personneId, request));
     }
 
     private Long getPersonneId(Authentication authentication) {
