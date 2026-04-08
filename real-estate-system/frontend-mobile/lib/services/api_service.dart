@@ -284,6 +284,10 @@ class ApiService {
     await _dio.delete('/users/$id');
   }
 
+  Future<void> reactivateUtilisateur(int id) async {
+    await _dio.put('/users/$id/reactivate');
+  }
+
   // --- Locations ---
 
   Future<Map<String, dynamic>> getLocations({int page = 0, int size = 10}) async {
