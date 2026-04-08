@@ -279,6 +279,16 @@ class RealEstateApiClient
         return $this->put('/api/personnes/' . $id, $data);
     }
 
+    public function getClientProfile(): array
+    {
+        return $this->get('/api/client/profile');
+    }
+
+    public function updateClientProfile(array $data): array
+    {
+        return $this->put('/api/client/profile', $data);
+    }
+
     public function deletePersonne(int $id): void
     {
         $this->doDelete('/api/personnes/' . $id);
