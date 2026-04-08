@@ -2,7 +2,7 @@
 
 ## Base URL
 
-`http://localhost:8080/api`
+`http://192.168.154.253:8080/api` (production) / `http://localhost:8080/api` (local dev)
 
 ## Authentication
 
@@ -88,7 +88,7 @@ Create a client account and generate an activation token. Requires authenticatio
 ```json
 {
   "message": "Invitation envoyee",
-  "activationUrl": "http://localhost:8001/activate?token=uuid-token"
+  "activationUrl": "https://192.168.154.253:8001/activate?token=uuid-token"
 }
 ```
 

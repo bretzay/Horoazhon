@@ -459,7 +459,7 @@ export DB_PASSWORD=your_password
 java -jar target/real-estate-api-1.0.0.jar
 
 # 3. Test API endpoint
-curl http://localhost:8080/api/biens
+curl http://192.168.154.253:8080/api/biens
 
 # 4. Check logs for successful connection
 # Look for: "Flyway migration completed successfully"

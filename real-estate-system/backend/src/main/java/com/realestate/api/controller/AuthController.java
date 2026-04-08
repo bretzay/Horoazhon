@@ -5,6 +5,7 @@ import com.realestate.api.entity.Compte;
 import com.realestate.api.security.CompteUserDetailsService;
 import com.realestate.api.security.SecurityUtils;
 import com.realestate.api.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,8 +47,25 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("valid", valid));
     }
 
+    /**
+     * Resolves the frontend base URL by replacing the configured hostname with the
+     * actual host from the incoming request. This ensures links work in production
+     * where the server is accessed by IP, not localhost.
+     */
+    private String resolveFrontendBaseUrl(HttpServletRequest request) {
+        try {
+            URI configured = URI.create(frontendBaseUrl);
+            String requestHost = request.getServerName();
+            URI resolved = new URI(configured.getScheme(), null, requestHost,
+                    configured.getPort(), configured.getPath(), null, null);
+            return resolved.toString();
+        } catch (Exception e) {
+            return frontendBaseUrl;
+        }
+    }
+
     @PostMapping("/invite-client")
-    public ResponseEntity<Map<String, String>> inviteClient(@Valid @RequestBody InviteClientRequest request) {
+    public ResponseEntity<Map<String, String>> inviteClient(@Valid @RequestBody InviteClientRequest request, HttpServletRequest httpRequest) {
         // Manual role check: endpoint is under /api/auth/** (permitAll) so @PreAuthorize won't work
         if (!securityUtils.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "Authentication required"));
@@ -68,7 +87,7 @@ public class AuthController {
 
         String token = authService.createClientAccount(request.getPersonneId(), request.getEmail(), agenceId);
 
-        String activationUrl = frontendBaseUrl + "/activate?token=" + token;
+        String activationUrl = resolveFrontendBaseUrl(httpRequest) + "/activate?token=" + token;
 
         return ResponseEntity.ok(Map.of(
                 "message", "Invitation envoyee",
@@ -79,8 +98,8 @@ public class AuthController {
     // ========== Password Reset ==========
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        authService.requestPasswordReset(request.getEmail());
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request, HttpServletRequest httpRequest) {
+        authService.requestPasswordReset(request.getEmail(), resolveFrontendBaseUrl(httpRequest));
         // Always return success to avoid revealing which emails exist
         return ResponseEntity.ok(Map.of("message", "Si un compte existe avec cet email, un lien de reinitialisation a ete envoye."));
     }

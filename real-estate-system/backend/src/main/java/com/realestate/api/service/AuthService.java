@@ -11,7 +11,6 @@ import com.realestate.api.security.CompteUserDetailsService;
 import com.realestate.api.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,9 +26,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-    @Value("${app.frontend.base-url:https://localhost:8001}")
-    private String frontendBaseUrl;
 
     private final AuthenticationManager authenticationManager;
     private final CompteUserDetailsService userDetailsService;
@@ -117,7 +113,7 @@ public class AuthService {
 
     // ========== Password Reset ==========
 
-    public void requestPasswordReset(String email) {
+    public void requestPasswordReset(String email, String resolvedFrontendBaseUrl) {
         Compte compte = compteRepository.findByEmail(email)
                 .orElse(null);
 
@@ -132,7 +128,7 @@ public class AuthService {
         compteRepository.save(compte);
 
         // TODO: Send email with reset link containing this token
-        String resetUrl = frontendBaseUrl + "/reset-password?token=" + token;
+        String resetUrl = resolvedFrontendBaseUrl + "/reset-password?token=" + token;
         log.debug("Password reset link for {}: {}", email, resetUrl);
     }
 
