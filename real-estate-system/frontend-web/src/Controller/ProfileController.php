@@ -28,7 +28,10 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('admin_dashboard');
         }
 
-        $personne = $this->api->getPersonneById($personneId);
+        $isClient = ($session->get('user_role') === 'CLIENT');
+        $personne = $isClient
+            ? $this->api->getClientProfile()
+            : $this->api->getPersonneById($personneId);
 
         if ($request->isMethod('POST')) {
             try {
@@ -42,7 +45,11 @@ class ProfileController extends AbstractController
                     'rib' => $request->request->get('rib'),
                 ];
 
-                $this->api->updatePersonne($personneId, $data);
+                if ($isClient) {
+                    $this->api->updateClientProfile($data);
+                } else {
+                    $this->api->updatePersonne($personneId, $data);
+                }
 
                 // Update session with new name
                 if ($data['nom']) {

@@ -264,6 +264,16 @@ class RealEstateApiClient
         return $this->get('/api/personnes/' . $id);
     }
 
+    public function getClientProfile(): array
+    {
+        return $this->get('/api/client/profile');
+    }
+
+    public function updateClientProfile(array $data): array
+    {
+        return $this->put('/api/client/profile', $data);
+    }
+
     public function searchPersonnes(string $query): array
     {
         return $this->get('/api/personnes/search', ['q' => $query]);
